@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teman Nakes Prototype</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2E7D32;
+            --primary-light: #E8F5E9;
+            --accent: #FFC107;
+            --danger: #D32F2F;
+            --bg: #F5F5F5;
+            --card-radius: 16px;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        .phone-frame {
+            width: 375px;
+            height: 812px;
+            background: white;
+            box-shadow: 0 50px 100px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+            border: 8px solid #333;
+            border-radius: 40px;
+            margin: 20px;
+        }
+
+        /* Splash Screen */
+        #splash {
+            position: absolute;
+            inset: 0;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: opacity 0.5s ease;
+        }
+
+        /* Header */
+        header {
+            background: var(--primary);
+            color: white;
+            padding: 40px 20px 20px;
+            border-bottom-left-radius: 24px;
+            border-bottom-right-radius: 24px;
+        }
+
+        .search-box {
+            background: #f0f0f0;
+            border-radius: 12px;
+            padding: 12px;
+            margin-top: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-box input {
+            border: none;
+            background: none;
+            outline: none;
+            width: 100%;
+            padding-left: 10px;
+            font-size: 14px;
+        }
+
+        /* Medicine List */
+        #medicine-list {
+            padding: 20px;
+            height: 600px;
+            overflow-y: auto;
+        }
+
+        .med-card {
+            background: white;
+            padding: 15px;
+            border-radius: var(--card-radius);
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .med-card:active { transform: scale(0.98); }
+
+        .med-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--primary-light);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: var(--primary);
+        }
+
+        .med-info h3 { margin: 0; font-size: 16px; color: #333; }
+        .med-info p { margin: 4px 0 0; font-size: 12px; color: #777; }
+
+        /* Detail View */
+        #detail-view {
+            position: absolute;
+            inset: 0;
+            background: white;
+            z-index: 100;
+            display: none;
+            flex-direction: column;
+        }
+
+        .detail-header {
+            background: var(--primary);
+            color: white;
+            padding: 40px 20px 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .detail-header h2 { margin: 0 0 0 15px; font-size: 20px; }
+
+        .detail-content {
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .info-section {
+            display: flex;
+            background: white;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            overflow: hidden;
+            border-left: 5px solid var(--clr);
+        }
+
+        .section-body { padding: 15px; }
+        .section-body h4 { margin: 0 0 8px; font-size: 11px; color: var(--clr); text-transform: uppercase; letter-spacing: 1px; }
+        .section-body p { margin: 0; font-size: 14px; line-height: 1.5; color: #444; }
+
+        /* Calculator */
+        #calc-view {
+            position: absolute;
+            inset: 0;
+            background: white;
+            z-index: 200;
+            display: none;
+            padding: 20px;
+        }
+
+        .calc-input {
+            margin-bottom: 20px;
+        }
+
+        .calc-input label { display: block; font-size: 12px; color: #777; margin-bottom: 5px; }
+        .calc-input input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        .result-panel {
+            background: var(--primary-light);
+            padding: 24px;
+            border-radius: 16px;
+            text-align: center;
+            border: 1px solid #c8e6c9;
+        }
+
+        .result-panel h1 { margin: 10px 0; color: var(--primary); font-size: 32px; }
+
+        .warning-box {
+            background: #ffebee;
+            color: var(--danger);
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .fab {
+            position: absolute;
+            bottom: 30px;
+            right: 20px;
+            background: var(--primary);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 30px;
+            box-shadow: 0 8px 16px rgba(46,125,50,0.3);
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="phone-frame">
+    <!-- Splash -->
+    <div id="splash">
+        <svg width="60" height="60" viewBox="0 0 24 24" fill="white"><path d="M19 3H5c-1.1 0-1.99.9-1.99 2L3 19c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-1 11h-4v4h-4v-4H6v-4h4V6h4v4h4v4z"/></svg>
+        <h2 style="margin-top:20px">Teman Nakes</h2>
+        <p style="font-size:12px; opacity:0.8">Assistant Medis Offline</p>
+    </div>
+
+    <!-- Home -->
+    <div id="home">
+        <header>
+            <div style="font-weight:800; font-size:20px">Teman Nakes</div>
+            <div class="search-box">
+                <span>🔍</span>
+                <input type="text" id="search-input" placeholder="Cari 105+ obat (nama, dagang, kode)...">
+            </div>
+        </header>
+        <div id="medicine-list"></div>
+    </div>
+
+    <!-- Detail -->
+    <div id="detail-view">
+        <div class="detail-header">
+            <span onclick="closeDetail()" style="cursor:pointer; font-size:24px">⬅</span>
+            <h2 id="detail-title">Nama Obat</h2>
+        </div>
+        <div class="detail-content" id="detail-content"></div>
+        <div class="fab" onclick="openCalc()">
+            <span style="margin-right:10px">🖩</span> Kalkulator Dosis
+        </div>
+    </div>
+
+    <!-- Calculator -->
+    <div id="calc-view">
+        <div style="display:flex; align-items:center; margin-bottom:30px">
+            <span onclick="closeCalc()" style="cursor:pointer; font-size:24px">⬅</span>
+            <h2 style="margin-left:15px">Kalkulator Dosis</h2>
+        </div>
+        <div class="calc-input">
+            <label>Berat Badan (kg)</label>
+            <input type="number" id="weight-input" placeholder="0" oninput="calculateDose()">
+        </div>
+        <div class="calc-input">
+            <label>Alergi Pasien</label>
+            <input type="text" id="allergy-input" placeholder="Misal: Penisilin" oninput="calculateDose()">
+        </div>
+        
+        <div class="result-panel">
+            <div style="font-size:12px; color:#666">ESTIMASI DOSIS AMAN:</div>
+            <h1 id="calc-result">-</h1>
+            <div id="calc-freq" style="font-size:14px; font-weight:600"></div>
+        </div>
+        <div id="calc-warnings"></div>
+    </div>
+</div>
+
+<script>
+    let medicines = [];
+    let currentMed = null;
+
+    // Load Data
+    fetch('medicines_data.json')
+        .then(res => res.json())
+        .then(data => {
+            medicines = data;
+            renderList(medicines);
+            setTimeout(() => {
+                document.getElementById('splash').style.opacity = '0';
+                setTimeout(() => document.getElementById('splash').style.display = 'none', 500);
+            }, 1000);
+        });
+
+    function renderList(list) {
+        const container = document.getElementById('medicine-list');
+        container.innerHTML = list.map(m => `
+            <div class="med-card" onclick="showDetail(${m.id})">
+                <div class="med-icon">💊</div>
+                <div class="med-info">
+                    <h3>${m.nama_generik}</h3>
+                    <p>${m.nama_dagang || '-'} • ${m.golongan}</p>
+                </div>
+                <div style="margin-left:auto; color:#ccc">❯</div>
+            </div>
+        `).join('');
+    }
+
+    // Search Logic
+    document.getElementById('search-input').oninput = (e) => {
+        const q = e.target.value.toLowerCase();
+        const filtered = medicines.filter(m => 
+            m.nama_generik.toLowerCase().includes(q) || 
+            m.nama_dagang.toLowerCase().includes(q) || 
+            m.kode.toLowerCase().includes(q)
+        );
+        renderList(filtered);
+    };
+
+    function showDetail(id) {
+        const m = medicines.find(x => x.id === id);
+        currentMed = m;
+        document.getElementById('detail-title').innerText = m.nama_generik;
+        const content = document.getElementById('detail-content');
+        
+        const sections = [
+            { t: 'Indikasi', c: m.indikasi, color: '#2196F3' },
+            { t: 'Dosis Dewasa', c: m.dosis_dewasa, color: '#009688' },
+            { t: 'Dosis Anak', c: m.dosis_anak, color: '#FF9800' },
+            { t: 'Efek Samping', c: m.efek_samping, color: '#F44336' },
+            { t: 'Interaksi', c: m.interaksi, color: '#9C27B0' },
+            { t: 'Peringatan', c: m.peringatan, color: '#795548' }
+        ];
+
+        content.innerHTML = sections.map(s => s.c ? `
+            <div class="info-section" style="--clr: ${s.color}">
+                <div class="section-body">
+                    <h4>${s.t}</h4>
+                    <p>${s.c}</p>
+                </div>
+            </div>
+        ` : '').join('');
+
+        document.getElementById('detail-view').style.display = 'flex';
+    }
+
+    function closeDetail() { document.getElementById('detail-view').style.display = 'none'; }
+
+    function openCalc() { 
+        document.getElementById('calc-view').style.display = 'block'; 
+        document.getElementById('weight-input').value = '';
+        document.getElementById('allergy-input').value = '';
+        document.getElementById('calc-result').innerText = '-';
+        document.getElementById('calc-freq').innerText = '';
+        document.getElementById('calc-warnings').innerHTML = '';
+    }
+    function closeCalc() { document.getElementById('calc-view').style.display = 'none'; }
+
+    function calculateDose() {
+        const w = parseFloat(document.getElementById('weight-input').value);
+        const allergy = document.getElementById('allergy-input').value;
+        const warnings = document.getElementById('calc-warnings');
+        
+        if (!w || w <= 0) {
+            document.getElementById('calc-result').innerText = '-';
+            return;
+        }
+
+        // Simple range parser for prototype
+        let min = 10, max = 15;
+        const match = currentMed.dosis_anak.match(/(\d+)-(\d+)/);
+        if (match) {
+            min = parseInt(match[1]);
+            max = parseInt(match[2]);
+        }
+
+        const resMin = (w * min).toFixed(1);
+        const resMax = (w * max).toFixed(1);
+        
+        document.getElementById('calc-result').innerText = `${resMin} - ${resMax} ${currentMed.satuan || 'mg'}`;
+        document.getElementById('calc-freq').innerText = currentMed.frekuensi || '';
+
+        let warnHtml = '';
+        if (allergy) warnHtml += `<div class="warning-box">⚠️ PASIEN ALERGI: ${allergy}</div>`;
+        if (currentMed.peringatan) warnHtml += `<div class="warning-box" style="background:#fff3e0; color:#e65100">💡 INFO: ${currentMed.peringatan}</div>`;
+        
+        warnings.innerHTML = warnHtml;
+    }
+</script>
+
+</body>
+</html>
