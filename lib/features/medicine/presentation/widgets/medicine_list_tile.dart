@@ -22,7 +22,11 @@ class ProjectMedicineListTile extends ConsumerWidget {
       indicatorLabel = 'T';
     }
 
-    final isFavorite = ref.watch(favoritesProvider.notifier).isFavorite(medicine.id);
+    final isFavorite = ref.watch(favoritesProvider).when(
+      data: (list) => list.any((m) => m.id == medicine.id),
+      loading: () => false,
+      error: (_, __) => false,
+    );
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),

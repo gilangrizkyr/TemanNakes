@@ -63,43 +63,49 @@ class DatabaseHelper {
   // Search Medicines (FTS5 - ultra fast & typo-tolerant searching)
   Future<List<MedicineSimple>> searchMedicines(String query, {String? category, String? form}) async {
     final db = await instance.database;
-    
-    // FTS queries usually use MATCH
-    // If query is empty, fall back to basic select
-    if (query.trim().isEmpty && (category == null || category == 'Semua') && (form == null || form == 'Semua')) {
+    final hasCategory = category != null && category != 'Semua';
+    final hasForm = form != null && form != 'Semua';
+
+    // Empty query with no filters → show top 50 alphabetically
+    if (query.trim().isEmpty && !hasCategory && !hasForm) {
       final result = await db.query('obat', limit: 50, orderBy: 'nama_generik ASC');
       return result.map((json) => MedicineSimple.fromMap(json)).toList();
     }
 
+    // Filter-only (empty query but filters are active) → direct WHERE query
+    if (query.trim().isEmpty && (hasCategory || hasForm)) {
+      String whereClause = '1=1';
+      final List<dynamic> args = [];
+      if (hasCategory) { whereClause += ' AND golongan = ?'; args.add(category); }
+      if (hasForm) { whereClause += ' AND bentuk LIKE ?'; args.add('%$form%'); }
+      final result = await db.query('obat', where: whereClause, whereArgs: args, limit: 50, orderBy: 'nama_generik ASC');
+      return result.map((json) => MedicineSimple.fromMap(json)).toList();
+    }
+
+    // Full FTS search
     String sql = '''
       SELECT o.* FROM obat o
       JOIN obat_fts f ON o.id = f.id
       WHERE f.obat_fts MATCH ?
     ''';
-    
-    // FTS MATCH query format (prefix search for every word)
     String ftsQuery = query.trim().split(' ').map((e) => '$e*').join(' ');
     List<dynamic> args = [ftsQuery];
 
-    if (category != null && category != 'Semua') {
+    if (hasCategory) {
       sql += ' AND o.golongan = ?';
       args.add(category);
     }
-    
-    if (form != null && form != 'Semua') {
+    if (hasForm) {
       sql += ' AND o.bentuk LIKE ?';
       args.add('%$form%');
     }
-
-    // SUPREME RANKING: bm25 ensures the most relevant result (exact name match) is at the top
     sql += ' ORDER BY f.rank LIMIT 50';
 
     try {
       final result = await db.rawQuery(sql, args);
       return result.map((json) => MedicineSimple.fromMap(json)).toList();
     } catch (e) {
-      // Fallback to LIKE if FTS fails for some reason
-      AppLogger.warning("FTS search failed, falling back to LIKE: $e");
+      AppLogger.warning('FTS search failed, falling back to LIKE: $e');
       return _searchMedicinesLike(query, category: category, form: form);
     }
   }

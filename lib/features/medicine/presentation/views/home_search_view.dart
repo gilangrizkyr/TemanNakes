@@ -40,7 +40,7 @@ class _HomeSearchViewState extends ConsumerState<HomeSearchView> {
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
       appBar: AppBar(
-        title: const Text('TemanNakes Hyper-Supreme'),
+        title: const Text('TemanNakes'),
         actions: [
           _buildEmergencyToggle(),
           IconButton(
@@ -252,7 +252,9 @@ class _HomeSearchViewState extends ConsumerState<HomeSearchView> {
               contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 10),
+          _buildFilterRow(),
+          const SizedBox(height: 10),
           _buildStatsDashboard(),
         ],
       ),
@@ -266,6 +268,86 @@ class _HomeSearchViewState extends ConsumerState<HomeSearchView> {
         _buildStatItem('20,565', 'DATABASE', Icons.storage),
         _buildStatItem('BM25 v2', 'RANKING', Icons.leaderboard),
         _buildStatItem('OFFLINE', 'STATUS', Icons.cloud_off),
+      ],
+    );
+  }
+
+  Widget _buildFilterRow() {
+    final categoryFilter = ref.watch(categoryFilterProvider);
+    final formFilter = ref.watch(formFilterProvider);
+    const golonganOptions = ['Semua', 'Keras', 'Bebas', 'Terbatas', 'Narkotika', 'Psikotropika'];
+    const bentukOptions = ['Semua', 'Tablet', 'Kapsul', 'Sirup', 'Injeksi', 'Salep', 'Tetes', 'Inhaler'];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              const Padding(
+                padding: EdgeInsets.only(right: 8),
+                child: Text('Golongan:', style: TextStyle(color: Colors.white70, fontSize: 11, fontWeight: FontWeight.bold)),
+              ),
+              ...golonganOptions.map((g) {
+                final selected = categoryFilter == g;
+                return Padding(
+                  padding: const EdgeInsets.only(right: 6),
+                  child: GestureDetector(
+                    onTap: () => ref.read(categoryFilterProvider.notifier).state = g,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                      decoration: BoxDecoration(
+                        color: selected ? Colors.white : Colors.white.withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(g,
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: selected ? const Color(0xFF1B5E20) : Colors.white,
+                          )),
+                    ),
+                  ),
+                );
+              }),
+            ],
+          ),
+        ),
+        const SizedBox(height: 6),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              const Padding(
+                padding: EdgeInsets.only(right: 8),
+                child: Text('Bentuk:', style: TextStyle(color: Colors.white70, fontSize: 11, fontWeight: FontWeight.bold)),
+              ),
+              ...bentukOptions.map((b) {
+                final selected = formFilter == b;
+                return Padding(
+                  padding: const EdgeInsets.only(right: 6),
+                  child: GestureDetector(
+                    onTap: () => ref.read(formFilterProvider.notifier).state = b,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                      decoration: BoxDecoration(
+                        color: selected ? Colors.white : Colors.white.withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(b,
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: selected ? const Color(0xFF1B5E20) : Colors.white,
+                          )),
+                    ),
+                  ),
+                );
+              }),
+            ],
+          ),
+        ),
       ],
     );
   }
@@ -348,22 +430,25 @@ class _HomeSearchViewState extends ConsumerState<HomeSearchView> {
     showAboutDialog(
       context: context,
       applicationName: 'TemanNakes',
-      applicationVersion: '1.5.0 (Hyper-Supreme)',
+      applicationVersion: 'v2.0.0',
       applicationIcon: const Icon(Icons.medication_liquid, size: 40, color: Color(0xFF1B5E20)),
       children: [
-        const Text('TemanNakes adalah asisten klinis referensi obat offline yang dirancang untuk tenaga kesehatan Indonesia dengan presisi tinggi.'),
+        const Text('Asisten klinis referensi obat offline untuk tenaga kesehatan Indonesia.'),
         const SizedBox(height: 16),
         const Text('Pengembang:', style: TextStyle(fontWeight: FontWeight.bold)),
         InkWell(
           onTap: () => _launchGitHub(),
-          child: const Text('GilangRizky (github.com/gilangrizkyr)', style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold)),
+          child: const Text('GilangRizky — github.com/gilangrizkyr', style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold)),
         ),
         const SizedBox(height: 16),
-        const Text('Fitur Supreme:'),
-        const Text('• 20,565 Database Obat BPOM Terverifikasi'),
-        const Text('• Ultra-Fast FTS5 BM25 Ranked Search'),
-        const Text('• Pharmacological Class-Matrix v2.0 Checker'),
-        const Text('• Kalkulator Dosis BSA (Mosteller) & Renal Guard'),
+        const Text('Fitur Utama:', style: TextStyle(fontWeight: FontWeight.bold)),
+        const Text('• 20.565 Data Obat BPOM Terverifikasi'),
+        const Text('• FTS5 BM25 Ranked Search (<300ms)'),
+        const Text('• Pharmacological Class-Matrix Interaction Checker'),
+        const Text('• Kalkulator Dosis (BSA Mosteller + Age-Guard)'),
+        const Text('• Kalkulator Medis: 6 Modul Klinis Terintegrasi'),
+        const Text('• Favorit & Riwayat Pencarian Persisten'),
+        const Text('• 100% Offline — Tanpa Koneksi Internet'),
       ],
     );
   }

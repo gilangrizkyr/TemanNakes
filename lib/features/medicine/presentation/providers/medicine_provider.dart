@@ -30,10 +30,15 @@ final interactionMedicineListProvider = FutureProvider<List<MedicineSimple>>((re
   return await DatabaseHelper.instance.searchMedicines(query);
 });
 
-// Trending Medicines (Smart Suggestions)
+// Trending Medicines - each searched separately to avoid FTS AND-match returning zero
 final trendingMedicinesProvider = FutureProvider<List<MedicineSimple>>((ref) async {
-  // Return top 5 most common/essential generics as suggestions
-  return await DatabaseHelper.instance.searchMedicines('Amoxicillin Paracetamol Amlodipine Metformin');
+  const topDrugs = ['Amoxicillin', 'Paracetamol', 'Amlodipine', 'Metformin', 'Omeprazole'];
+  final results = <MedicineSimple>[];
+  for (final drug in topDrugs) {
+    final found = await DatabaseHelper.instance.searchMedicines(drug);
+    if (found.isNotEmpty) results.add(found.first);
+  }
+  return results;
 });
 
 // Medicine Detail Provider (Auto-disposing to save memory)
