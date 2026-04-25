@@ -7,6 +7,7 @@ class MedicineSimple {
   final String? golongan;
   final String? bentuk;
   final String? kelasTerapi;
+  final String? kategoriKehamilan;
 
   MedicineSimple({
     required this.id,
@@ -17,24 +18,28 @@ class MedicineSimple {
     this.golongan,
     this.bentuk,
     this.kelasTerapi,
+    this.kategoriKehamilan,
   });
 
   factory MedicineSimple.fromMap(Map<String, dynamic> map) {
     return MedicineSimple(
       id: map['id'],
-      namaGenerik: map['nama_generik'],
+      namaGenerik: map['nama_generik'] ?? '',
       namaDagang: map['nama_dagang'],
       kode: map['kode'],
       kodeNie: map['kode_nie'],
       golongan: map['golongan'],
       bentuk: map['bentuk'],
       kelasTerapi: map['kelas_terapi'],
+      kategoriKehamilan: map['kategori_kehamilan'],
     );
   }
 }
 
 class MedicineDetail {
   final int id;
+  final String namaGenerik;
+  final String? golongan;
   final String indikasi;
   final String? dosisDewasa;
   final String? dosisAnak;
@@ -47,9 +52,15 @@ class MedicineDetail {
   final String? peringatan;
   final String? edukasi;
   final String? kelasTerapi;
+  final String? kategoriKehamilan;
+  final String? penyesuaianGinjal;
+  final String? clinicalPearls;
+  final String? storage;
 
   MedicineDetail({
     required this.id,
+    required this.namaGenerik,
+    this.golongan,
     required this.indikasi,
     this.dosisDewasa,
     this.dosisAnak,
@@ -62,11 +73,17 @@ class MedicineDetail {
     this.peringatan,
     this.edukasi,
     this.kelasTerapi,
+    this.kategoriKehamilan,
+    this.penyesuaianGinjal,
+    this.clinicalPearls,
+    this.storage,
   });
 
   factory MedicineDetail.fromMap(Map<String, dynamic> map) {
     return MedicineDetail(
-      id: map['id_obat'],
+      id: map['id'],
+      namaGenerik: map['nama_generik'] ?? '',
+      golongan: map['golongan'],
       indikasi: map['indikasi'] ?? '',
       dosisDewasa: map['dosis_dewasa'],
       dosisAnak: map['dosis_anak'],
@@ -79,6 +96,10 @@ class MedicineDetail {
       peringatan: map['peringatan'],
       edukasi: map['edukasi'],
       kelasTerapi: map['kelas_terapi'],
+      kategoriKehamilan: map['kategori_kehamilan'],
+      penyesuaianGinjal: map['penyesuaian_ginjal'],
+      clinicalPearls: map['clinical_pearls'],
+      storage: map['storage'],
     );
   }
 }

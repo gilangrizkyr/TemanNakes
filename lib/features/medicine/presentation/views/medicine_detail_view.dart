@@ -63,16 +63,52 @@ class MedicineDetailView extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          _buildSpecialHeader(detail),
+          const SizedBox(height: 16),
           _buildInfoSection(context, 'Indikasi', detail.indikasi, Icons.info_outline, Colors.blue),
           _buildInfoSection(context, 'Dosis Dewasa', detail.dosisDewasa, Icons.person, Colors.teal),
           _buildInfoSection(context, 'Dosis Anak', detail.dosisAnak, Icons.child_care, Colors.orange),
+          _buildInfoSection(context, 'Mutiara Klinis (G-Pearls)', detail.clinicalPearls, Icons.tips_and_updates, Colors.purple),
+          _buildInfoSection(context, 'Penyesuaian Ginjal', detail.penyesuaianGinjal, Icons.health_and_safety, Colors.teal.shade700),
           _buildInfoSection(context, 'Efek Samping', detail.efekSamping, Icons.warning_amber_rounded, Colors.red),
           _buildInfoSection(context, 'Kontraindikasi', detail.kontraindikasi, Icons.block, Colors.redAccent),
-          _buildInfoSection(context, 'Interaksi', detail.interaksi, Icons.compare_arrows, Colors.purple),
+          _buildInfoSection(context, 'Interaksi', detail.interaksi, Icons.compare_arrows, Colors.deepPurple),
+          _buildInfoSection(context, 'Penyimpanan (Storage)', detail.storage, Icons.ac_unit, Colors.lightBlue),
           _buildInfoSection(context, 'Peringatan', detail.peringatan, Icons.priority_high, Colors.amber),
           _buildInfoSection(context, 'Overdosis', detail.overdosis, Icons.warning, Colors.red.shade900),
           _buildInfoSection(context, 'Edukasi', detail.edukasi, Icons.school_outlined, Colors.green),
-          const SizedBox(height: 80), // Space for FAB
+          const SizedBox(height: 80),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSpecialHeader(MedicineDetail detail) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.indigo.shade50,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.indigo.shade100),
+      ),
+      child: Row(
+        children: [
+          _buildBadge('PREGNANCY', detail.kategoriKehamilan ?? 'N/A', Colors.indigo),
+          const SizedBox(width: 12),
+          _buildBadge('CLASS', detail.kelasTerapi ?? '-', Colors.green),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBadge(String title, String value, Color color) {
+    return Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: color.withOpacity(0.6), letterSpacing: 1)),
+          const SizedBox(height: 4),
+          Text(value, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: color)),
         ],
       ),
     );

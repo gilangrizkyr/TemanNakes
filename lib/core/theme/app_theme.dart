@@ -10,10 +10,10 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       colorScheme: ColorScheme.fromSeed(
-        seedColor: primaryColor,
-        primary: primaryColor,
-        secondary: accentColor,
-        background: backgroundColor,
+        seedColor: const Color(0xFF2E7D32),
+        primary: const Color(0xFF2E7D32),
+        secondary: const Color(0xFF1B5E20),
+        surface: Colors.white,
       ),
       textTheme: GoogleFonts.outfitTextTheme(),
       appBarTheme: const AppBarTheme(

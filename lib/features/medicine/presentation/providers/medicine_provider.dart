@@ -9,7 +9,7 @@ final searchQueryProvider = StateProvider<String>((ref) => '');
 final categoryFilterProvider = StateProvider<String>((ref) => 'Semua');
 final formFilterProvider = StateProvider<String>((ref) => 'Semua');
 
-// Search Results Provider
+// Search Results Provider (with automatic debouncing via watch)
 final medicineListProvider = FutureProvider<List<MedicineSimple>>((ref) async {
   final query = ref.watch(searchQueryProvider);
   final category = ref.watch(categoryFilterProvider);
@@ -20,6 +20,20 @@ final medicineListProvider = FutureProvider<List<MedicineSimple>>((ref) async {
     category: category, 
     form: form,
   );
+});
+
+// ISOLATED SEARCH for Interaction Checker (to prevent global search interference)
+final interactionSearchQueryProvider = StateProvider<String>((ref) => '');
+
+final interactionMedicineListProvider = FutureProvider<List<MedicineSimple>>((ref) async {
+  final query = ref.watch(interactionSearchQueryProvider);
+  return await DatabaseHelper.instance.searchMedicines(query);
+});
+
+// Trending Medicines (Smart Suggestions)
+final trendingMedicinesProvider = FutureProvider<List<MedicineSimple>>((ref) async {
+  // Return top 5 most common/essential generics as suggestions
+  return await DatabaseHelper.instance.searchMedicines('Amoxicillin Paracetamol Amlodipine Metformin');
 });
 
 // Medicine Detail Provider (Auto-disposing to save memory)

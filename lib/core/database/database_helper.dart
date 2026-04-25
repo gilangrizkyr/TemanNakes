@@ -91,7 +91,8 @@ class DatabaseHelper {
       args.add('%$form%');
     }
 
-    sql += ' ORDER BY o.nama_generik ASC LIMIT 50';
+    // SUPREME RANKING: bm25 ensures the most relevant result (exact name match) is at the top
+    sql += ' ORDER BY f.rank LIMIT 50';
 
     try {
       final result = await db.rawQuery(sql, args);
@@ -126,11 +127,11 @@ class DatabaseHelper {
   Future<MedicineDetail?> getMedicineDetail(int id) async {
     final db = await instance.database;
 
-    final maps = await db.query(
-      'obat_detail',
-      where: 'id_obat = ?',
-      whereArgs: [id],
-    );
+    final maps = await db.rawQuery('''
+      SELECT o.*, d.* FROM obat o
+      JOIN obat_detail d ON o.id = d.id_obat
+      WHERE o.id = ?
+    ''', [id]);
 
     if (maps.isNotEmpty) {
       return MedicineDetail.fromMap(maps.first);
