@@ -20,6 +20,10 @@
 ## 🌟 Apa Itu TemanNakes?
 **TemanNakes Pinnacle V2.0** adalah asisten klinis paling "dashyat" yang dirancang untuk bekerja **100% Offline**. Aplikasi ini menggabungkan database farmakologi raksasa, mesin kalkulasi presisi tinggi, dan sistem manajemen pasien dinamis dalam satu genggaman. Ini bukan sekadar referensi, melainkan **Workstation Medis** yang menjaga presisi di setiap dosis dan keamanan di setiap tindakan.
 
+<p align="center">
+  <img src="home.jpeg" alt="Home Interface" width="600"/>
+</p>
+
 ---
 
 ## 🚀 Visi & Manfaat Klinis (The Impact)
@@ -49,6 +53,10 @@ Di lingkungan medis yang serba cepat, TemanNakes hadir untuk:
 ---
 
 ## 🏥 Skenario Penggunaan Praktis
+
+<p align="center">
+  <img src="menu.jpeg" alt="Clinical Menu" width="600"/>
+</p>
 
 1.  **Dinas di Puskesmas/RS**: Verifikasi cepat indikasi, efek samping, dan kategori keamanan obat untuk ibu hamil saat anamnesa.
 2.  **Penanganan Kritis (NICU/ICU)**: Mendapatkan dosis obat yang sangat kecil secara akurat, mencegah risiko toksisitas.
