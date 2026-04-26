@@ -22,8 +22,13 @@ class PatientRecord {
   String displayValue(String fieldId) {
     final v = values[fieldId];
     if (v == null) return '-';
+    // V5.4: Return raw string if already a string (Literal Fidelity)
+    if (v is String) return v.isEmpty ? '-' : v;
     if (v is bool) return v ? 'Ya' : 'Tidak';
     if (v is List) return v.join(', ');
+    if (v is double) {
+      return v % 1 == 0 ? v.toInt().toString() : v.toString();
+    }
     return v.toString();
   }
 

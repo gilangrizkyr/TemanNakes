@@ -3,11 +3,15 @@ import 'package:flutter/services.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import '../../features/medicine/domain/models/medicine.dart';
+import '../../features/patient_form/data/patient_form_db.dart';
 import '../utils/logger.dart';
 
 class DatabaseHelper {
   static final DatabaseHelper instance = DatabaseHelper._init();
   static Database? _database;
+  
+  // Update this constant whenever the asset DB structure or content significantly changes
+  static const int _currentAppVersion = 4; // Pinnacle V4.0 Certification
 
   DatabaseHelper._init();
 
@@ -27,35 +31,56 @@ class DatabaseHelper {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
 
-    // Check if the database exists
+    final userDb = PatientFormDb.instance;
+    final lastMigrated = int.tryParse(await userDb.getSetting('last_migrated_version') ?? '0') ?? 0;
     final exists = await databaseExists(path);
 
-    if (!exists) {
-      AppLogger.info("Creating new copy from asset");
+    bool shouldCopy = !exists || (lastMigrated < _currentAppVersion);
 
-      // Make sure the parent directory exists
+    if (shouldCopy) {
+      AppLogger.info("Syncing medicine database from assets (Version: $_currentAppVersion)");
+      
+      // PERFECTION AUDIT: Before overwriting, perform ONE-TIME migration of legacy favorites
+      if (exists && lastMigrated < 4) {
+        await _surgicalMigration(path);
+      }
+
       try {
         await Directory(dirname(path)).create(recursive: true);
       } catch (_) {}
 
-      // Copy from asset
       ByteData data = await rootBundle.load(join("assets/database", filePath));
       List<int> bytes = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
-      
-      // Write and flush the bytes written
       await File(path).writeAsBytes(bytes, flush: true);
+      
+      // Update migration flag
+      await userDb.saveSetting('last_migrated_version', _currentAppVersion.toString());
     } else {
-      AppLogger.info("Opening existing database");
+      AppLogger.info("Opening production-hardened medicine database");
     }
 
     return await openDatabase(
       path,
       version: 1,
-      onUpgrade: (db, oldVersion, newVersion) {
-        // Implement migrations here if needed
-        AppLogger.info("Upgrading DB from $oldVersion to $newVersion");
-      },
     );
+  }
+
+  /// One-time migration of favorites from legacy database to the new secure vault
+  Future<void> _surgicalMigration(String legacyPath) async {
+    AppLogger.info("Executing surgical migration of legacy favorites...");
+    try {
+      final legacyDb = await openDatabase(legacyPath, readOnly: true);
+      final maps = await legacyDb.query('favorit');
+      final ids = maps.map((m) => m['id_obat'] as int).toList();
+      
+      if (ids.isNotEmpty) {
+        await PatientFormDb.instance.importFavorites(ids);
+        AppLogger.info("Successfully migrated ${ids.length} favorites to the secure vault.");
+      }
+      await legacyDb.close();
+    } catch (e) {
+      AppLogger.warning("Surgical migration failed or table doesn't exist: $e");
+    }
   }
 
   // --- QUERY METHODS ---
@@ -173,29 +198,24 @@ class DatabaseHelper {
     return result.map((json) => MedicineSimple.fromMap(json)).toList();
   }
 
-  // --- FAVORITES (SQLite Persistent) ---
+  // --- FAVORITES (Redirected to Secure User Vault) ---
   Future<bool> isFavorite(int id) async {
-    final db = await instance.database;
-    final maps = await db.query('favorit', where: 'id_obat = ?', whereArgs: [id]);
-    return maps.isNotEmpty;
+    return await PatientFormDb.instance.isFavorite(id);
   }
 
   Future<void> toggleFavorite(int id) async {
-    final db = await instance.database;
-    final exists = await isFavorite(id);
-    if (exists) {
-      await db.delete('favorit', where: 'id_obat = ?', whereArgs: [id]);
-    } else {
-      await db.insert('favorit', {'id_obat': id});
-    }
+    await PatientFormDb.instance.toggleFavorite(id);
   }
 
   Future<List<MedicineSimple>> getFavorites() async {
     final db = await instance.database;
-    final result = await db.rawQuery('''
-      SELECT obat.* FROM obat 
-      JOIN favorit ON obat.id = favorit.id_obat
-    ''');
+    final ids = await PatientFormDb.instance.getFavoriteIds();
+    if (ids.isEmpty) return [];
+
+    final result = await db.query(
+      'obat',
+      where: 'id IN (${ids.join(',')})',
+    );
     return result.map((json) => MedicineSimple.fromMap(json)).toList();
   }
 

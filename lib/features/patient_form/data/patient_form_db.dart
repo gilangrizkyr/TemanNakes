@@ -43,6 +43,21 @@ class PatientFormDb {
       )
     ''');
 
+    // Settings table for internal version tracking & persistence
+    await db.execute('''
+      CREATE TABLE user_settings (
+        key TEXT PRIMARY KEY,
+        value TEXT
+      )
+    ''');
+
+    // Favorites table
+    await db.execute('''
+      CREATE TABLE favorites (
+        id_obat INTEGER PRIMARY KEY
+      )
+    ''');
+
     // Indexes for fast filtering
     await db.execute('CREATE INDEX idx_records_form ON patient_records(form_id)');
     await db.execute('CREATE INDEX idx_records_created ON patient_records(created_at DESC)');
@@ -152,5 +167,54 @@ class PatientFormDb {
     final result = await db.rawQuery(
       'SELECT COUNT(*) as c FROM patient_records WHERE form_id = ?', [formId]);
     return result.first['c'] as int? ?? 0;
+  }
+
+  // ─── FAVORITES VAULT ────────────────────────────────────────────────────────
+
+  Future<bool> isFavorite(int id) async {
+    final db = await database;
+    final maps = await db.query('favorites', where: 'id_obat = ?', whereArgs: [id]);
+    return maps.isNotEmpty;
+  }
+
+  Future<void> toggleFavorite(int id) async {
+    final db = await database;
+    final exists = await isFavorite(id);
+    if (exists) {
+      await db.delete('favorites', where: 'id_obat = ?', whereArgs: [id]);
+    } else {
+      await db.insert('favorites', {'id_obat': id}, conflictAlgorithm: ConflictAlgorithm.replace);
+    }
+  }
+
+  Future<List<int>> getFavoriteIds() async {
+    final db = await database;
+    final result = await db.query('favorites');
+    return result.map((row) => row['id_obat'] as int).toList();
+  }
+
+  /// Bulk insert during migration
+  Future<void> importFavorites(List<int> ids) async {
+    final db = await database;
+    await db.transaction((txn) async {
+      for (final id in ids) {
+        await txn.insert('favorites', {'id_obat': id}, conflictAlgorithm: ConflictAlgorithm.ignore);
+      }
+    });
+  }
+
+  // ─── SETTINGS VAULT ─────────────────────────────────────────────────────────
+
+  Future<String?> getSetting(String key) async {
+    final db = await database;
+    final maps = await db.query('user_settings', where: 'key = ?', whereArgs: [key]);
+    if (maps.isEmpty) return null;
+    return maps.first['value'] as String?;
+  }
+
+  Future<void> saveSetting(String key, String value) async {
+    final db = await database;
+    await db.insert('user_settings', {'key': key, 'value': value},
+        conflictAlgorithm: ConflictAlgorithm.replace);
   }
 }

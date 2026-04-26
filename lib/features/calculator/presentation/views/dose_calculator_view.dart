@@ -195,10 +195,21 @@ class _DoseCalculatorViewState extends State<DoseCalculatorView> {
     }
 
     final doseStringLower = doseString.toLowerCase();
-    final isDailySource = doseStringLower.contains('hari') || 
+    
+    // SEMANTIC REGEX V5.1: Tighter detection for Daily vs Single Dose
+    bool isDailySource = (doseStringLower.contains('hari') || 
                          doseStringLower.contains('day') || 
-                         doseStringLower.contains('24 jam') || 
-                         ((minDosePerKg != null && minDosePerKg >= 20) || (maxDosePerKg != null && maxDosePerKg >= 20));
+                         doseStringLower.contains('24 jam')) && 
+                         !doseStringLower.contains('per dosis') &&
+                         !doseStringLower.contains('tiap kali') &&
+                         !doseStringLower.contains('sekali beri');
+
+    // Fallback heuristic: high mg/kg usually implies daily total
+    if (!isDailySource && !doseStringLower.contains('sekali')) {
+      if ((minDosePerKg != null && minDosePerKg >= 20) || (maxDosePerKg != null && maxDosePerKg >= 20)) {
+        isDailySource = true;
+      }
+    }
 
     final freq = _parseFrequencyRange(widget.detail.frekuensi);
     final freqMin = freq['min']!;
@@ -223,40 +234,73 @@ class _DoseCalculatorViewState extends State<DoseCalculatorView> {
       _formulaDetail += '\nStatus: Dosis Sekali (Single Dose) → dikali frekuensi';
     }
 
-    // Volume conversion (ml)
+    // Volume conversion (ml) with UNIT NORMALIZATION GUARD
     final concMg = double.tryParse(_concentrationMgController.text.replaceAll(',', '.')) ?? 0;
     final concMl = double.tryParse(_concentrationMlController.text.replaceAll(',', '.')) ?? 0;
     String volumeStr = '';
+    
     if (concMg > 0 && concMl > 0) {
-      final volMin = (singleMin / concMg) * concMl;
-      final volMax = (singleMax / concMg) * concMl;
+      // Normalize dose to mg if it was mcg/ug before division
+      double normSingleMin = singleMin;
+      double normSingleMax = singleMax;
+      
+      final unitLower = detectedUnit.toLowerCase();
+      if (unitLower == 'mcg' || unitLower == 'ug') {
+        normSingleMin /= 1000;
+        normSingleMax /= 1000;
+      }
+
+      final volMin = (normSingleMin / concMg) * concMl;
+      final volMax = (normSingleMax / concMg) * concMl;
+      
       if (volMin == volMax) {
-        volumeStr = '${volMin.toStringAsFixed(1)} ml';
+        volumeStr = '${volMin.toStringAsFixed(volMin < 0.1 ? 2 : 1)} ml';
       } else {
-        volumeStr = '${volMin.toStringAsFixed(1)}-${volMax.toStringAsFixed(1)} ml';
+        volumeStr = '${volMin.toStringAsFixed(volMin < 0.1 ? 2 : 1)}-${volMax.toStringAsFixed(volMax < 0.1 ? 2 : 1)} ml';
       }
     }
 
     setState(() {
-      final unit = detectedUnit;
-      _volumeResult = volumeStr;
-      
-      // Ultra-Precision logic: 3 decimals for <0.1mg, 2 for <1mg, 1 otherwise
-      int precision = 1;
-      if (singleMin < 0.1 || singleMax < 0.1) {
-        precision = 3;
-      } else if (singleMin < 1 || singleMax < 1) {
-        precision = 2;
-      }
+    final unit = detectedUnit;
+    _volumeResult = volumeStr;
+    
+    // NEW: Clinical Proof Generation (The 'Why' behind the number)
+    String proof = '';
+    if (rangeM2Match != null || singleM2Match != null) {
+      proof = 'Rumus: BSA (${_calculateBSA().toStringAsFixed(2)} m²) × Dosis/$unit/m²';
+    } else if (rangeKgMatch != null || singleKgMatch != null) {
+      proof = 'Rumus: BB (${normalizedWeight.toStringAsFixed(1)} kg) × Dosis/$unit/kg';
+    } else {
+      proof = 'Rumus: Dosis Tetap (Fixed Dose)';
+    }
+
+    if (isDailySource) {
+      proof += '\nLangkah: Tarian Harian ÷ Frekuensi ($freqMax x sehari)';
+    } else {
+      proof += '\nLangkah: Dosis Sekali × Frekuensi ($freqMin x sehari)';
+    }
+
+    if (volumeStr.isNotEmpty) {
+      String normDetail = (detectedUnit.toLowerCase() == 'mcg' || detectedUnit.toLowerCase() == 'ug') ? ' [mcg→mg]' : '';
+      proof += '\nKonversi: (Dosis$normDetail ÷ $concMg mg) × $concMl ml = $volumeStr';
+    }
+
+    // Ultra-Precision logic: 3 decimals for <0.1mg, 2 for <1mg, 1 otherwise
+    int precision = 1;
+    if (singleMin < 0.1 || singleMax < 0.1) {
+      precision = 3;
+    } else if (singleMin < 1 || singleMax < 1) {
+      precision = 2;
+    }
 
       if (finalMin <= 0) {
         _result = 'Hitung Manual';
-        _formulaDetail = 'Data dosis tidak terbaca secara otomatis atau BB belum diisi.';
       } else if (singleMin == singleMax) {
         _result = '${singleMin.toStringAsFixed(precision)} $unit';
       } else {
-        _result = '${singleMin.toStringAsFixed(precision)} - ${singleMax.toStringAsFixed(precision)} $unit';
+        _result = '${singleMin.toStringAsFixed(precision)}-${singleMax.toStringAsFixed(precision)} $unit';
       }
+      _calculationMetadata = proof;
 
       String tddDisplay = '';
       if (totalMin == totalMax) {
@@ -488,7 +532,22 @@ class _DoseCalculatorViewState extends State<DoseCalculatorView> {
             crossAxisAlignment: CrossAxisAlignment.baseline,
             textBaseline: TextBaseline.alphabetic,
             children: [
-              Expanded(child: Text(_result, style: const TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold))),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(_result, style: const TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold)),
+                    if (_calculationMetadata.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: Text(
+                          _calculationMetadata,
+                          style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 11, fontStyle: FontStyle.italic),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
               IconButton(
                 visualDensity: VisualDensity.compact,
                 icon: const Icon(Icons.copy, color: Colors.white30, size: 16),

@@ -9,6 +9,17 @@ class RenalLogic {
     required double serumCreatinine, // mg/dL
     required bool isFemale,
   }) {
+    if (serumCreatinine <= 0 || weightKg <= 0 || ageyears <= 0) {
+      return CalculationResult(
+        moduleName: 'Ginjal & Obat',
+        label: 'Klirens Kreatinin (CrCl)',
+        value: '0',
+        unit: 'mL/menit',
+        interpretation: '⚠️ Input tidak valid',
+        severity: CalcSeverity.danger,
+        steps: ['Kreatinin, Berat, dan Usia harus > 0'],
+      );
+    }
     double clcr = ((140 - ageyears) * weightKg) / (72 * serumCreatinine);
     if (isFemale) clcr *= 0.85;
 
@@ -55,6 +66,17 @@ class RenalLogic {
     required double ageyears,
     required bool isFemale,
   }) {
+    if (serumCreatinine <= 0 || ageyears <= 0) {
+      return CalculationResult(
+        moduleName: 'Ginjal & Obat',
+        label: 'eGFR (CKD-EPI 2021)',
+        value: '0',
+        unit: 'mL/mnt/1.73m²',
+        interpretation: '⚠️ Input tidak valid',
+        severity: CalcSeverity.danger,
+        steps: ['Kreatinin dan Usia harus > 0'],
+      );
+    }
     final k = isFemale ? 0.7 : 0.9;
     final alpha = isFemale ? -0.241 : -0.302;
     const factor = 142.0;

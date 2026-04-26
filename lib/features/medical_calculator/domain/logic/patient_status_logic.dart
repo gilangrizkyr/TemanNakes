@@ -5,6 +5,17 @@ class PatientStatusLogic {
     required double weightKg,
     required double heightCm,
   }) {
+    if (heightCm <= 0 || weightKg <= 0) {
+      return CalculationResult(
+        moduleName: 'Status Pasien',
+        label: 'BMI',
+        value: '0',
+        unit: 'kg/m²',
+        interpretation: '⚠️ Input tidak valid',
+        severity: CalcSeverity.danger,
+        steps: ['Tinggi dan Berat harus > 0'],
+      );
+    }
     final heightM = heightCm / 100;
     final bmi = weightKg / (heightM * heightM);
 
@@ -61,6 +72,17 @@ class PatientStatusLogic {
     required double systolic,
     required double diastolic,
   }) {
+    if (systolic <= 0 || diastolic <= 0 || systolic < diastolic) {
+      return CalculationResult(
+        moduleName: 'Status Pasien',
+        label: 'MAP (Mean Arterial Pressure)',
+        value: '0',
+        unit: 'mmHg',
+        interpretation: '⚠️ Tekanan darah tidak valid (Sistolik < Diastolik)',
+        severity: CalcSeverity.danger,
+        steps: ['Sistolik harus lebih besar dari Diastolik.'],
+      );
+    }
     // MAP = (SBP + 2×DBP) / 3
     final map = (systolic + 2 * diastolic) / 3;
 

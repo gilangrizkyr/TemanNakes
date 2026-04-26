@@ -7,6 +7,17 @@ class InfusLogic {
     required double durationMinutes,
     required int dropFactor, // 20 = makro, 60 = mikro
   }) {
+    if (durationMinutes <= 0 || volumeMl <= 0) {
+      return CalculationResult(
+        moduleName: 'Infus',
+        label: 'Kecepatan Tetesan',
+        value: '0',
+        unit: 'tetes/menit',
+        interpretation: '⚠️ Input volume atau durasi tidak valid',
+        severity: CalcSeverity.danger,
+        steps: ['Durasi atau volume harus lebih dari 0.'],
+      );
+    }
     final dropsPerMin = (volumeMl * dropFactor) / durationMinutes;
     final rounded = dropsPerMin.round();
 
@@ -49,6 +60,17 @@ class InfusLogic {
     required double volumeMl,
     required double durationHours,
   }) {
+    if (durationHours <= 0 || volumeMl <= 0) {
+      return CalculationResult(
+        moduleName: 'Infus',
+        label: 'Kecepatan Infus Pump',
+        value: '0',
+        unit: 'mL/jam',
+        interpretation: '⚠️ Input tidak valid',
+        severity: CalcSeverity.danger,
+        steps: ['Durasi harus lebih dari 0 jam'],
+      );
+    }
     final ratePerHour = volumeMl / durationHours;
     final rounded = ratePerHour.round();
 

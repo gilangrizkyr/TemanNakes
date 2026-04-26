@@ -3,6 +3,17 @@ import '../models/calc_result.dart';
 class ObstetricLogic {
   /// Hitung HPL (Hari Perkiraan Lahir) — Naegele Rule
   static CalculationResult calcHPL({required DateTime hpht}) {
+    if (hpht.isAfter(DateTime.now())) {
+      return CalculationResult(
+        moduleName: 'Kebidanan',
+        label: 'HPL (Naegele)',
+        value: '-',
+        unit: '',
+        interpretation: '⚠️ Tanggal HPHT tidak valid (masa depan)',
+        severity: CalcSeverity.danger,
+        steps: ['HPHT tidak boleh melebihi tanggal hari ini.'],
+      );
+    }
     // Naegele: +1 tahun, -3 bulan, +7 hari
     final hpl = DateTime(
       hpht.year + (hpht.month > 3 ? 1 : 0),
@@ -94,6 +105,17 @@ class ObstetricLogic {
     required double fundalHeightCm,
     required bool isEngaged, // kepala sudah masuk panggul
   }) {
+    if (fundalHeightCm <= 0) {
+      return CalculationResult(
+        moduleName: 'Kebidanan',
+        label: 'Taksiran Berat Janin (TBJ)',
+        value: '0',
+        unit: 'gram',
+        interpretation: '⚠️ Input TFU tidak valid',
+        severity: CalcSeverity.danger,
+        steps: ['TFU harus lebih dari 0 cm'],
+      );
+    }
     // Johnson: TBJ = (TFU - n) × 155 gram
     // n = 12 jika kepala blm masuk, 11 jika sudah masuk
     final n = isEngaged ? 11 : 12;

@@ -174,10 +174,13 @@ class _PatientInputViewState extends ConsumerState<PatientInputView> {
 
   Widget _buildNumber(FormFieldConfig f) {
     return TextFormField(
-      initialValue: _values[f.id]?.toString(),
+      initialValue: _values[f.id]?.toString() ?? '',
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
       decoration: _decoration(f),
-      onChanged: (v) => _values[f.id] = double.tryParse(v) ?? v,
+      onChanged: (v) {
+        // V5.4: Store raw literal string instead of parsing to double
+        _values[f.id] = v;
+      },
     );
   }
 
