@@ -122,33 +122,50 @@ class ProjectMedicineListTile extends ConsumerWidget {
       context: context,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (context) {
-        final detailAsync = ref.watch(medicineDetailProvider(medicine.id));
-        return Container(
-          padding: const EdgeInsets.all(32),
-          decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
-          child: detailAsync.when(
-            data: (detail) => Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        // Must use Consumer inside builder — parent ref can't watch inside a separate widget sub-tree
+        return Consumer(
+          builder: (context, innerRef, _) {
+            final detailAsync = innerRef.watch(medicineDetailProvider(medicine.id));
+            return Container(
+              padding: const EdgeInsets.all(32),
+              decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+              child: detailAsync.when(
+                data: (detail) => Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(medicine.namaGenerik, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
-                    Text(medicine.kodeNie ?? '', style: TextStyle(color: Colors.blue.shade700, fontWeight: FontWeight.bold, fontSize: 12)),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(medicine.namaGenerik,
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                        ),
+                        Text(medicine.kodeNie ?? '',
+                            style: TextStyle(color: Colors.blue.shade700, fontWeight: FontWeight.bold, fontSize: 12)),
+                      ],
+                    ),
+                    const Divider(height: 32),
+                    _buildQuickRow('INDIKASI', detail?.indikasi ?? '-'),
+                    const SizedBox(height: 16),
+                    _buildQuickRow('DOSIS DEWASA', detail?.dosisDewasa ?? '-'),
+                    const SizedBox(height: 16),
+                    _buildQuickRow('PREGNANCY', detail?.kategoriKehamilan ?? '?', color: Colors.indigo),
+                    const SizedBox(height: 16),
+                    _buildQuickRow('KELAS TERAPI', detail?.kelasTerapi ?? '-', color: Colors.green),
                   ],
                 ),
-                const Divider(height: 32),
-                _buildQuickRow('INDIKASI', detail?.indikasi ?? '-'),
-                const SizedBox(height: 16),
-                _buildQuickRow('DOSIS', detail?.dosisDewasa ?? '-'),
-                const SizedBox(height: 16),
-                _buildQuickRow('PREGNANCY', detail?.kategoriKehamilan ?? '?', color: Colors.indigo),
-              ],
-            ),
-            loading: () => const LinearProgressIndicator(),
-            error: (_, __) => const Text('Gagal memuat info.'),
-          ),
+                loading: () => const Padding(
+                  padding: EdgeInsets.all(32),
+                  child: Center(child: CircularProgressIndicator()),
+                ),
+                error: (_, __) => const Padding(
+                  padding: EdgeInsets.all(32),
+                  child: Text('Gagal memuat info.', textAlign: TextAlign.center),
+                ),
+              ),
+            );
+          },
         );
       },
     );

@@ -41,7 +41,8 @@ class _ObstetricState extends ConsumerState<ObstetricModuleView>
     final picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now().subtract(const Duration(days: 84)),
-      firstDate: DateTime(2020),
+      // Allow up to 2 years ago (appropriate for HPHT clinical range)
+      firstDate: DateTime.now().subtract(const Duration(days: 730)),
       lastDate: DateTime.now(),
       helpText: 'Pilih HPHT (Hari Pertama Haid Terakhir)',
     );

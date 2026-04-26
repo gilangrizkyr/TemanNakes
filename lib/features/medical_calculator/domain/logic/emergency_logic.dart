@@ -3,9 +3,10 @@ import '../models/calc_result.dart';
 /// GCS & APGAR scoring logic
 class EmergencyLogic {
   static CalculationResult calcGCS({
-    required int eye,    // 1–4
-    required int verbal, // 1–5
-    required int motor,  // 1–6
+    required int eye,
+    required int verbal,
+    required int motor,
+    bool isPediatric = false,
   }) {
     final total = eye + verbal + motor;
 
@@ -13,37 +14,37 @@ class EmergencyLogic {
     CalcSeverity severity;
 
     if (total >= 14) {
-      interpretation = '✅ Ringan (${total == 15 ? "Sadar Penuh" : "Hampir Normal"})';
+      interpretation = '✅ Sadar Penuh / Ringan';
       severity = CalcSeverity.normal;
     } else if (total >= 9) {
-      interpretation = '⚠️ Sedang – Perlu pemantauan';
+      interpretation = '⚠️ Somnolen / Sedang';
       severity = CalcSeverity.warning;
     } else if (total >= 4) {
-      interpretation = '🔴 Berat – Gangguan kesadaran serius';
+      interpretation = '🔴 Sopor-Koma / Berat';
       severity = CalcSeverity.danger;
     } else {
-      interpretation = '🔴 Sangat Berat (3=Koma terdalam)';
+      interpretation = '🔴 Koma Terdalam (GCS 3)';
       severity = CalcSeverity.danger;
     }
 
     return CalculationResult(
       moduleName: 'Emergency',
-      label: 'GCS (Glasgow Coma Scale)',
+      label: isPediatric ? 'Pediatric GCS' : 'Adult GCS',
       value: total.toString(),
       unit: '/ 15',
       interpretation: interpretation,
       severity: severity,
       steps: [
-        'E (Eye Opening): $eye/4',
-        'V (Verbal Response): $verbal/5',
-        'M (Motor Response): $motor/6',
-        'Total GCS: $eye + $verbal + $motor = $total',
-        '14–15: Ringan | 9–13: Sedang | 3–8: Berat',
+        'E (Eye): $eye/4',
+        'V (Verbal): $verbal/5',
+        'M (Motor): $motor/6',
+        'Total: $total',
+        'Interpretasi: ${isPediatric ? "Skala Pediatrik (Bayi/Anak)" : "Skala Dewasa"}',
       ],
       extras: {
         'Eye Opening (E)': '$eye/4 – ${_gcsEye(eye)}',
-        'Verbal (V)': '$verbal/5 – ${_gcsVerbal(verbal)}',
-        'Motor (M)': '$motor/6 – ${_gcsMotor(motor)}',
+        'Verbal (V)': '$verbal/5 – ${isPediatric ? _gcsVerbalPediatric(verbal) : _gcsVerbal(verbal)}',
+        'Motor (M)': '$motor/6 – ${isPediatric ? _gcsMotorPediatric(motor) : _gcsMotor(motor)}',
       },
     );
   }
@@ -63,12 +64,29 @@ class EmergencyLogic {
     _ => 'Tidak ada',
   };
 
+  static String _gcsVerbalPediatric(int v) => switch (v) {
+    5 => 'Mengoceh (Babbles)',
+    4 => 'Menangis, rewel (Irritable cry)',
+    3 => 'Menangis terhadap nyeri',
+    2 => 'Mengerang terhadap nyeri',
+    _ => 'Tidak ada',
+  };
+
   static String _gcsMotor(int v) => switch (v) {
     6 => 'Ikuti perintah',
     5 => 'Lokalisasi nyeri',
-    4 => 'Fleksi norml (withdraw)',
-    3 => 'Fleksi abnormal',
-    2 => 'Ekstensi abnormal',
+    4 => 'Fleksi normal (withdraw)',
+    3 => 'Fleksi abnormal (dekortikasi)',
+    2 => 'Ekstensi abnormal (deserebrasi)',
+    _ => 'Tidak ada',
+  };
+
+  static String _gcsMotorPediatric(int v) => switch (v) {
+    6 => 'Gerakan spontan normal',
+    5 => 'Menarik kalau disentuh',
+    4 => 'Menarik terhadap nyeri',
+    3 => 'Fleksi abnormal (dekortikasi)',
+    2 => 'Ekstensi abnormal (deserebrasi)',
     _ => 'Tidak ada',
   };
 

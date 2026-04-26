@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/models/medicine.dart';
 import '../providers/medicine_provider.dart';
@@ -16,11 +18,13 @@ class MedicineDetailView extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(medicine.namaGenerik),
+        backgroundColor: const Color(0xFF004D40),
+        foregroundColor: Colors.white,
         actions: [
           IconButton(
             icon: Icon(
               isFavorite ? Icons.favorite : Icons.favorite_border,
-              color: isFavorite ? Colors.red : null,
+              color: isFavorite ? Colors.redAccent : Colors.white,
             ),
             onPressed: () {
               ref.read(favoritesProvider.notifier).toggleFavorite(medicine.id);
@@ -59,14 +63,17 @@ class MedicineDetailView extends ConsumerWidget {
 
   Widget _buildDetailContent(BuildContext context, MedicineDetail detail) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildSpecialHeader(detail),
-          const SizedBox(height: 16),
-          _buildInfoSection(context, 'Indikasi', detail.indikasi, Icons.info_outline, Colors.blue),
-          _buildInfoSection(context, 'Dosis Dewasa', detail.dosisDewasa, Icons.person, Colors.teal),
+          _buildQuickActions(context, detail),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Column(
+              children: [
+                _buildInfoSection(context, 'Indikasi', detail.indikasi, Icons.info_outline, Colors.blue),
+                _buildInfoSection(context, 'Dosis Dewasa', detail.dosisDewasa, Icons.person, Colors.teal),
           _buildInfoSection(context, 'Dosis Anak', detail.dosisAnak, Icons.child_care, Colors.orange),
           _buildInfoSection(context, 'Mutiara Klinis (G-Pearls)', detail.clinicalPearls, Icons.tips_and_updates, Colors.purple),
           _buildInfoSection(context, 'Penyesuaian Ginjal', detail.penyesuaianGinjal, Icons.health_and_safety, Colors.teal.shade700),
@@ -76,8 +83,32 @@ class MedicineDetailView extends ConsumerWidget {
           _buildInfoSection(context, 'Penyimpanan (Storage)', detail.storage, Icons.ac_unit, Colors.lightBlue),
           _buildInfoSection(context, 'Peringatan', detail.peringatan, Icons.priority_high, Colors.amber),
           _buildInfoSection(context, 'Overdosis', detail.overdosis, Icons.warning, Colors.red.shade900),
-          _buildInfoSection(context, 'Edukasi', detail.edukasi, Icons.school_outlined, Colors.green),
-          const SizedBox(height: 80),
+                _buildInfoSection(context, 'Edukasi', detail.edukasi, Icons.school_outlined, Colors.green),
+                const SizedBox(height: 24),
+                Center(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade100,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.verified_user_outlined, size: 14, color: Colors.grey),
+                        const SizedBox(width: 8),
+                        Text(
+                          'DATA TERVERIFIKASI PINNACLE V2.0',
+                          style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: Colors.grey.shade600, letterSpacing: 1),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 80),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -85,17 +116,53 @@ class MedicineDetailView extends ConsumerWidget {
 
   Widget _buildSpecialHeader(MedicineDetail detail) {
     return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.indigo.shade50,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.indigo.shade100),
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+      decoration: const BoxDecoration(
+        color: Color(0xFF004D40),
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(24)),
       ),
       child: Row(
         children: [
-          _buildBadge('PREGNANCY', detail.kategoriKehamilan ?? 'N/A', Colors.indigo),
+          _buildBadge('PREGNANCY', detail.kategoriKehamilan ?? 'N/A', Colors.amber),
           const SizedBox(width: 12),
-          _buildBadge('CLASS', detail.kelasTerapi ?? '-', Colors.green),
+          _buildBadge('CLASS', detail.kelasTerapi ?? '-', Colors.white),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildQuickActions(BuildContext context, MedicineDetail detail) {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Row(
+        children: [
+          Expanded(
+            child: ElevatedButton.icon(
+              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => DoseCalculatorView(medicine: medicine, detail: detail))),
+              icon: const Icon(Icons.calculate_outlined),
+              label: const Text('Kalkulasi Dosis'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF00796B),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          IconButton(
+            onPressed: () {
+              Clipboard.setData(ClipboardData(text: '${medicine.namaGenerik}\nDosis: ${detail.dosisDewasa}\nIndikasi: ${detail.indikasi}'));
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Detail obat disalin ke clipboard')));
+            },
+            icon: const Icon(Icons.copy_all, color: Color(0xFF00796B)),
+            style: IconButton.styleFrom(
+              backgroundColor: Colors.teal.withOpacity(0.1),
+              padding: const EdgeInsets.all(12),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+          ),
         ],
       ),
     );
@@ -108,14 +175,15 @@ class MedicineDetailView extends ConsumerWidget {
         children: [
           Text(title, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: color.withOpacity(0.6), letterSpacing: 1)),
           const SizedBox(height: 4),
-          Text(value, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: color)),
+          Text(value, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: color, overflow: TextOverflow.ellipsis)),
         ],
       ),
     );
   }
 
   Widget _buildInfoSection(BuildContext context, String title, String? content, IconData icon, Color color) {
-    if (content == null || content.isEmpty) return const SizedBox.shrink();
+    final bool isEmpty = content == null || content.isEmpty || content == '-';
+    
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
@@ -137,7 +205,7 @@ class MedicineDetailView extends ConsumerWidget {
             children: [
               Container(
                 width: 6,
-                color: color,
+                color: isEmpty ? Colors.grey.shade400 : color,
               ),
               Expanded(
                 child: Padding(
@@ -146,30 +214,44 @@ class MedicineDetailView extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Icon(icon, color: color, size: 18),
-                          const SizedBox(width: 8),
-                          Text(
-                            title.toUpperCase(),
-                            style: TextStyle(
-                              fontWeight: FontWeight.w900,
-                              fontSize: 12,
-                              color: color.withOpacity(0.8),
-                              letterSpacing: 1.1,
-                            ),
+                          Row(
+                            children: [
+                              Icon(icon, color: isEmpty ? Colors.grey : color, size: 18),
+                              const SizedBox(width: 8),
+                              Text(
+                                title.toUpperCase(),
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w900,
+                                  fontSize: 12,
+                                  color: isEmpty ? Colors.grey : color.withOpacity(0.8),
+                                  letterSpacing: 1.1,
+                                ),
+                              ),
+                            ],
                           ),
+                          if (isEmpty) 
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                              decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: BorderRadius.circular(8)),
+                              child: const Text('DATA KHUSUS/KOSONG', style: TextStyle(fontSize: 8, color: Colors.grey, fontWeight: FontWeight.bold)),
+                            ),
                         ],
                       ),
                       const SizedBox(height: 8),
-                      Text(
-                        content,
-                        style: const TextStyle(
-                          fontSize: 15,
-                          height: 1.5,
-                          color: Colors.black87,
-                          fontWeight: FontWeight.w500,
+                      if (isEmpty)
+                        _buildEmptyContent(context, title)
+                      else
+                        Text(
+                          content,
+                          style: const TextStyle(
+                            fontSize: 15,
+                            height: 1.5,
+                            color: Colors.black87,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
-                      ),
                     ],
                   ),
                 ),
@@ -178,6 +260,30 @@ class MedicineDetailView extends ConsumerWidget {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildEmptyContent(BuildContext context, String title) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Informasi belum tersedia di database luring atau obat ini mungkin memiliki indikasi/kontraindikasi khusus.',
+          style: TextStyle(fontSize: 13, color: Colors.grey, fontStyle: FontStyle.italic),
+        ),
+        const SizedBox(height: 8),
+        TextButton.icon(
+          onPressed: () => launchUrl(Uri.parse('https://cekbpom.pom.go.id/'), mode: LaunchMode.externalApplication),
+          icon: const Icon(Icons.open_in_new, size: 14),
+          label: const Text('VERIFIKASI BPOM ONLINE', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+          style: TextButton.styleFrom(
+            padding: EdgeInsets.zero,
+            minimumSize: Size.zero,
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            foregroundColor: Colors.indigo,
+          ),
+        ),
+      ],
     );
   }
 }

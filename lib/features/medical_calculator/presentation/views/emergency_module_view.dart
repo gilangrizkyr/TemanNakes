@@ -15,6 +15,7 @@ class _EmergencyState extends ConsumerState<EmergencyModuleView>
   late TabController _tabCtrl;
 
   // GCS
+  bool _isPediatric = false;
   int _gcsE = 4, _gcsV = 5, _gcsM = 6;
   CalculationResult? _gcsResult;
 
@@ -38,7 +39,7 @@ class _EmergencyState extends ConsumerState<EmergencyModuleView>
   }
 
   void _calcGCS() => setState(() {
-    _gcsResult = EmergencyLogic.calcGCS(eye: _gcsE, verbal: _gcsV, motor: _gcsM);
+    _gcsResult = EmergencyLogic.calcGCS(eye: _gcsE, verbal: _gcsV, motor: _gcsM, isPediatric: _isPediatric);
   });
 
   void _calcAPGAR() => setState(() {
@@ -80,18 +81,40 @@ class _EmergencyState extends ConsumerState<EmergencyModuleView>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('Kategori Pasien:', style: TextStyle(fontWeight: FontWeight.bold)),
+              Row(
+                children: [
+                  const Text('Dewasa', style: TextStyle(fontSize: 12)),
+                  Switch(
+                    value: _isPediatric,
+                    activeColor: accent,
+                    onChanged: (v) => setState(() { _isPediatric = v; _calcGCS(); }),
+                  ),
+                  const Text('Bayi/Anak', style: TextStyle(fontSize: 12)),
+                ],
+              ),
+            ],
+          ),
+          const Divider(height: 32),
           _scoreRow('E – Eye Opening', _gcsE, 1, 4,
               ['Tidak ada', 'Nyeri', 'Suara', 'Spontan'],
               (v) => setState(() { _gcsE = v; _calcGCS(); }), accent),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
           _scoreRow('V – Verbal', _gcsV, 1, 5,
-              ['Tidak ada', 'Suara', 'Kata', 'Bingung', 'Orientasi'],
+              _isPediatric 
+                ? ['Tidak ada', 'Mengerang (nyeri)', 'Menangis (nyeri)', 'Rewel', 'Mengoceh (Babbles)']
+                : ['Tidak ada', 'Suara', 'Kata-kata', 'Bingung', 'Orientasi baik'],
               (v) => setState(() { _gcsV = v; _calcGCS(); }), accent),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
           _scoreRow('M – Motor', _gcsM, 1, 6,
-              ['Tidak ada', 'Ekstensi', 'Fleksi abn', 'Fleksi normal', 'Lokalisasi', 'Ikuti Perintah'],
+              _isPediatric
+                ? ['Tidak ada', 'Ekstensi abn', 'Fleksi abn', 'Menarik (nyeri)', 'Menarik (sentuh)', 'Spontan normal']
+                : ['Tidak ada', 'Ekstensi abn', 'Fleksi abn', 'Fleksi withdraw', 'Lokalisasi', 'Ikuti Perintah'],
               (v) => setState(() { _gcsM = v; _calcGCS(); }), accent),
-          const SizedBox(height: 24),
+          const SizedBox(height: 32),
           if (_gcsResult != null) CalcResultCard(result: _gcsResult!),
         ],
       ),
@@ -109,7 +132,7 @@ class _EmergencyState extends ConsumerState<EmergencyModuleView>
           _apgarRow('G – Grimace (Refleks)', _apG, (v) => setState(() { _apG = v; _calcAPGAR(); }), accent),
           _apgarRow('A – Activity (Tonus)', _apAc, (v) => setState(() { _apAc = v; _calcAPGAR(); }), accent),
           _apgarRow('R – Respiration (Nafas)', _apR, (v) => setState(() { _apR = v; _calcAPGAR(); }), accent),
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
           Row(
             children: [
               const Text('Menit ke:', style: TextStyle(fontWeight: FontWeight.bold)),
@@ -136,26 +159,27 @@ class _EmergencyState extends ConsumerState<EmergencyModuleView>
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+            Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, letterSpacing: 0.5)),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-              decoration: BoxDecoration(color: accent, borderRadius: BorderRadius.circular(8)),
-              child: Text('$value', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(color: accent, borderRadius: BorderRadius.circular(12)),
+              child: Text('$value', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
             ),
           ],
         ),
-        const SizedBox(height: 8),
         Slider(
           value: value.toDouble(),
           min: min.toDouble(),
           max: max.toDouble(),
           divisions: max - min,
           activeColor: accent,
-          label: labels[value - min],
           onChanged: (v) => onChanged(v.toInt()),
         ),
-        Text(labels[value - min],
-            style: TextStyle(color: accent, fontSize: 12, fontStyle: FontStyle.italic)),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          child: Text(labels[value - min],
+              style: TextStyle(color: accent, fontSize: 12, fontWeight: FontWeight.bold, fontStyle: FontStyle.italic)),
+        ),
       ],
     );
   }

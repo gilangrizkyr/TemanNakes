@@ -76,13 +76,14 @@ class DatabaseHelper {
     if (query.trim().isEmpty && (hasCategory || hasForm)) {
       String whereClause = '1=1';
       final List<dynamic> args = [];
-      if (hasCategory) { whereClause += ' AND golongan = ?'; args.add(category); }
+      // Use LIKE so 'Antibiotik' matches 'Antibiotik Kuat', 'Antibiotik Carbapenem' etc.
+      if (hasCategory) { whereClause += ' AND golongan LIKE ?'; args.add('%$category%'); }
       if (hasForm) { whereClause += ' AND bentuk LIKE ?'; args.add('%$form%'); }
       final result = await db.query('obat', where: whereClause, whereArgs: args, limit: 50, orderBy: 'nama_generik ASC');
       return result.map((json) => MedicineSimple.fromMap(json)).toList();
     }
 
-    // Full FTS search
+    // Full FTS search — prioritize exact starts-with on nama_generik
     String sql = '''
       SELECT o.* FROM obat o
       JOIN obat_fts f ON o.id = f.id
@@ -92,14 +93,17 @@ class DatabaseHelper {
     List<dynamic> args = [ftsQuery];
 
     if (hasCategory) {
-      sql += ' AND o.golongan = ?';
-      args.add(category);
+      sql += ' AND o.golongan LIKE ?';
+      // Use LIKE so partial matches work (e.g. 'Antibiotik' matches all sub-classes)
+      args.add('%$category%');
     }
     if (hasForm) {
       sql += ' AND o.bentuk LIKE ?';
       args.add('%$form%');
     }
-    sql += ' ORDER BY f.rank LIMIT 50';
+    // Order: exact prefix match on nama_generik first, then BM25 rank
+    sql += ' ORDER BY CASE WHEN LOWER(o.nama_generik) LIKE LOWER(?) THEN 0 ELSE 1 END, f.rank LIMIT 50';
+    args.add('${query.trim()}%');
 
     try {
       final result = await db.rawQuery(sql, args);
@@ -124,6 +128,12 @@ class DatabaseHelper {
       whereClause += ' AND bentuk LIKE ?';
       whereArgs.add('%$form%');
     }
+    
+    // Add golongan and kelas_terapi to search scope in fallback
+    if (query.isNotEmpty) {
+       whereClause += ' OR golongan LIKE ? OR kelas_terapi LIKE ?';
+       whereArgs.addAll(['%$query%', '%$query%']);
+    }
 
     final result = await db.query('obat', where: whereClause, whereArgs: whereArgs, limit: 50, orderBy: 'nama_generik ASC');
     return result.map((json) => MedicineSimple.fromMap(json)).toList();
@@ -135,7 +145,7 @@ class DatabaseHelper {
 
     final maps = await db.rawQuery('''
       SELECT o.*, d.* FROM obat o
-      JOIN obat_detail d ON o.id = d.id_obat
+      LEFT JOIN obat_detail d ON o.id = d.id_obat
       WHERE o.id = ?
     ''', [id]);
 

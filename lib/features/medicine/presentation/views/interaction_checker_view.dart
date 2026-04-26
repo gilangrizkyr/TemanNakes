@@ -52,44 +52,79 @@ class _InteractionCheckerTrayState extends State<InteractionCheckerTray> {
     final interactionMatrix = {
       'ACEI': {
         'NSAID': {'txt': 'Risiko penurunan fungsi ginjal & penurunan efek antihipertensi.', 'sev': 'Moderate'},
-        'Kalium': {'txt': 'Risiko Hiperkalemia berat.', 'sev': 'Major'}
+        'KALIUM': {'txt': 'Risiko Hiperkalemia berat.', 'sev': 'Major'},
+        'SPIRONOLAKTON': {'txt': 'Risiko Hiperkalemia berat.', 'sev': 'Major'},
       },
       'ARB': {
         'NSAID': {'txt': 'Risiko penurunan fungsi ginjal.', 'sev': 'Moderate'},
-        'Kalium': {'txt': 'Risiko Hiperkalemia.', 'sev': 'Major'}
+        'KALIUM': {'txt': 'Risiko Hiperkalemia.', 'sev': 'Major'},
+        'SPIRONOLAKTON': {'txt': 'Risiko Hiperkalemia.', 'sev': 'Major'},
       },
-      'Beta Blocker': {
-        'Insulin': {'txt': 'Menutupi gejala hipoglikemia.', 'sev': 'Moderate'},
-        'Epinefrin': {'txt': 'Risiko kenaikan tekanan darah mendadak.', 'sev': 'Major'}
+      'BETA BLOCKER': {
+        'INSULIN': {'txt': 'Menutupi gejala hipoglikemia (palpitasi/tremor).', 'sev': 'Moderate'},
+        'EPINEFRIN': {'txt': 'Risiko kenaikan tekanan darah mendadak (Hipertensi Paroksimal).', 'sev': 'Major'},
+        'VERAPAMIL': {'txt': 'Risiko Bradikardia berat & AV Block.', 'sev': 'Major'},
       },
       'NSAID': {
-        'Warfarin': {'txt': 'Peningkatan risiko perdarahan hebat.', 'sev': 'Major'},
-        'Aspirin': {'txt': 'Menurunkan efek perlindungan jantung Aspirin.', 'sev': 'Moderate'},
-        'Steroid': {'txt': 'Risiko tinggi perlukaan lambung/tukak.', 'sev': 'Major'}
+        'WARFARIN': {'txt': 'Peningkatan risiko perdarahan hebat (Synergy Antiplatelet).', 'sev': 'Major'},
+        'ASPIRIN': {'txt': 'Menurunkan efek perlindungan jantung Aspirin.', 'sev': 'Moderate'},
+        'STEROID': {'txt': 'Risiko tinggi perlukaan lambung/tukak/perforasi.', 'sev': 'Major'},
+        'METOTREKSAT': {'txt': 'Meningkatkan toksisitas Metotreksat.', 'sev': 'Major'},
       },
       'PPI': {
-        'Clopidogrel': {'txt': 'Menurunkan efektivitas antithrombotik Clopidogrel.', 'sev': 'Moderate'},
-        'Ketokonazol': {'txt': 'Menurunkan penyerapan obat antijamur.', 'sev': 'Minor'}
+        'CLOPIDOGREL': {'txt': 'Menurunkan efektivitas antithrombotik Clopidogrel (CYP2C19 inhib).', 'sev': 'Moderate'},
+        'KETOKONAZOL': {'txt': 'Menurunkan penyerapan obat antijamur.', 'sev': 'Minor'},
       },
-      'Antasida': {
-        'Tetrasiklin': {'txt': 'Menurunkan penyerapan antibiotik.', 'sev': 'Moderate'},
-        'Ciprofloxacin': {'txt': 'Menurunkan penyerapan antibiotik.', 'sev': 'Moderate'}
+      'ANTASIDA': {
+        'TETRASIKLIN': {'txt': 'Kelasi: Menurunkan penyerapan antibiotik secara drastis.', 'sev': 'Major'},
+        'CIPROFLOXACIN': {'txt': 'Kelasi: Menurunkan penyerapan antibiotik.', 'sev': 'Moderate'},
+        'LEVO-TIROKSIN': {'txt': 'Menurunkan penyerapan hormon tiroid.', 'sev': 'Moderate'},
       },
-      'Sildenafil': {
-        'Nitrat': {'txt': 'KONTRAINDIKASI: Penurunan tekanan darah drastis (Fatal).', 'sev': 'Major'}
+      'DIGOXIN': {
+        'FUROSEMID': {'txt': 'Hipokalemia meningkatkan risiko toksisitas Digoxin.', 'sev': 'Major'},
+        'AMIODARON': {'txt': 'Meningkatkan kadar Digoxin plasma (Risiko Aritmia).', 'sev': 'Major'},
+        'VERAPAMIL': {'txt': 'Meningkatkan risiko Bradikardia & kadar Digoxin.', 'sev': 'Major'},
+      },
+      'WARFARIN': {
+        'AMIODARON': {'txt': 'Meningkatkan efek antikoagulan (Risiko Perdarahan Berat).', 'sev': 'Major'},
+        'ERITROMISIN': {'txt': 'Meningkatkan efek antikoagulan.', 'sev': 'Major'},
+      },
+      'STATIN': {
+        'ERITROMISIN': {'txt': 'Peningkatan risiko Rhabdomyolysis.', 'sev': 'Major'},
+        'KLARITROMISIN': {'txt': 'Peningkatan risiko Rhabdomyolysis.', 'sev': 'Major'},
+        'GEMFIBROZIL': {'txt': 'Risiko tinggi miopati/rhabdomyolysis.', 'sev': 'Major'},
+      },
+      'SILDENAFIL': {
+        'NITRAT': {'txt': 'KONTRAINDIKASI VITAL: Hipotensi berat yang mematikan.', 'sev': 'Major'},
+        'NITROGLISERIN': {'txt': 'KONTRAINDIKASI VITAL: Hipotensi berat yang mematikan.', 'sev': 'Major'},
       },
     };
+
+    String normalizeClass(String? raw) {
+      if (raw == null) return '';
+      final r = raw.toUpperCase();
+      if (r.contains('ACE-INHIBITOR') || r.contains('ACE INHIBITOR')) return 'ACEI';
+      if (r.contains('NSAID') || r.contains('NON STEROID') || r.contains('ANTI-INFLAMASI NON-STEROID')) return 'NSAID';
+      if (r.contains('PPI') || r.contains('PUMP INHIBITOR')) return 'PPI';
+      if (r.contains('BETA-BLOCKER') || r.contains('BETA BLOCKER')) return 'BETA BLOCKER';
+      if (r.contains('CALCIUM CHANNEL')) return 'CCB';
+      if (r.contains('HMG-COA') || r.contains('STATIN')) return 'STATIN';
+      if (r.contains('ALDOSTERON') || r.contains('SPIRONOLAKTON')) return 'SPIRONOLAKTON';
+      if (r.contains('DIGITALIS') || r.contains('GLIKOSIDA JANTUNG')) return 'DIGOXIN';
+      if (r.contains('STEROID') || r.contains('KORTIKOSTEROID')) return 'STEROID';
+      return r;
+    }
 
     // Scan for interactions
     for (var i = 0; i < details.length; i++) {
       final current = details[i];
-      final currentClass = current.kelasTerapi?.trim() ?? current.golongan?.trim() ?? '';
+      final currentClass = normalizeClass(current.kelasTerapi ?? current.golongan);
       
       for (var j = 0; j < details.length; j++) {
         if (i == j) continue;
         final other = details[j];
         final otherName = other.namaGenerik.toLowerCase();
-        final otherClass = other.kelasTerapi?.trim() ?? other.golongan?.trim() ?? '';
+        final otherClass = normalizeClass(other.kelasTerapi ?? other.golongan);
         
         // 1. Direct Keyword Check (Safety Fallback)
         if (current.interaksi?.toLowerCase().contains(otherName) ?? false) {

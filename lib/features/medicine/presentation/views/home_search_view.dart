@@ -8,6 +8,7 @@ import 'interaction_checker_view.dart';
 import 'category_views.dart';
 import '../../../favorites/presentation/views/favorites_view.dart';
 import '../../../medical_calculator/presentation/views/medical_calc_home.dart';
+import '../../../patient_form/presentation/views/patient_form_home.dart';
 import '../widgets/medicine_list_tile.dart';
 
 class HomeSearchView extends ConsumerStatefulWidget {
@@ -19,15 +20,50 @@ class HomeSearchView extends ConsumerStatefulWidget {
 
 class _HomeSearchViewState extends ConsumerState<HomeSearchView> {
   bool _isEmergencyMode = false;
+  final _searchCtrl = TextEditingController();
+  final _searchStopwatch = Stopwatch();
+  int _searchLatencyMs = 0;
+
+  @override
+  void dispose() {
+    _searchCtrl.dispose();
+    super.dispose();
+  }
+
+  void _setSearch(String value) {
+    _searchCtrl.text = value;
+    _searchCtrl.selection = TextSelection.fromPosition(
+      TextPosition(offset: value.length),
+    );
+    _onSearchChanged(value);
+  }
+
+  void _onSearchChanged(String value) {
+    _searchStopwatch.reset();
+    _searchStopwatch.start();
+    ref.read(searchQueryProvider.notifier).state = value;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        setState(() {
+          _searchStopwatch.stop();
+          _searchLatencyMs = _searchStopwatch.elapsedMilliseconds;
+        });
+      }
+    });
+  }
 
   void _toggleEmergencyMode() {
     setState(() {
       _isEmergencyMode = !_isEmergencyMode;
     });
     if (_isEmergencyMode) {
-      ref.read(searchQueryProvider.notifier).state = "Adrenaline Atropine Epinephrine Dextrose Diazepam";
+      // Emergency: filter by 'Darurat' golongan — exact match from DB
+      ref.read(categoryFilterProvider.notifier).state = 'Darurat';
+      ref.read(formFilterProvider.notifier).state = 'Semua';
+      _setSearch('');
     } else {
-      ref.read(searchQueryProvider.notifier).state = "";
+      ref.read(categoryFilterProvider.notifier).state = 'Semua';
+      _setSearch('');
     }
   }
 
@@ -57,7 +93,10 @@ class _HomeSearchViewState extends ConsumerState<HomeSearchView> {
           Expanded(
             child: medicineList.when(
               data: (list) {
-                if (list.isEmpty && ref.read(searchQueryProvider).isEmpty) {
+                final query = ref.watch(searchQueryProvider);
+                if (list.isEmpty && query.isEmpty &&
+                    ref.watch(categoryFilterProvider) == 'Semua' &&
+                    ref.watch(formFilterProvider) == 'Semua') {
                   return _buildHistorySection();
                 }
                 if (list.isEmpty) return _buildNoResults();
@@ -85,6 +124,7 @@ class _HomeSearchViewState extends ConsumerState<HomeSearchView> {
                   Icon(Icons.medication_liquid, size: 50, color: Colors.white),
                   SizedBox(height: 10),
                   Text('TemanNakes', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+                  Text('V2.0 Pinnacle Clinical', style: TextStyle(color: Colors.white70, fontSize: 10, letterSpacing: 1.2)),
                 ],
               ),
             ),
@@ -127,6 +167,15 @@ class _HomeSearchViewState extends ConsumerState<HomeSearchView> {
               Navigator.push(context, MaterialPageRoute(builder: (context) => const MedicalCalcHome()));
             },
           ),
+          ListTile(
+            leading: const Icon(Icons.assignment, color: Color(0xFF0277BD)),
+            title: const Text('Form Pasien'),
+            subtitle: const Text('Data & Laporan Otomatis', style: TextStyle(fontSize: 11)),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const PatientFormHome()));
+            },
+          ),
           const Divider(),
           ListTile(
             leading: const Icon(Icons.info_outline),
@@ -137,7 +186,24 @@ class _HomeSearchViewState extends ConsumerState<HomeSearchView> {
             },
           ),
           const Spacer(),
-          const Text('Developed by GilangRizky', style: TextStyle(color: Colors.grey, fontSize: 10)),
+          RichText(
+            text: const TextSpan(
+              children: [
+                TextSpan(
+                  text: 'Developed by ',
+                  style: TextStyle(color: Colors.grey, fontSize: 10),
+                ),
+                TextSpan(
+                  text: 'GilangRizky',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
           const SizedBox(height: 16),
         ],
       ),
@@ -152,17 +218,39 @@ class _HomeSearchViewState extends ConsumerState<HomeSearchView> {
   }
 
   Widget _buildNoResults() {
+    final query = ref.watch(searchQueryProvider);
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.search_off_rounded, size: 80, color: Colors.grey.shade300),
-          const SizedBox(height: 16),
-          Text(
-            'Tidak ada hasil untuk "${ref.watch(searchQueryProvider)}"',
-            style: TextStyle(color: Colors.grey.shade600, fontSize: 16),
-          ),
-        ],
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 40),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.search_off_rounded, size: 80, color: Colors.grey.shade300),
+            const SizedBox(height: 16),
+            Text(
+              'Tidak ada hasil untuk "$query"',
+              style: TextStyle(color: Colors.grey.shade600, fontSize: 16, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Pastikan ejaan benar atau gunakan nama generik. Jika obat baru saja rilis, silakan cek database online.',
+              style: TextStyle(color: Colors.grey, fontSize: 12),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            OutlinedButton.icon(
+              onPressed: () => launchUrl(Uri.parse('https://cekbpom.pom.go.id/'), mode: LaunchMode.externalApplication),
+              icon: const Icon(Icons.open_in_new, size: 18),
+              label: const Text('CEK BPOM ONLINE'),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: Colors.green.shade700,
+                side: BorderSide(color: Colors.green.shade700),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -205,7 +293,7 @@ class _HomeSearchViewState extends ConsumerState<HomeSearchView> {
               child: ActionChip(
                 label: Text(m.namaGenerik, style: const TextStyle(fontSize: 11)),
                 onPressed: () {
-                  ref.read(searchQueryProvider.notifier).state = m.namaGenerik;
+                  _setSearch(m.namaGenerik);
                   ref.read(searchHistoryProvider.notifier).add(m.namaGenerik);
                 },
                 backgroundColor: Colors.green.shade50,
@@ -238,11 +326,14 @@ class _HomeSearchViewState extends ConsumerState<HomeSearchView> {
       child: Column(
         children: [
           TextField(
-            onChanged: (value) => ref.read(searchQueryProvider.notifier).state = value,
+            controller: _searchCtrl,
+            onChanged: _onSearchChanged,
             style: const TextStyle(color: Colors.black87),
             decoration: InputDecoration(
-              hintText: 'Cari 20.565+ Obat (Nama, NIE, Sediaan...)',
+              hintText: 'Cari 20.000+ Produk & Referensi...',
               prefixIcon: const Icon(Icons.search, color: Colors.green),
+              suffixText: _searchLatencyMs > 0 ? '${_searchLatencyMs}ms' : null,
+              suffixStyle: const TextStyle(fontSize: 10, color: Colors.grey),
               filled: true,
               fillColor: Colors.white,
               border: OutlineInputBorder(
@@ -275,8 +366,8 @@ class _HomeSearchViewState extends ConsumerState<HomeSearchView> {
   Widget _buildFilterRow() {
     final categoryFilter = ref.watch(categoryFilterProvider);
     final formFilter = ref.watch(formFilterProvider);
-    const golonganOptions = ['Semua', 'Keras', 'Bebas', 'Terbatas', 'Narkotika', 'Psikotropika'];
-    const bentukOptions = ['Semua', 'Tablet', 'Kapsul', 'Sirup', 'Injeksi', 'Salep', 'Tetes', 'Inhaler'];
+    const golonganOptions = ['Semua', 'Antibiotik', 'Darurat', 'Psikotropika', 'Analgesik', 'Antidiabetes', 'Antihipertensi', 'NSAID', 'Steroid'];
+    const bentukOptions = ['Semua', 'Tablet', 'Kapsul', 'Sirup', 'Inj', 'Salep', 'Tetes', 'Inhaler'];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -394,7 +485,7 @@ class _HomeSearchViewState extends ConsumerState<HomeSearchView> {
           spacing: 8,
           children: history.map((q) => ActionChip(
             label: Text(q),
-            onPressed: () => ref.read(searchQueryProvider.notifier).state = q,
+            onPressed: () => _setSearch(q),
           )).toList(),
         ),
       ],
@@ -416,7 +507,7 @@ class _HomeSearchViewState extends ConsumerState<HomeSearchView> {
               leading: const Icon(Icons.history),
               title: Text(h),
               onTap: () {
-                ref.read(searchQueryProvider.notifier).state = h;
+                _setSearch(h);
                 Navigator.pop(context);
               },
             )),
@@ -433,7 +524,7 @@ class _HomeSearchViewState extends ConsumerState<HomeSearchView> {
       applicationVersion: 'v2.0.0',
       applicationIcon: const Icon(Icons.medication_liquid, size: 40, color: Color(0xFF1B5E20)),
       children: [
-        const Text('Asisten klinis referensi obat offline untuk tenaga kesehatan Indonesia.'),
+        const Text('Asisten referensi klinis & database produk farmasi luring untuk nakes.'),
         const SizedBox(height: 16),
         const Text('Pengembang:', style: TextStyle(fontWeight: FontWeight.bold)),
         InkWell(
@@ -442,7 +533,7 @@ class _HomeSearchViewState extends ConsumerState<HomeSearchView> {
         ),
         const SizedBox(height: 16),
         const Text('Fitur Utama:', style: TextStyle(fontWeight: FontWeight.bold)),
-        const Text('• 20.565 Data Obat BPOM Terverifikasi'),
+        const Text('• 20.000+ Database Produk Farmasi Terverifikasi'),
         const Text('• FTS5 BM25 Ranked Search (<300ms)'),
         const Text('• Pharmacological Class-Matrix Interaction Checker'),
         const Text('• Kalkulator Dosis (BSA Mosteller + Age-Guard)'),

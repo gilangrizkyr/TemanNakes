@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SeaBank Pinjam – Ajukan Pinjaman Sekarang</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --orange: #FF6B35;
+    --orange-dark: #e85a24;
+    --orange-light: #ff8c5f;
+    --orange-pale: #fff3ee;
+    --orange-faint: #fff8f5;
+    --black: #111111;
+    --black-soft: #222222;
+    --black-mid: #444444;
+    --gray: #888888;
+    --gray-light: #dddddd;
+    --gray-faint: #f5f5f5;
+    --white: #FFFFFF;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: var(--white);
+    color: var(--black);
+    overflow-x: hidden;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: rgba(255,255,255,0.97);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+    padding: 0 5%;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 68px;
+  }
+
+  .nav-logo {
+    display: flex; align-items: center; gap: 10px;
+    text-decoration: none;
+  }
+
+  .logo-icon {
+    width: 38px; height: 38px;
+    background: var(--orange);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    position: relative; overflow: hidden;
+  }
+
+  .logo-icon::before {
+    content: '';
+    position: absolute;
+    width: 22px; height: 22px;
+    background: white;
+    border-radius: 50%;
+    left: 8px; top: 8px;
+  }
+
+  .logo-icon::after {
+    content: '';
+    position: absolute;
+    width: 12px; height: 12px;
+    background: var(--orange);
+    border-radius: 50%;
+    left: 13px; top: 13px;
+  }
+
+  .logo-text {
+    font-size: 1.25rem; font-weight: 800;
+    color: var(--black);
+    letter-spacing: -0.5px;
+  }
+
+  .logo-text span { color: var(--orange); }
+
+  .nav-links {
+    display: flex; gap: 2rem; list-style: none; align-items: center;
+  }
+
+  .nav-links a {
+    text-decoration: none; color: var(--black-mid);
+    font-size: 0.875rem; font-weight: 500;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover { color: var(--orange); }
+
+  .nav-cta {
+    background: var(--orange) !important;
+    color: white !important;
+    padding: 8px 20px !important;
+    border-radius: 8px;
+    font-weight: 600 !important;
+    font-size: 0.85rem !important;
+    transition: background 0.2s !important;
+  }
+
+  .nav-cta:hover { background: var(--orange-dark) !important; }
+
+  /* HERO */
+  .hero {
+    padding-top: 68px;
+    background: var(--orange);
+    position: relative;
+    overflow: hidden;
+    min-height: 560px;
+    display: flex; align-items: center;
+  }
+
+  .hero-bg-circle {
+    position: absolute; border-radius: 50%;
+  }
+
+  .hero-bg-circle.c1 {
+    width: 700px; height: 700px;
+    background: var(--black);
+    opacity: 0.07;
+    right: -200px; top: -200px;
+  }
+
+  .hero-bg-circle.c2 {
+    width: 350px; height: 350px;
+    background: var(--black);
+    opacity: 0.05;
+    left: -100px; bottom: -100px;
+  }
+
+  .hero-bg-dots {
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background-image: radial-gradient(circle, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 28px 28px;
+  }
+
+  .hero-orange-line {
+    position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: var(--gray);
+  }
+
+  .hero-inner {
+    max-width: 1200px; margin: 0 auto; padding: 70px 5%;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 60px;
+    align-items: center; position: relative; z-index: 1; width: 100%;
+  }
+
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(255,107,53,0.15);
+    border: 1px solid rgba(255,107,53,0.35);
+    color: var(--black);
+    padding: 6px 14px; border-radius: 999px;
+    font-size: 0.78rem; font-weight: 600;
+    margin-bottom: 20px;
+    letter-spacing: 0.5px; text-transform: uppercase;
+  }
+
+  .hero-badge::before {
+    content: ''; width: 7px; height: 7px;
+    background: var(--black);
+    border-radius: 50%;
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(1.5); }
+  }
+
+  .hero h1 {
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 800;
+    color: black;
+    line-height: 1.15;
+    margin-bottom: 18px;
+    letter-spacing: -1px;
+  }
+
+  .hero h1 .highlight { color: var(--white); }
+
+  .hero-sub {
+    color: rgba(255,255,255,0.55);
+    font-size: 1rem; line-height: 1.75;
+    margin-bottom: 32px;
+    max-width: 460px;
+  }
+
+  .hero-sub strong { color: rgba(255,255,255,0.85); }
+
+  .hero-stats {
+    display: flex; gap: 28px; flex-wrap: wrap;
+  }
+
+  .stat-item { text-align: left; }
+
+  .stat-num {
+    font-size: 1.6rem; font-weight: 800;
+    color: var(--white); line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 0.78rem; color: rgba(255,255,255,0.4);
+    font-weight: 500; margin-top: 3px;
+  }
+
+  .stat-divider {
+    width: 1px; background: rgba(255,255,255,0.1);
+    align-self: stretch;
+  }
+
+  /* FORM CARD */
+  .form-card {
+    background: white;
+    border-radius: 20px;
+    padding: 36px;
+    box-shadow: 0 32px 80px rgba(0,0,0,0.5);
+    position: relative;
+  }
+
+  .form-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 4px;
+    background: var(--orange);
+    border-radius: 20px 20px 0 0;
+  }
+
+  .form-title {
+    font-size: 1.15rem; font-weight: 800;
+    color: var(--black); margin-bottom: 4px;
+  }
+
+  .form-subtitle {
+    font-size: 0.82rem; color: var(--gray); margin-bottom: 24px;
+  }
+
+  .form-group { margin-bottom: 16px; }
+
+  .form-label {
+    display: block;
+    font-size: 0.8rem; font-weight: 700;
+    color: var(--black-soft); margin-bottom: 7px;
+    letter-spacing: 0.2px;
+  }
+
+  .form-label span { color: var(--orange); }
+
+  .form-control {
+    width: 100%;
+    border: 1.5px solid var(--gray-light);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-family: inherit;
+    font-size: 0.9rem;
+    color: var(--black);
+    background: var(--gray-faint);
+    transition: all 0.2s;
+    appearance: none;
+    outline: none;
+  }
+
+  .form-control:focus {
+    border-color: var(--orange);
+    background: white;
+    box-shadow: 0 0 0 3px rgba(255,107,53,0.12);
+  }
+
+  .phone-wrap { position: relative; display: flex; align-items: center; }
+
+  .phone-prefix {
+    position: absolute; left: 14px;
+    font-size: 0.9rem; font-weight: 700;
+    color: var(--black-soft);
+    pointer-events: none; z-index: 1;
+  }
+
+  .phone-wrap .form-control { padding-left: 46px; }
+
+  select.form-control {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 36px;
+    cursor: pointer;
+  }
+
+  .radio-group {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+  }
+
+  .radio-option { position: relative; }
+
+  .radio-option input {
+    position: absolute; opacity: 0; width: 0; height: 0;
+  }
+
+  .radio-label {
+    display: flex; align-items: center; justify-content: center;
+    padding: 10px 10px;
+    border: 1.5px solid var(--gray-light);
+    border-radius: 10px;
+    font-size: 0.82rem; font-weight: 600;
+    color: var(--gray);
+    cursor: pointer; transition: all 0.2s;
+    text-align: center; background: var(--gray-faint);
+    gap: 5px;
+  }
+
+  .radio-option input:checked + .radio-label {
+    border-color: var(--orange);
+    color: var(--orange);
+    background: var(--orange-faint);
+  }
+
+  .radio-label:hover {
+    border-color: var(--orange-light);
+    color: var(--orange);
+    background: var(--orange-faint);
+  }
+
+  .btn-submit {
+    width: 100%;
+    padding: 14px;
+    background: var(--orange);
+    color: white;
+    border: none; border-radius: 12px;
+    font-family: inherit; font-size: 0.95rem; font-weight: 800;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: all 0.2s;
+    letter-spacing: 0.3px;
+  }
+
+  .btn-submit:hover {
+    background: var(--orange-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px rgba(255,107,53,0.35);
+  }
+
+  .btn-submit:active { transform: translateY(0); }
+
+  .form-note {
+    text-align: center; font-size: 0.75rem;
+    color: var(--gray); margin-top: 12px;
+    display: flex; align-items: center; justify-content: center; gap: 5px;
+  }
+
+  /* BENEFITS */
+  .benefits {
+    padding: 80px 5%;
+    background: var(--gray-faint);
+  }
+
+  .section-header {
+    text-align: center; margin-bottom: 48px;
+  }
+
+  .section-tag {
+    display: inline-block;
+    background: var(--orange-pale);
+    color: var(--orange);
+    font-size: 0.75rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1px;
+    padding: 5px 14px; border-radius: 999px;
+    margin-bottom: 12px;
+  }
+
+  .section-title {
+    font-size: clamp(1.5rem, 3vw, 2.1rem);
+    font-weight: 800; color: var(--black);
+    letter-spacing: -0.5px; line-height: 1.2;
+  }
+
+  .section-desc {
+    color: var(--gray); font-size: 0.95rem;
+    margin-top: 10px; max-width: 500px; margin-inline: auto;
+    line-height: 1.7;
+  }
+
+  .benefits-grid {
+    max-width: 1100px; margin: 0 auto;
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+  }
+
+  .benefit-card {
+    background: white;
+    border-radius: 16px;
+    padding: 28px 24px;
+    border: 1.5px solid rgba(0,0,0,0.06);
+    transition: all 0.3s;
+    position: relative; overflow: hidden;
+  }
+
+  .benefit-card::after {
+    content: '';
+    position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+    background: var(--orange);
+    transform: scaleX(0); transform-origin: left;
+    transition: transform 0.3s;
+  }
+
+  .benefit-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,0.08); }
+  .benefit-card:hover::after { transform: scaleX(1); }
+
+  .benefit-icon {
+    width: 48px; height: 48px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem;
+    margin-bottom: 16px;
+    background: var(--orange-pale);
+  }
+
+  .benefit-title {
+    font-size: 1rem; font-weight: 700;
+    color: var(--black); margin-bottom: 8px;
+  }
+
+  .benefit-desc {
+    font-size: 0.85rem; color: var(--gray); line-height: 1.65;
+  }
+
+  /* HOW IT WORKS */
+  .how {
+    padding: 80px 5%;
+    background: var(--black);
+  }
+
+  .how .section-title { color: white; }
+  .how .section-desc { color: rgba(255,255,255,0.4); }
+
+  .steps {
+    max-width: 900px; margin: 0 auto;
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+    position: relative;
+  }
+
+  .steps::before {
+    content: '';
+    position: absolute;
+    top: 28px; left: 12%; right: 12%; height: 2px;
+    background: var(--orange);
+    opacity: 0.3;
+    z-index: 0;
+  }
+
+  .step { text-align: center; position: relative; z-index: 1; }
+
+  .step-num {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: var(--black-soft);
+    color: white;
+    font-size: 1rem; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 16px;
+    border: 2px solid rgba(255,255,255,0.08);
+    box-shadow: 0 0 0 3px var(--orange);
+    transition: all 0.3s;
+  }
+
+  .step:hover .step-num {
+    background: var(--orange);
+    box-shadow: 0 0 0 3px rgba(255,107,53,0.25);
+  }
+
+  .step-title {
+    font-size: 0.875rem; font-weight: 700;
+    color: white; margin-bottom: 6px;
+  }
+
+  .step-desc {
+    font-size: 0.78rem; color: rgba(255,255,255,0.4); line-height: 1.6;
+  }
+
+  /* FOOTER */
+  footer {
+    background: #0a0a0a;
+    padding: 48px 5% 28px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .footer-top {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    flex-wrap: wrap; gap: 32px;
+    padding-bottom: 32px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    margin-bottom: 24px;
+  }
+
+  .footer-logo-text {
+    font-size: 1.25rem; font-weight: 800;
+    color: white; letter-spacing: -0.5px;
+  }
+
+  .footer-logo-text span { color: var(--orange); }
+
+  .footer-tagline {
+    color: rgba(255,255,255,0.3); font-size: 0.8rem; margin-top: 8px;
+    max-width: 240px; line-height: 1.6;
+  }
+
+  .footer-links h4 {
+    color: rgba(255,255,255,0.6); font-size: 0.78rem;
+    font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.8px; margin-bottom: 12px;
+  }
+
+  .footer-links ul { list-style: none; }
+  .footer-links li { margin-bottom: 8px; }
+
+  .footer-links a {
+    text-decoration: none; color: rgba(255,255,255,0.35);
+    font-size: 0.82rem; transition: color 0.2s;
+  }
+
+  .footer-links a:hover { color: var(--orange); }
+
+  .footer-bottom {
+    display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 12px;
+  }
+
+  .footer-bottom p { color: rgba(255,255,255,0.25); font-size: 0.75rem; }
+
+  .ojk-badge {
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px; padding: 8px 14px;
+  }
+
+  .ojk-badge span { color: rgba(255,255,255,0.3); font-size: 0.73rem; font-weight: 600; }
+
+  /* SUCCESS */
+  .success-msg {
+    display: none; text-align: center; padding: 20px;
+  }
+
+  .success-icon {
+    width: 60px; height: 60px;
+    background: var(--orange);
+    border-radius: 50%; margin: 0 auto 16px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem; color: white;
+  }
+
+  .success-title { font-weight: 800; color: var(--black); font-size: 1.1rem; margin-bottom: 8px; }
+  .success-desc { color: var(--gray); font-size: 0.85rem; line-height: 1.6; }
+
+  @media (max-width: 900px) {
+    .hero-inner { grid-template-columns: 1fr; gap: 32px; }
+    .benefits-grid { grid-template-columns: 1fr 1fr; }
+    .steps { grid-template-columns: 1fr 1fr; }
+    .steps::before { display: none; }
+    .nav-links { display: none; }
+  }
+
+  @media (max-width: 560px) {
+    .benefits-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav>
+  <a href="#" class="nav-logo">
+    <div class="logo-icon"></div>
+    <span class="logo-text">Sea<span>Bank</span></span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#">Produk & Layanan</a></li>
+    <li><a href="#">Promo</a></li>
+    <li><a href="#">Perusahaan</a></li>
+    <li><a href="#">Pusat Bantuan</a></li>
+    <li><a href="#form" class="nav-cta">Ajukan Pinjaman</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-orange-line"></div>
+  <div class="hero-bg-circle c1"></div>
+  <div class="hero-bg-circle c2"></div>
+  <div class="hero-bg-dots"></div>
+  <div class="hero-inner">
+    <div class="hero-content">
+      <div class="hero-badge">SeaBank Pinjam Xtra</div>
+      <h1>Pinjaman Mudah,<br>Cair <span class="highlight">Lebih Cepat</span></h1>
+      <p class="hero-sub">
+        Dapatkan pinjaman hingga <strong>Rp 200 Juta</strong> langsung dari aplikasi SeaBank. Proses persetujuan cepat, bunga kompetitif, cicilan ringan sesuai kemampuan Anda.
+      </p>
+      <div class="hero-stats">
+        <div class="stat-item">
+          <div class="stat-num">200Jt</div>
+          <div class="stat-label">Maks. Pinjaman</div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <div class="stat-num">2.5%</div>
+          <div class="stat-label">Bunga/Hari</div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <div class="stat-num">24 Jam</div>
+          <div class="stat-label">Proses Cair</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORM -->
+    <div class="form-card" id="form">
+      <div class="form-content">
+        <p class="form-title">Ajukan Pinjaman Sekarang</p>
+        <p class="form-subtitle">Isi data di bawah ini, tim kami akan segera menghubungi Anda</p>
+
+        <div class="form-group">
+          <label class="form-label">Nama Lengkap <span>*</span></label>
+          <input type="text" class="form-control" placeholder="Sesuai KTP Anda" id="inp-nama" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Nomor HP <span>*</span></label>
+          <div class="phone-wrap">
+            <span class="phone-prefix">+62</span>
+            <input type="number" class="form-control" placeholder="8xx xxxx xxxx" id="inp-hp" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Sudah Berapa Lama Menggunakan SeaBank? <span>*</span></label>
+          <select class="form-control" id="inp-lama">
+            <option value="" disabled selected>Pilih durasi</option>
+            <option value="1">Kurang dari 3 bulan</option>
+            <option value="2">3 – 6 bulan</option>
+            <option value="3">6 bulan – 1 tahun</option>
+            <option value="4">1 – 2 tahun</option>
+            <option value="5">Lebih dari 2 tahun</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Seberapa Sering Transaksi Menggunakan SeaBank? <span>*</span></label>
+          <div class="radio-group">
+            <div class="radio-option">
+              <input type="radio" name="frekuensi" id="f1" value="jarang">
+              <label class="radio-label" for="f1">🌱 Jarang<br><small style="font-weight:400;font-size:0.7rem;">&lt; 5x / bulan</small></label>
+            </div>
+            <div class="radio-option">
+              <input type="radio" name="frekuensi" id="f2" value="sesekali">
+              <label class="radio-label" for="f2">📊 Sesekali<br><small style="font-weight:400;font-size:0.7rem;">5–15x / bulan</small></label>
+            </div>
+            <div class="radio-option">
+              <input type="radio" name="frekuensi" id="f3" value="sering">
+              <label class="radio-label" for="f3">🔥 Sering<br><small style="font-weight:400;font-size:0.7rem;">15–30x / bulan</small></label>
+            </div>
+            <div class="radio-option">
+              <input type="radio" name="frekuensi" id="f4" value="sangat-sering">
+              <label class="radio-label" for="f4">⚡ Sangat Sering<br><small style="font-weight:400;font-size:0.7rem;">&gt; 30x / bulan</small></label>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn-submit" onclick="submitForm()">
+          Ajukan Pinjaman Sekarang →
+        </button>
+
+        <p class="form-note">
+          🔒 Data Anda aman & terlindungi. Terdaftar di OJK.
+        </p>
+      </div>
+
+      <div class="success-msg" id="success-msg">
+        <div class="success-icon">✓</div>
+        <div class="success-title">Pengajuan Berhasil!</div>
+        <div class="success-desc">Terima kasih! Tim SeaBank akan menghubungi Anda dalam 1×24 jam untuk proses selanjutnya.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BENEFITS -->
+<section class="benefits">
+  <div class="section-header">
+    <div class="section-tag">Keunggulan SeaBank Pinjam</div>
+    <h2 class="section-title">Kenapa Harus SeaBank?</h2>
+    <p class="section-desc">Kami hadir untuk memudahkan akses keuangan Anda dengan layanan terpercaya dan transparan.</p>
+  </div>
+  <div class="benefits-grid">
+    <div class="benefit-card">
+      <div class="benefit-icon">💸</div>
+      <div class="benefit-title">Proses 100% Digital</div>
+      <div class="benefit-desc">Ajukan pinjaman langsung dari aplikasi SeaBank kapan saja dan di mana saja, tanpa perlu antre atau datang ke kantor.</div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-icon">⚡</div>
+      <div class="benefit-title">Pencairan Cepat</div>
+      <div class="benefit-desc">Dana pinjaman langsung masuk ke rekening SeaBank Anda dalam 1×24 jam setelah pengajuan disetujui.</div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-icon">📋</div>
+      <div class="benefit-title">Syarat Mudah</div>
+      <div class="benefit-desc">Cukup KTP dan rekening SeaBank aktif. Tidak perlu agunan atau dokumen yang rumit untuk pinjaman hingga Rp 50 Juta.</div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-icon">🛡️</div>
+      <div class="benefit-title">Terdaftar & Diawasi OJK</div>
+      <div class="benefit-desc">SeaBank adalah bank resmi yang terdaftar dan diawasi oleh Otoritas Jasa Keuangan (OJK), sehingga dana Anda terjamin aman.</div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-icon">📅</div>
+      <div class="benefit-title">Tenor Fleksibel</div>
+      <div class="benefit-desc">Pilih tenor cicilan mulai dari 3 hingga 24 bulan sesuai kemampuan finansial Anda tanpa biaya pinalti pelunasan awal.</div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-icon">💬</div>
+      <div class="benefit-title">Bunga Transparan</div>
+      <div class="benefit-desc">Tidak ada biaya tersembunyi. Semua biaya dan bunga ditampilkan secara jelas sebelum Anda menyetujui perjanjian pinjaman.</div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how">
+  <div class="section-header">
+    <div class="section-tag">Cara Pengajuan</div>
+    <h2 class="section-title">Hanya 4 Langkah Mudah</h2>
+    <p class="section-desc">Dari pengajuan hingga dana cair, semua bisa dilakukan dalam satu hari.</p>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-title">Isi Formulir</div>
+      <div class="step-desc">Lengkapi data diri dan kebutuhan pinjaman Anda di formulir ini</div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-title">Verifikasi Data</div>
+      <div class="step-desc">Tim kami menghubungi Anda untuk memverifikasi kelengkapan dokumen</div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-title">Persetujuan</div>
+      <div class="step-desc">Pengajuan diproses dan keputusan diberikan dalam 1×24 jam</div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-title">Dana Cair 🎉</div>
+      <div class="step-desc">Dana langsung masuk ke rekening SeaBank Anda setelah persetujuan</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-top">
+    <div class="footer-brand">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+        <div class="logo-icon"></div>
+        <span class="footer-logo-text">Sea<span>Bank</span></span>
+      </div>
+      <p class="footer-tagline">Simple, Untung, untuk Semua. PT Bank SeaBank Indonesia.</p>
+    </div>
+    <div class="footer-links">
+      <h4>Produk</h4>
+      <ul>
+        <li><a href="#">Tabungan</a></li>
+        <li><a href="#">Deposito</a></li>
+        <li><a href="#">SeaBank Pinjam</a></li>
+        <li><a href="#">SeaBank Pinjam Xtra</a></li>
+      </ul>
+    </div>
+    <div class="footer-links">
+      <h4>Perusahaan</h4>
+      <ul>
+        <li><a href="#">Tentang SeaBank</a></li>
+        <li><a href="#">Karir</a></li>
+        <li><a href="#">Tata Kelola</a></li>
+        <li><a href="#">Mekanisme Pengaduan</a></li>
+      </ul>
+    </div>
+    <div class="footer-links">
+      <h4>Bantuan</h4>
+      <ul>
+        <li><a href="#">Pusat Bantuan</a></li>
+        <li><a href="#">Biaya & Bunga</a></li>
+        <li><a href="#">Keamanan</a></li>
+        <li><a href="#">Lokasi SeaBank</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 PT Bank SeaBank Indonesia. Terdaftar dan diawasi oleh OJK.</p>
+    <div class="ojk-badge">
+      <span>🏛️ Diawasi OJK &nbsp;|&nbsp; 💳 Dijamin LPS</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  function submitForm() {
+    const nama = document.getElementById('inp-nama').value.trim();
+    const hp = document.getElementById('inp-hp').value.trim();
+    const lama = document.getElementById('inp-lama').value;
+    const frek = document.querySelector('input[name="frekuensi"]:checked');
+
+    if (!nama || !hp || !lama || !frek) {
+      const fields = [];
+      if (!nama) fields.push('Nama Lengkap');
+      if (!hp) fields.push('Nomor HP');
+      if (!lama) fields.push('Durasi Pemakaian');
+      if (!frek) fields.push('Frekuensi Transaksi');
+      alert('Mohon lengkapi: ' + fields.join(', '));
+      return;
+    }
+    document.querySelector('.form-content').style.display = 'none';
+    document.getElementById('success-msg').style.display = 'block';
+  }
+
+  document.querySelector('.nav-cta').addEventListener('click', function(e) {
+    e.preventDefault();
+    document.getElementById('form').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+</script>
+</body>
+</html>
