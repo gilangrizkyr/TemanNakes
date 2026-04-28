@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:math' as math;
 import '../../../medicine/domain/models/medicine.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:temannakes/core/services/ad_service.dart';
 
 class DoseCalculatorView extends StatefulWidget {
   final MedicineSimple medicine;
@@ -34,6 +36,35 @@ class _DoseCalculatorViewState extends State<DoseCalculatorView> {
   String _formulaDetail = '';
   String _volumeResult = '';
   List<String> _warnings = [];
+  
+  BannerAd? _bannerAd;
+  bool _isBannerLoaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _initBanner();
+  }
+
+  void _initBanner() async {
+    final isOnline = await AdService().isOnline();
+    if (!isOnline) return;
+
+    _bannerAd = AdService().createBannerAd(
+      onAdLoaded: (ad) {
+        if (!mounted) {
+          ad.dispose();
+          return;
+        }
+        setState(() => _isBannerLoaded = true);
+      },
+      onAdFailedToLoad: (ad, error) {
+        debugPrint('BannerAd failed: $error');
+        if (!mounted) return;
+        setState(() => _isBannerLoaded = false);
+      },
+    )..load();
+  }
 
   @override
   void dispose() {
@@ -43,6 +74,7 @@ class _DoseCalculatorViewState extends State<DoseCalculatorView> {
     _allergyController.dispose();
     _concentrationMgController.dispose();
     _concentrationMlController.dispose();
+    _bannerAd?.dispose();
     super.dispose();
   }
 
@@ -354,6 +386,16 @@ class _DoseCalculatorViewState extends State<DoseCalculatorView> {
             const SizedBox(height: 32),
             _buildResultPanel(themeColor),
             if (_warnings.isNotEmpty) _buildWarningSection(),
+            if (_isBannerLoaded && _bannerAd != null)
+              Container(
+                alignment: Alignment.center,
+                padding: const EdgeInsets.only(top: 24),
+                child: SizedBox(
+                  width: _bannerAd!.size.width.toDouble(),
+                  height: _bannerAd!.size.height.toDouble(),
+                  child: AdWidget(ad: _bannerAd!),
+                ),
+              ),
           ],
         ),
       ),

@@ -21,6 +21,12 @@ class InfusLogic {
     final dropsPerMin = (volumeMl * dropFactor) / durationMinutes;
     final rounded = dropsPerMin.round();
 
+    String dropLabel = 'Umum';
+    if (dropFactor == 10) dropLabel = 'Pediatrik/Donor';
+    if (dropFactor == 15) dropLabel = 'Standar RS (Blood Set)';
+    if (dropFactor == 20) dropLabel = 'Makro';
+    if (dropFactor == 60) dropLabel = 'Mikro';
+
     CalcSeverity severity = CalcSeverity.normal;
     String interpretation = 'Normal';
     if (rounded > 60) {
@@ -43,19 +49,24 @@ class InfusLogic {
       severity: severity,
       steps: [
         'Rumus: Tetes/menit = (Volume × Faktor Tetes) ÷ Waktu (menit)',
-        'Faktor tetes: $dropFactor (${dropFactor == 60 ? "mikro" : "makro"})',
+        'Faktor tetes: $dropFactor ($dropLabel)',
         'Tetes/menit = ($volumeMl mL × $dropFactor) ÷ $durationMinutes menit',
         'Tetes/menit = ${dropsPerMin.toStringAsFixed(1)} → dibulatkan = $rounded tetes/menit',
       ],
       extras: {
         'Volume Total': '$volumeMl mL',
         'Durasi': '${durationHours.toStringAsFixed(1)} jam',
-        'Faktor Tetes': '$dropFactor (${dropFactor == 60 ? "mikro" : "makro"})',
+        'Faktor Tetes': '$dropFactor ($dropLabel)',
       },
+      sourceLabel: 'Standar Kecepatan Infus',
+      confidenceLabel: 'Standar Kecepatan',
+      interpretationHint: rounded > 120
+          ? 'Interpretasi umum: Kecepatan tetesan sangat tinggi. Pertimbangkan pemantauan ketat terhadap keseimbangan cairan.'
+          : rounded > 60
+              ? 'Interpretasi umum: Kecepatan tetesan cepat. Pantau kondisi pasien selama pemberian sesuai SPO.'
+              : 'Interpretasi umum: Kecepatan tetesan dalam rentang umum. Pastikan faktor tetes sesuai set infus yang digunakan.',
     );
   }
-
-  /// Hitung kecepatan infus pump (mL/jam)
   static CalculationResult calcPumpRate({
     required double volumeMl,
     required double durationHours,
@@ -97,6 +108,11 @@ class InfusLogic {
         'Volume Total': '$volumeMl mL',
         'Durasi': '$durationHours jam',
       },
+      sourceLabel: 'Standar Kecepatan Infus',
+      confidenceLabel: 'Standar Kecepatan',
+      interpretationHint: ratePerHour > 200
+          ? 'Interpretasi umum: Kecepatan pump tinggi. Pertimbangkan pemantauan ketat cairan dan kondisi pasien.'
+          : 'Interpretasi umum: Kecepatan pump dalam rentang umum. Verifikasi dengan setting pompa infus yang digunakan.',
     );
   }
 }

@@ -5,6 +5,8 @@ import '../../domain/models/patient_record.dart';
 import '../providers/patient_form_provider.dart';
 import 'patient_input_view.dart';
 import 'patient_detail_view.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:temannakes/core/services/ad_service.dart';
 
 /// Daftar semua data pasien dengan search & filter
 class PatientListView extends ConsumerStatefulWidget {
@@ -17,9 +19,39 @@ class PatientListView extends ConsumerStatefulWidget {
 class _PatientListViewState extends ConsumerState<PatientListView> {
   final _searchCtrl = TextEditingController();
 
+  BannerAd? _bannerAd;
+  bool _isBannerLoaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _initBanner();
+  }
+
+  void _initBanner() async {
+    final isOnline = await AdService().isOnline();
+    if (!isOnline) return;
+
+    _bannerAd = AdService().createBannerAd(
+      onAdLoaded: (ad) {
+        if (!mounted) {
+          ad.dispose();
+          return;
+        }
+        setState(() => _isBannerLoaded = true);
+      },
+      onAdFailedToLoad: (ad, error) {
+        debugPrint('BannerAd failed: $error');
+        if (!mounted) return;
+        setState(() => _isBannerLoaded = false);
+      },
+    )..load();
+  }
+
   @override
   void dispose() {
     _searchCtrl.dispose();
+    _bannerAd?.dispose();
     super.dispose();
   }
 
@@ -51,7 +83,7 @@ class _PatientListViewState extends ConsumerState<PatientListView> {
                 backgroundColor: const Color(0xFF00695C),
                 foregroundColor: Colors.white,
                 icon: const Icon(Icons.add),
-                label: const Text('Input Pasien'),
+                label: const Text('Tambah Data'),
                 onPressed: () => _selectForm(context, templates),
               ),
         loading: () => null,
@@ -124,6 +156,14 @@ class _PatientListViewState extends ConsumerState<PatientListView> {
               error: (e, _) => Center(child: Text('Error: $e')),
             ),
           ),
+          if (_isBannerLoaded && _bannerAd != null)
+            SafeArea(
+              child: SizedBox(
+                width: _bannerAd!.size.width.toDouble(),
+                height: _bannerAd!.size.height.toDouble(),
+                child: AdWidget(ad: _bannerAd!),
+              ),
+            ),
         ],
       ),
     );

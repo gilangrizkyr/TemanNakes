@@ -152,6 +152,75 @@ class CalcResultCard extends ConsumerWidget {
             const SizedBox(height: 12),
             _EducationPanel(steps: result.steps, accentColor: accent),
           ],
+          // Evidence Source & Confidence Badge
+          if (result.sourceLabel != null || result.confidenceLabel != null) ...[
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                if (result.confidenceLabel != null)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: accent.withOpacity(0.08),
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(color: accent.withOpacity(0.2)),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.info_outline, color: accent, size: 12),
+                        const SizedBox(width: 4),
+                        Text(result.confidenceLabel!,
+                            style: TextStyle(
+                                color: accent,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold)),
+                      ],
+                    ),
+                  ),
+                if (result.confidenceLabel != null && result.sourceLabel != null)
+                  const SizedBox(width: 8),
+                if (result.sourceLabel != null)
+                  Expanded(
+                    child: Text(result.sourceLabel!,
+                        style: TextStyle(
+                            color: accent.withOpacity(0.5),
+                            fontSize: 10,
+                            fontStyle: FontStyle.italic)),
+                  ),
+              ],
+            ),
+          ],
+          // ── Soft Clinical Interpretation (Attention Lock) ─────────────────
+          // Safe wording: context only, NOT clinical instruction or diagnosis.
+          if (result.interpretationHint != null) ...[
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: const Color(0xFF006064).withOpacity(0.06),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: const Color(0xFF006064).withOpacity(0.18)),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(Icons.book_outlined, size: 14, color: Color(0xFF006064)),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      result.interpretationHint!,
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: Color(0xFF004D40),
+                        height: 1.5,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
           // Disclaimer
           const SizedBox(height: 12),
           Text(

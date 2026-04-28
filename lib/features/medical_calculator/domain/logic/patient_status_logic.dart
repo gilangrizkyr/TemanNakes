@@ -58,6 +58,19 @@ class PatientStatusLogic {
       extras: {
         'Berat Ideal (±)': _idealWeightRange(heightCm),
       },
+      sourceLabel: 'WHO guideline',
+      confidenceLabel: 'Klasifikasi BMI',
+      interpretationHint: bmi < 17.0
+          ? 'Interpretasi umum: Sangat kurus berdasarkan klasifikasi WHO. Pertimbangkan asesmen status gizi.'
+          : bmi < 18.5
+              ? 'Interpretasi umum: Berat badan kurang. Pertimbangkan evaluasi asupan nutrisi.'
+              : bmi < 25.0
+                  ? 'Interpretasi umum: Berat badan ideal sesuai klasifikasi WHO.'
+                  : bmi < 27.0
+                      ? 'Interpretasi umum: Sedikit di atas ideal. Pertimbangkan pemantauan faktor risiko metabolik.'
+                      : bmi < 30.0
+                          ? 'Interpretasi umum: Overweight. Pertimbangkan evaluasi faktor risiko kardiovaskular.'
+                          : 'Interpretasi umum: Obesitas berdasarkan WHO. Pertimbangkan asesmen komorbid.',
     );
   }
 
@@ -116,6 +129,15 @@ class PatientStatusLogic {
         'MAP = (${systolic + 2 * diastolic}) ÷ 3 = ${map.toStringAsFixed(1)} mmHg',
         'Nilai normal: 60–100 mmHg',
       ],
+      sourceLabel: 'Rumus Klinis Umum',
+      confidenceLabel: 'Kalkulasi MAP',
+      interpretationHint: map < 60
+          ? 'Interpretasi umum: MAP rendah — pertimbangkan evaluasi perfusi organ sesuai kondisi klinis.'
+          : map < 70
+              ? 'Interpretasi umum: MAP batas bawah. Pemantauan ketat sesuai pertimbangan klinis dianjurkan.'
+              : map <= 100
+                  ? 'Interpretasi umum: MAP dalam rentang target perfusi organ yang umum (70–100 mmHg).'
+                  : 'Interpretasi umum: MAP tinggi. Pertimbangkan evaluasi tekanan darah dan faktor risiko.',
     );
   }
 
@@ -123,6 +145,17 @@ class PatientStatusLogic {
     required double heartRate,
     required double systolic,
   }) {
+    if (heartRate <= 0 || systolic <= 0) {
+      return CalculationResult(
+        moduleName: 'Status Pasien',
+        label: 'Shock Index',
+        value: '0',
+        unit: '',
+        interpretation: '⚠️ Input tidak valid',
+        severity: CalcSeverity.danger,
+        steps: ['HR dan Sistolik harus > 0'],
+      );
+    }
     final si = heartRate / systolic;
 
     String interpretation;
@@ -154,6 +187,15 @@ class PatientStatusLogic {
         'SI = $heartRate ÷ $systolic = ${si.toStringAsFixed(2)}',
         '< 0.6 = Normal | 0.6–1.0 = Ringan | 1.0–1.4 = Moderat | >1.4 = Berat',
       ],
+      sourceLabel: 'Standar Klinis',
+      confidenceLabel: 'Indeks Klinis',
+      interpretationHint: si < 0.6
+          ? 'Interpretasi umum: Hemodinamik stabil berdasarkan Shock Index.'
+          : si < 1.0
+              ? 'Interpretasi umum: Perlu pemantauan. Pertimbangkan observasi ketat sesuai kondisi klinis.'
+              : si < 1.4
+                  ? 'Interpretasi umum: Nilai menunjukkan kemungkinan gangguan hemodinamik. Penilaian klinis segera dianjurkan.'
+                  : 'Interpretasi umum: Nilai tinggi. Evaluasi klinis menyeluruh dan tindakan sesuai protokol sangat dianjurkan.',
     );
   }
 }

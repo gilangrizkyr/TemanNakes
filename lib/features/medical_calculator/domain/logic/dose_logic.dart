@@ -67,6 +67,10 @@ class DoseLogic {
       severity: severity,
       steps: steps,
       extras: extras,
+      sourceLabel: 'WHO guideline',
+      confidenceLabel: 'Kalkulasi Dosis',
+      interpretationHint: 'Interpretasi umum: Hasil berdasarkan berat badan aktual. '
+          'Pertimbangkan kondisi klinis pasien, fungsi organ, dan interaksi obat sebelum pemberian.',
     );
   }
 

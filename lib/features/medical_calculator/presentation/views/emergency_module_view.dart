@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/logic/emergency_logic.dart';
 import '../../domain/models/calc_result.dart';
 import '../widgets/calc_result_card.dart';
+import '../widgets/calc_banner_ad_widget.dart';
+import '../../../../../core/services/notification_service.dart';
 
 class EmergencyModuleView extends ConsumerStatefulWidget {
   const EmergencyModuleView({super.key});
@@ -30,6 +32,9 @@ class _EmergencyState extends ConsumerState<EmergencyModuleView>
     _tabCtrl = TabController(length: 2, vsync: this);
     _calcGCS();
     _calcAPGAR();
+    // [Behavioral Tracker] — silent, zero friction
+    NotificationService.instance.onFeatureUsed('gcs');
+    NotificationService.instance.onFeatureUsed('apgar');
   }
 
   @override
@@ -115,7 +120,10 @@ class _EmergencyState extends ConsumerState<EmergencyModuleView>
                 : ['Tidak ada', 'Ekstensi abn', 'Fleksi abn', 'Fleksi withdraw', 'Lokalisasi', 'Ikuti Perintah'],
               (v) => setState(() { _gcsM = v; _calcGCS(); }), accent),
           const SizedBox(height: 32),
-          if (_gcsResult != null) CalcResultCard(result: _gcsResult!),
+          if (_gcsResult != null) ...[
+            CalcResultCard(result: _gcsResult!),
+            const CalcBannerAdWidget(), // [STAGE 2] High-dwell banner
+          ],
         ],
       ),
     );
@@ -145,7 +153,10 @@ class _EmergencyState extends ConsumerState<EmergencyModuleView>
             ],
           ),
           const SizedBox(height: 24),
-          if (_apgarResult != null) CalcResultCard(result: _apgarResult!),
+          if (_apgarResult != null) ...[
+            CalcResultCard(result: _apgarResult!),
+            const CalcBannerAdWidget(), // [STAGE 2] High-dwell banner
+          ],
         ],
       ),
     );

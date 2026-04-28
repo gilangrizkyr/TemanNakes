@@ -46,6 +46,15 @@ class EmergencyLogic {
         'Verbal (V)': '$verbal/5 – ${isPediatric ? _gcsVerbalPediatric(verbal) : _gcsVerbal(verbal)}',
         'Motor (M)': '$motor/6 – ${isPediatric ? _gcsMotorPediatric(motor) : _gcsMotor(motor)}',
       },
+      sourceLabel: 'Standar Klinis (GCS)',
+      confidenceLabel: 'Skala Observasi',
+      interpretationHint: total >= 14
+          ? 'Interpretasi umum: Skala GCS menunjukkan kesadaran baik. Observasi klinis tetap diperlukan.'
+          : total >= 9
+              ? 'Interpretasi umum: Penurunan kesadaran sedang berdasarkan GCS. Pertimbangkan pemantauan klinis lanjut.'
+              : total >= 4
+                  ? 'Interpretasi umum: Penurunan kesadaran berat. Pertimbangkan evaluasi dan penanganan sesuai protokol.'
+                  : 'Interpretasi umum: GCS minimal. Pertimbangkan manajemen airway dan tindakan sesuai protokol klinis.',
     );
   }
 
@@ -130,6 +139,13 @@ class EmergencyLogic {
         'Total APGAR = $total',
         '7–10: Normal | 4–6: Asfiksia Ringan | 0–3: Asfiksia Berat',
       ],
+      sourceLabel: 'Standar Klinis (APGAR)',
+      confidenceLabel: 'Skala Observasi',
+      interpretationHint: total >= 7
+          ? 'Interpretasi umum: Kondisi bayi baik berdasarkan skor APGAR ($minuteAfterBirth menit).'
+          : total >= 4
+              ? 'Interpretasi umum: Skor menunjukkan kemungkinan asfiksia ringan-sedang. Pertimbangkan stimulasi dan evaluasi sesuai protokol.'
+              : 'Interpretasi umum: Skor sangat rendah. Pertimbangkan resusitasi sesuai protokol klinis neonatal.',
     );
   }
 }

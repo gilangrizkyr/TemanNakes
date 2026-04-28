@@ -57,6 +57,17 @@ class RenalLogic {
         'ClCr = [(140 – $ageyears) × $weightKg] ÷ (72 × $serumCreatinine)',
         'ClCr = ${clcr.toStringAsFixed(1)} mL/menit',
       ],
+      sourceLabel: 'Rumus Cockcroft-Gault',
+      confidenceLabel: 'Estimasi Klinis',
+      interpretationHint: clcr >= 90
+          ? 'Interpretasi umum: Fungsi ginjal dalam batas normal (Cockcroft-Gault). Tetap pertimbangkan faktor klinis pasien.'
+          : clcr >= 60
+              ? 'Interpretasi umum: Penurunan ringan. Pertimbangkan pemantauan berkala sesuai kondisi klinis.'
+              : clcr >= 30
+                  ? 'Interpretasi umum: Penurunan sedang. Pertimbangkan evaluasi penyesuaian dosis obat tertentu bersama dokter.'
+                  : clcr >= 15
+                      ? 'Interpretasi umum: Penurunan berat. Konsultasi tatalaksana farmakologi sangat dianjurkan.'
+                      : 'Interpretasi umum: Nilai sangat rendah. Evaluasi klinis dan rujukan sesuai pertimbangan dokter.',
     );
   }
 
@@ -132,6 +143,15 @@ class RenalLogic {
         'eGFR = ${eGFR.toStringAsFixed(1)} mL/mnt/1.73m²',
         'Referensi: ≥60 = fungsi ginjal cukup (KDIGO)',
       ],
+      sourceLabel: 'KDIGO (CKD-EPI 2021)',
+      confidenceLabel: 'High Confidence (Validated)',
+      interpretationHint: eGFR >= 90
+          ? 'Interpretasi umum: eGFR dalam batas normal (KDIGO CKD-EPI 2021). Fungsi filtrasi ginjal baik.'
+          : eGFR >= 60
+              ? 'Interpretasi umum: Penurunan ringan. Pertimbangkan pemantauan lanjut sesuai pedoman klinis.'
+              : eGFR >= 30
+                  ? 'Interpretasi umum: Penurunan sedang. Pertimbangkan evaluasi komorbid dan obat-obatan nefrotoksik.'
+                  : 'Interpretasi umum: Penurunan berat. Evaluasi klinis menyeluruh sangat dianjurkan.',
     );
   }
 }

@@ -5,6 +5,8 @@ import '../../domain/logic/medical_validator.dart';
 import '../../domain/models/calc_result.dart';
 import '../widgets/calc_result_card.dart';
 import '../widgets/calc_input_field.dart';
+import '../widgets/calc_banner_ad_widget.dart';
+import '../../../../../core/services/notification_service.dart';
 
 class PatientStatusModuleView extends ConsumerStatefulWidget {
   const PatientStatusModuleView({super.key});
@@ -35,6 +37,9 @@ class _PatientStatusState extends ConsumerState<PatientStatusModuleView>
   void initState() {
     super.initState();
     _tabCtrl = TabController(length: 3, vsync: this);
+    // [Behavioral Tracker] — silent, zero friction
+    NotificationService.instance.onFeatureUsed('map');
+    NotificationService.instance.onFeatureUsed('shock_index');
   }
 
   @override
@@ -82,7 +87,10 @@ class _PatientStatusState extends ConsumerState<PatientStatusModuleView>
           validator: MedicalValidator.height, onChanged: _calcBMI)),
       ]),
       _button('HITUNG BMI', const Color(0xFF6A1B9A), _calcBMI),
-      if (_bmiResult != null) CalcResultCard(result: _bmiResult!),
+      if (_bmiResult != null) ...[
+        CalcResultCard(result: _bmiResult!),
+        const CalcBannerAdWidget(), // [STAGE 2] High-dwell banner
+      ],
     ],
   );
 
@@ -98,7 +106,10 @@ class _PatientStatusState extends ConsumerState<PatientStatusModuleView>
           validator: (v) => MedicalValidator.bloodPressure(v, 'Diastolik'), onChanged: _calcMAP)),
       ]),
       _button('HITUNG MAP', const Color(0xFF6A1B9A), _calcMAP),
-      if (_mapResult != null) CalcResultCard(result: _mapResult!),
+      if (_mapResult != null) ...[
+        CalcResultCard(result: _mapResult!),
+        const CalcBannerAdWidget(), // [STAGE 2] High-dwell banner
+      ],
     ],
   );
 
@@ -114,7 +125,10 @@ class _PatientStatusState extends ConsumerState<PatientStatusModuleView>
           validator: (v) => MedicalValidator.bloodPressure(v, 'Sistolik'), onChanged: _calcSI)),
       ]),
       _button('HITUNG SHOCK INDEX', const Color(0xFF6A1B9A), _calcSI),
-      if (_siResult != null) CalcResultCard(result: _siResult!),
+      if (_siResult != null) ...[
+        CalcResultCard(result: _siResult!),
+        const CalcBannerAdWidget(), // [STAGE 2] High-dwell banner
+      ],
     ],
   );
 

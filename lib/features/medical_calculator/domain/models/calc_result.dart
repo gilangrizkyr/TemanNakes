@@ -10,6 +10,9 @@ class CalculationResult {
   final CalcSeverity severity;
   final List<String> steps; // For education mode
   final Map<String, String>? extras; // Additional key-value results
+  final String? sourceLabel;        // e.g. "Cockcroft-Gault"
+  final String? confidenceLabel;    // e.g. "Estimasi Klinis"
+  final String? interpretationHint; // Soft clinical context (attention lock)
   final DateTime timestamp;
 
   CalculationResult({
@@ -21,6 +24,9 @@ class CalculationResult {
     required this.severity,
     this.steps = const [],
     this.extras,
+    this.sourceLabel,
+    this.confidenceLabel,
+    this.interpretationHint,
     DateTime? timestamp,
   }) : timestamp = timestamp ?? DateTime.now();
 

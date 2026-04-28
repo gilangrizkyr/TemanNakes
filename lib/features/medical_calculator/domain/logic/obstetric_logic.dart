@@ -55,6 +55,13 @@ class ObstetricLogic {
         'HPHT': _formatDate(hpht),
         'Sisa Waktu': '$weeksRemaining minggu ($daysRemaining hari)',
       },
+      sourceLabel: 'Standar Obstetri (Naegele)',
+      confidenceLabel: 'Estimasi (Naegele)',
+      interpretationHint: daysRemaining < 0
+          ? 'Interpretasi umum: Sudah melewati estimasi HPL. Evaluasi klinis lebih lanjut sesuai kondisi ibu dan janin.'
+          : daysRemaining <= 14
+              ? 'Interpretasi umum: Mendekati HPL. Pertimbangkan pemantauan lebih ketat sesuai kondisi ibu.'
+              : 'Interpretasi umum: Estimasi HPL berdasarkan Rumus Naegele. Konfirmasi dengan USG bila tersedia.',
     );
   }
 
@@ -97,6 +104,15 @@ class ObstetricLogic {
         'Total hari: $totalDays hari',
         'Usia kehamilan: $weeks minggu $days hari',
       ],
+      sourceLabel: 'Rumus Klinis Umum',
+      confidenceLabel: 'Estimasi Klinis',
+      interpretationHint: weeks < 28
+          ? 'Interpretasi umum: Trimester awal-pertengahan. Rutinkan pemantauan ANC sesuai jadwal.'
+          : weeks < 37
+              ? 'Interpretasi umum: Usia kehamilan prematur. Pertimbangkan konsultasi klinis lanjut.'
+              : weeks <= 42
+                  ? 'Interpretasi umum: Usia kehamilan aterm. Pantau tanda-tanda persalinan sesuai kondisi ibu.'
+                  : 'Interpretasi umum: Melewati usia aterm. Evaluasi klinis dan pertimbangkan tatalaksana sesuai pedoman.',
     );
   }
 
@@ -119,6 +135,20 @@ class ObstetricLogic {
     // Johnson: TBJ = (TFU - n) × 155 gram
     // n = 12 jika kepala blm masuk, 11 jika sudah masuk
     final n = isEngaged ? 11 : 12;
+    
+    // Safety Guard: If TFU is too small, return 0 instead of negative
+    if (fundalHeightCm <= n) {
+      return CalculationResult(
+        moduleName: 'Kebidanan',
+        label: 'Taksiran Berat Janin (TBJ)',
+        value: '0',
+        unit: 'gram',
+        interpretation: '⚠️ TFU terlalu kecil untuk taksiran TBJ',
+        severity: CalcSeverity.warning,
+        steps: ['TFU ($fundalHeightCm cm) ≤ konstanta $n'],
+      );
+    }
+
     final tbj = (fundalHeightCm - n) * 155;
 
     CalcSeverity severity;
@@ -151,6 +181,15 @@ class ObstetricLogic {
         'TBJ = ($fundalHeightCm – $n) × 155 = ${tbj.toStringAsFixed(0)} gram',
         'Referensi: 2500–4000 gram = Berat Normal (WHO)',
       ],
+      sourceLabel: 'Standar Obstetri (Johnson)',
+      confidenceLabel: 'Estimasi (Johnson)',
+      interpretationHint: tbj < 1500
+          ? 'Interpretasi umum: Taksiran berat sangat rendah. Pertimbangkan evaluasi klinis dan dukungan neonatal.'
+          : tbj < 2500
+              ? 'Interpretasi umum: Taksiran BBLR. Pertimbangkan pemantauan kehamilan dan persiapan klinis.'
+              : tbj <= 4000
+                  ? 'Interpretasi umum: Taksiran berat dalam rentang normal (Johnson-Toshach). Hasil estimasi, konfirmasi dengan USG bila tersedia.'
+                  : 'Interpretasi umum: Taksiran di atas 4000g. Pertimbangkan evaluasi faktor risiko makrosomia.',
     );
   }
 

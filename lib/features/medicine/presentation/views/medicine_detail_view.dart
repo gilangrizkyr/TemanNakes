@@ -98,7 +98,7 @@ class MedicineDetailView extends ConsumerWidget {
                         const Icon(Icons.verified_user_outlined, size: 14, color: Colors.grey),
                         const SizedBox(width: 8),
                         Text(
-                          'DATA TERVERIFIKASI PINNACLE V2.0',
+                          'DATA TERVERIFIKASI PINNACLE V5.5',
                           style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: Colors.grey.shade600, letterSpacing: 1),
                         ),
                       ],

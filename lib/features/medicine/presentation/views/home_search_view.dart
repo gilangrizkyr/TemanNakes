@@ -10,6 +10,11 @@ import '../../../favorites/presentation/views/favorites_view.dart';
 import '../../../medical_calculator/presentation/views/medical_calc_home.dart';
 import '../../../patient_form/presentation/views/patient_form_home.dart';
 import '../widgets/medicine_list_tile.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:temannakes/core/services/ad_service.dart';
+import 'package:temannakes/features/settings/presentation/views/about_view.dart';
+import 'package:temannakes/features/settings/presentation/views/privacy_policy_view.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 
 class HomeSearchView extends ConsumerStatefulWidget {
   const HomeSearchView({super.key});
@@ -21,12 +26,75 @@ class HomeSearchView extends ConsumerStatefulWidget {
 class _HomeSearchViewState extends ConsumerState<HomeSearchView> {
   bool _isEmergencyMode = false;
   final _searchCtrl = TextEditingController();
-  final _searchStopwatch = Stopwatch();
-  int _searchLatencyMs = 0;
+
+  BannerAd? _bannerAd;
+  bool _isBannerLoaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // [FIX D] Timing guard: start banner AFTER first frame to avoid race condition
+    // where AdMob SDK is not yet ready when widget initializes.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initBannerWithRetry();
+    });
+  }
+
+  // [RPM OPT] Slow-network banner retry with cache guard.
+  // IMPORTANT: If banner already loaded, do nothing — never destroy a live ad.
+  Future<void> _initBannerWithRetry({int attempt = 1}) async {
+    const maxAttempts = 3;
+
+    // [CACHE GUARD] Exit immediately if banner is already successfully loaded.
+    // This prevents accidentally disposing a healthy live banner on a retry call.
+    if (_isBannerLoaded) {
+      debugPrint('🎯 Banner cache hit — skipping reload.');
+      return;
+    }
+
+    debugPrint('🔍 HomeSearchView: Banner attempt $attempt/$maxAttempts...');
+
+    final isOnline = await AdService().isOnline();
+    if (!isOnline) {
+      debugPrint('📵 HomeSearchView: Offline — Banner skipped.');
+      return;
+    }
+
+    // Only dispose if not loaded (safe cleanup of previous failed attempt)
+    if (!_isBannerLoaded) _bannerAd?.dispose();
+
+    _bannerAd = AdService().createBannerAd(
+      onAdLoaded: (ad) {
+        if (!mounted) {
+          ad.dispose();
+          return;
+        }
+        debugPrint('🎯 HomeSearchView: Banner loaded on attempt $attempt.');
+        setState(() => _isBannerLoaded = true);
+      },
+      onAdFailedToLoad: (ad, error) {
+        debugPrint('💥 Banner failed (attempt $attempt): ${error.message}');
+        if (!mounted) return;
+        setState(() => _isBannerLoaded = false);
+
+        // [FIX B] Retry with exponential backoff if attempts remain
+        if (attempt < maxAttempts) {
+          final delay = Duration(seconds: attempt == 1 ? 2 : 6);
+          debugPrint('🔄 Retrying banner in ${delay.inSeconds}s...');
+          Future.delayed(delay, () {
+            if (mounted) _initBannerWithRetry(attempt: attempt + 1);
+          });
+        } else {
+          debugPrint('⛔ Banner max attempts reached. Running without ads.');
+        }
+      },
+    )..load();
+  }
 
   @override
   void dispose() {
     _searchCtrl.dispose();
+    _bannerAd?.dispose();
     super.dispose();
   }
 
@@ -39,17 +107,7 @@ class _HomeSearchViewState extends ConsumerState<HomeSearchView> {
   }
 
   void _onSearchChanged(String value) {
-    _searchStopwatch.reset();
-    _searchStopwatch.start();
     ref.read(searchQueryProvider.notifier).state = value;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        setState(() {
-          _searchStopwatch.stop();
-          _searchLatencyMs = _searchStopwatch.elapsedMilliseconds;
-        });
-      }
-    });
   }
 
   void _toggleEmergencyMode() {
@@ -70,7 +128,6 @@ class _HomeSearchViewState extends ConsumerState<HomeSearchView> {
   @override
   Widget build(BuildContext context) {
     final medicineList = ref.watch(medicineListProvider);
-    final history = ref.watch(searchHistoryProvider);
     final trending = ref.watch(trendingMedicinesProvider);
 
     return Scaffold(
@@ -79,16 +136,13 @@ class _HomeSearchViewState extends ConsumerState<HomeSearchView> {
         title: const Text('TemanNakes'),
         actions: [
           _buildEmergencyToggle(),
-          IconButton(
-            icon: const Icon(Icons.history_outlined),
-            onPressed: () => _showHistory(context, history),
-          ),
+          _buildNetworkIndicator(ref),
         ],
       ),
       drawer: _buildDrawer(context),
       body: Column(
         children: [
-          _buildSearchHeader(context),
+          _buildSearchHeader(context, ref),
           _buildSmartSuggestions(trending),
           Expanded(
             child: medicineList.when(
@@ -106,6 +160,14 @@ class _HomeSearchViewState extends ConsumerState<HomeSearchView> {
               error: (err, _) => Center(child: Text('Koneksi Database Error: $err')),
             ),
           ),
+          if (_isBannerLoaded && _bannerAd != null)
+            SafeArea(
+              child: SizedBox(
+                width: _bannerAd!.size.width.toDouble(),
+                height: _bannerAd!.size.height.toDouble(),
+                child: AdWidget(ad: _bannerAd!),
+              ),
+            ),
         ],
       ),
     );
@@ -124,7 +186,6 @@ class _HomeSearchViewState extends ConsumerState<HomeSearchView> {
                   Icon(Icons.medication_liquid, size: 50, color: Colors.white),
                   SizedBox(height: 10),
                   Text('TemanNakes', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
-                  Text('V2.0 Pinnacle Clinical', style: TextStyle(color: Colors.white70, fontSize: 10, letterSpacing: 1.2)),
                 ],
               ),
             ),
@@ -182,29 +243,49 @@ class _HomeSearchViewState extends ConsumerState<HomeSearchView> {
             title: const Text('Tentang Aplikasi'),
             onTap: () {
               Navigator.pop(context);
-              _showAboutDialog(context);
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const AboutView()));
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.privacy_tip_outlined),
+            title: const Text('Kebijakan Privasi'),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const PrivacyPolicyView()));
             },
           ),
           const Spacer(),
-          RichText(
-            text: const TextSpan(
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
               children: [
-                TextSpan(
-                  text: 'Developed by ',
-                  style: TextStyle(color: Colors.grey, fontSize: 10),
+                const Text(
+                  'Institutional Data Integrity Verified',
+                  style: TextStyle(color: Colors.green, fontSize: 10, fontWeight: FontWeight.bold),
                 ),
-                TextSpan(
-                  text: 'GilangRizky',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
+                const SizedBox(height: 4),
+                RichText(
+                  text: const TextSpan(
+                    children: [
+                      TextSpan(
+                        text: 'Developed by ',
+                        style: TextStyle(color: Colors.grey, fontSize: 10),
+                      ),
+                      TextSpan(
+                        text: 'GilangRizky',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 8),
         ],
       ),
     );
@@ -309,7 +390,7 @@ class _HomeSearchViewState extends ConsumerState<HomeSearchView> {
     );
   }
 
-  Widget _buildSearchHeader(BuildContext context) {
+  Widget _buildSearchHeader(BuildContext context, WidgetRef ref) {
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 10, 20, 20),
       decoration: BoxDecoration(
@@ -332,8 +413,6 @@ class _HomeSearchViewState extends ConsumerState<HomeSearchView> {
             decoration: InputDecoration(
               hintText: 'Cari 20.000+ Produk & Referensi...',
               prefixIcon: const Icon(Icons.search, color: Colors.green),
-              suffixText: _searchLatencyMs > 0 ? '${_searchLatencyMs}ms' : null,
-              suffixStyle: const TextStyle(fontSize: 10, color: Colors.grey),
               filled: true,
               fillColor: Colors.white,
               border: OutlineInputBorder(
@@ -345,21 +424,30 @@ class _HomeSearchViewState extends ConsumerState<HomeSearchView> {
           ),
           const SizedBox(height: 10),
           _buildFilterRow(),
-          const SizedBox(height: 10),
-          _buildStatsDashboard(),
         ],
       ),
     );
   }
 
-  Widget _buildStatsDashboard() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: [
-        _buildStatItem('20,565', 'DATABASE', Icons.storage),
-        _buildStatItem('BM25 v2', 'RANKING', Icons.leaderboard),
-        _buildStatItem('OFFLINE', 'STATUS', Icons.cloud_off),
-      ],
+  Widget _buildNetworkIndicator(WidgetRef ref) {
+    final connectivity = ref.watch(connectivityProvider);
+    return connectivity.when(
+      data: (result) {
+        final isOnline = result != ConnectivityResult.none;
+        return Padding(
+          padding: const EdgeInsets.only(right: 8),
+          child: Icon(
+            isOnline ? Icons.wifi : Icons.wifi_off,
+            color: isOnline ? Colors.lightGreenAccent : Colors.redAccent,
+            size: 20,
+          ),
+        );
+      },
+      loading: () => const Padding(
+        padding: EdgeInsets.only(right: 12),
+        child: SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white24)),
+      ),
+      error: (_, __) => const Icon(Icons.wifi_off, color: Colors.white24, size: 20),
     );
   }
 
@@ -443,16 +531,6 @@ class _HomeSearchViewState extends ConsumerState<HomeSearchView> {
     );
   }
 
-  Widget _buildStatItem(String val, String label, IconData icon) {
-    return Column(
-      children: [
-        Icon(icon, color: Colors.white70, size: 16),
-        const SizedBox(height: 4),
-        Text(val, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
-        Text(label, style: const TextStyle(color: Colors.white60, fontSize: 8, fontWeight: FontWeight.w900, letterSpacing: 1.1)),
-      ],
-    );
-  }
 
   Widget _buildHistorySection() {
     final history = ref.watch(searchHistoryProvider);
@@ -492,63 +570,6 @@ class _HomeSearchViewState extends ConsumerState<HomeSearchView> {
     );
   }
 
-  void _showHistory(BuildContext context, List<String> history) {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text('Riwayat Terkini', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-            const Divider(),
-            if (history.isEmpty) const Padding(padding: EdgeInsets.all(20), child: Text('Kosong')),
-            ...history.map((h) => ListTile(
-              leading: const Icon(Icons.history),
-              title: Text(h),
-              onTap: () {
-                _setSearch(h);
-                Navigator.pop(context);
-              },
-            )),
-          ],
-        ),
-      ),
-    );
-  }
 
-  void _showAboutDialog(BuildContext context) {
-    showAboutDialog(
-      context: context,
-      applicationName: 'TemanNakes',
-      applicationVersion: 'v2.0.0',
-      applicationIcon: const Icon(Icons.medication_liquid, size: 40, color: Color(0xFF1B5E20)),
-      children: [
-        const Text('Asisten referensi klinis & database produk farmasi luring untuk nakes.'),
-        const SizedBox(height: 16),
-        const Text('Pengembang:', style: TextStyle(fontWeight: FontWeight.bold)),
-        InkWell(
-          onTap: () => _launchGitHub(),
-          child: const Text('GilangRizky — github.com/gilangrizkyr', style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold)),
-        ),
-        const SizedBox(height: 16),
-        const Text('Fitur Utama:', style: TextStyle(fontWeight: FontWeight.bold)),
-        const Text('• 20.000+ Database Produk Farmasi Terverifikasi'),
-        const Text('• FTS5 BM25 Ranked Search (<300ms)'),
-        const Text('• Pharmacological Class-Matrix Interaction Checker'),
-        const Text('• Kalkulator Dosis (BSA Mosteller + Age-Guard)'),
-        const Text('• Kalkulator Medis: 6 Modul Klinis Terintegrasi'),
-        const Text('• Favorit & Riwayat Pencarian Persisten'),
-        const Text('• 100% Offline — Tanpa Koneksi Internet'),
-      ],
-    );
-  }
-
-  Future<void> _launchGitHub() async {
-    final Uri url = Uri.parse('https://github.com/gilangrizkyr');
-    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
-      debugPrint('Could not launch $url');
-    }
-  }
 }
 

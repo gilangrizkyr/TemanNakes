@@ -2,9 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/theme/app_theme.dart';
 import 'features/medicine/presentation/views/home_search_view.dart';
+import 'core/services/ad_service.dart';
+import 'core/services/notification_service.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // V6.0: Initialize AdMob in background to prevent startup jank
+  AdService().initialize();
+
+  // Smart Notification System: init + return-user trigger
+  NotificationService.instance.initialize();
+  NotificationService.instance.onAppOpen(); // checks if user was absent >= 3 days
+
   runApp(
     const ProviderScope(
       child: TemanNakesApp(),
@@ -57,7 +67,7 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.medication_liquid, size: 100, color: Colors.white),
+            Image.asset('assets/images/logo.png', width: 140, height: 140),
             const SizedBox(height: 24),
             Text(
               'TemanNakes',
@@ -69,7 +79,7 @@ class _SplashScreenState extends State<SplashScreen> {
             ),
             const SizedBox(height: 8),
             const Text(
-              'Asisten Obat Offline Anda',
+              'Asisten Klinis Terintegrasi & Luring',
               style: TextStyle(color: Colors.white70),
             ),
           ],

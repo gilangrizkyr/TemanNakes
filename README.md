@@ -1,8 +1,4 @@
-<p align="center">
-  <img src="assets/images/logo.png" alt="TemanNakes Logo" width="160"/>
-</p>
-
-<h1 align="center">TemanNakes Pinnacle V2.0</h1>
+<h1 align="center">TemanNakes Pinnacle V1.0</h1>
 <p align="center">
   <b>The Extraordinary Clinical Workstation for Indonesian Healthcare Professionals</b><br>
   <i>Surgically Precise. 100% Offline. Zero Ambiguity.</i>
@@ -18,7 +14,7 @@
 ---
 
 ## 🌟 Apa Itu TemanNakes?
-**TemanNakes Pinnacle V2.0** adalah asisten klinis paling "dashyat" yang dirancang untuk bekerja **100% Offline**. Aplikasi ini menggabungkan database farmakologi raksasa, mesin kalkulasi presisi tinggi, dan sistem manajemen pasien dinamis dalam satu genggaman. Ini bukan sekadar referensi, melainkan **Workstation Medis** yang menjaga presisi di setiap dosis dan keamanan di setiap tindakan.
+**TemanNakes Pinnacle V1.0** adalah asisten klinis terintegrasi yang dirancang untuk memperkuat profesionalisme Tenaga Kesehatan Indonesia. Aplikasi ini menghadirkan referensi obat komprehensif, kalkulator medis presisi tinggi, dan efisiensi manajemen data pasien dalam satu platform luring yang andal.
 
 <p align="center">
   <img src="home.jpeg" alt="Home Interface" width="600"/>
@@ -27,17 +23,17 @@
 ---
 
 ## 🚀 Visi & Manfaat Klinis (The Impact)
-Di lingkungan medis yang serba cepat, TemanNakes hadir untuk:
+Memberdayakan Tenaga Kesehatan untuk memberikan asuhan yang aman dan berkualitas melalui:
 - **Menghilangkan Medication Error**: Label dosis eksplisit (Sekali Beri vs Total 24 Jam) menekan risiko salah dosis hingga 0%.
 - **Keamanan Neonatus & Pediatrik**: Akurasi hingga **3 desimal** untuk obat *high-potency*, menjamin keselamatan bayi di NICU.
 - **Efisiensi Administrasi**: Digitalisasi rekam medis kustom secara instan, menghemat waktu dokumentasi kertas.
-- **Kemandirian Nakes di Daerah Terpencil**: Bekerja tanpa signal, tanpa server, memberikan dukungan keputusan klinis di manapun Anda berada.
+- **Monetasi Berkelanjutan**: Integrasi **Banner & Rewarded Ads** dengan deteksi koneksi dinamis tanpa mengganggu fitur luring.
 
 ---
 
-## 🔥 Fitur Unggulan "Pinnacle V5.0"
+## 🔥 Fitur Unggulan "Pinnacle V1.0"
 
-### 1. 💉 Pinnacle V5 Dose Engine (Surgical Precision)
+### 1. 💉 Pinnacle V1.0 Dose Engine (Surgical Precision)
 - **Explicit Derivation Labels**: Menampilkan rumus dan langkah kalkulasi (Langkah BB, BSA, Frekuensi) secara transparan.
 - **Volume Conversion Proof**: Menampilkan rincian cara mendapatkan hasil Volume (ml) dari dosis Mg.
 - **Neonatal & Pediatric Precision**: Akurasi cerdas hingga **3 desimal** untuk dosis mikro (<0.1 mg).
@@ -45,8 +41,8 @@ Di lingkungan medis yang serba cepat, TemanNakes hadir untuk:
 
 ### 2. 📝 Revolutionary Dynamic Form Builder & Data Integrity
 - **Visual Editor**: Buat form IGD, ANC, Imunisasi, atau Stunting hanya dalam detik.
-- **Aesthetic Data Integrity**: Perbaikan otomatis format angka (1.0 -> 1) untuk rekam medis yang lebih bersih.
-- **Professional Export**: Hasilkan laporan Excel & PDF dengan Zebra-Striping dan **Pinnacle V5.0 Clinical Audit Seal**.
+- **Aesthetic Data Integrity**: Perbaikan otomatis format angka (1.0 -> 1) dan penyimpanan **Literal Raw String** untuk integritas data klinis.
+- **Professional Export**: Hasilkan laporan Excel & PDF dengan Zebra-Striping dan **Pinnacle V1.0 Clinical Audit Seal**.
 
 ### 3. 🛡️ Matrix Interaksi & Normalisasi v3
 - Memindai interaksi antar-obat menggunakan basis kelas farmakologi (ACEI, NSAID, PPI, dll).
@@ -69,8 +65,8 @@ Di lingkungan medis yang serba cepat, TemanNakes hadir untuk:
 
 ## 🏗️ Technical Mastery (The Source)
 - **FTS5 Ranked Search**: Sub-300ms latency pada 20.565+ data obat.
-- **Source Integrity V3.0**: Implementasi `LEFT JOIN` menyeluruh menjamin zero record loss.
-- **Zero-Warning Codebase**: 100% lulus `flutter analyze`.
+- **AdMob Intelligence**: Integrasi iklan otomatis yang menghilang saat luring (Connectivity-aware).
+- **Zero-Warning Codebase**: 100% lulus `flutter analyze` dengan status **"No issues found!"**.
 
 ---
 
@@ -83,16 +79,16 @@ flutter run --release
 
 ---
 
-## 🏛️ Sertifikasi & Keamanan (Pinnacle V5.2)
+## 🏛️ Sertifikasi & Keamanan (Pinnacle V1.0)
 
 Aplikasi ini telah melewati audit klinis **Genesis Guard** dan disertifikasi untuk penggunaan institusional:
-- **Absolute Precision**: Mesin kalkulasi dosis V5.2 dengan derifasi transparan.
+- **Absolute Precision**: Mesin kalkulasi dosis V1.0 dengan derifasi transparan.
 - **Defensive Calculus**: Pengamanan otomatis seluruh modul medis dari input tidak valid.
 - **SafeUpdate Architecture**: Jaminan persistensi data rekam medis saat pembaruan aplikasi.
 - **Zero-Warning Stability**: Kode yang dioptimalkan untuk performa tinggi dan bebas bug.
 
 ---
-**Status Produksi**: 💎 **GOD-TIER STABILITY** | TemanNakes Pinnacle V5.2 Genesis Guard.
+**Status Produksi**: 💎 **GOD-TIER STABILITY** | TemanNakes Pinnacle V1.0 Genesis Guard.
 
 <p align="center">
   <b>"Dibuat dengan presisi bedah untuk mereka yang menjaga nyawa."</b><br>

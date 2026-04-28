@@ -1,15 +1,57 @@
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/patient_form_provider.dart';
+import 'package:temannakes/core/services/ad_service.dart';
+import 'package:temannakes/features/patient_form/presentation/providers/patient_form_provider.dart';
 import 'form_builder_view.dart';
 import 'patient_list_view.dart';
 import 'report_view.dart';
 
-class PatientFormHome extends ConsumerWidget {
+class PatientFormHome extends ConsumerStatefulWidget {
   const PatientFormHome({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<PatientFormHome> createState() => _PatientFormHomeState();
+}
+
+class _PatientFormHomeState extends ConsumerState<PatientFormHome> {
+  BannerAd? _bannerAd;
+  bool _isBannerLoaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadBannerAd();
+  }
+
+  void _loadBannerAd() {
+    _bannerAd = BannerAd(
+      adUnitId: AdService.bannerAdUnitId,
+      request: const AdRequest(),
+      size: AdSize.banner,
+      listener: BannerAdListener(
+        onAdLoaded: (ad) {
+          if (!mounted) {
+            ad.dispose();
+            return;
+          }
+          setState(() => _isBannerLoaded = true);
+        },
+        onAdFailedToLoad: (ad, err) {
+          ad.dispose();
+        },
+      ),
+    )..load();
+  }
+
+  @override
+  void dispose() {
+    _bannerAd?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final templatesAsync = ref.watch(formTemplatesProvider);
 
     return Scaffold(
@@ -96,9 +138,17 @@ class PatientFormHome extends ConsumerWidget {
                     error: (_, __) => const SizedBox.shrink(),
                   ),
                 ],
-              ),
+              ).paddingBottom(50), // Prevent coverage by banner
             ),
           ),
+          if (_isBannerLoaded && _bannerAd != null)
+            SafeArea(
+              child: SizedBox(
+                width: _bannerAd!.size.width.toDouble(),
+                height: _bannerAd!.size.height.toDouble(),
+                child: AdWidget(ad: _bannerAd!),
+              ),
+            ),
         ],
       ),
     );
@@ -192,4 +242,8 @@ class PatientFormHome extends ConsumerWidget {
       ),
     );
   }
+}
+
+extension on Widget {
+  Widget paddingBottom(double p) => Padding(padding: EdgeInsets.only(bottom: p), child: this);
 }

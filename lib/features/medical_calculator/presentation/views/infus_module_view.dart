@@ -5,6 +5,8 @@ import '../../domain/logic/medical_validator.dart';
 import '../../domain/models/calc_result.dart';
 import '../widgets/calc_result_card.dart';
 import '../widgets/calc_input_field.dart';
+import '../widgets/calc_banner_ad_widget.dart';
+import '../../../../../core/services/notification_service.dart';
 
 class InfusModuleView extends ConsumerStatefulWidget {
   const InfusModuleView({super.key});
@@ -35,6 +37,9 @@ class _InfusModuleViewState extends ConsumerState<InfusModuleView>
   void initState() {
     super.initState();
     _tabCtrl = TabController(length: 2, vsync: this);
+    // [Behavioral Tracker] — silent, zero friction
+    NotificationService.instance.onFeatureUsed('infus_drop');
+    NotificationService.instance.onFeatureUsed('infus_pump');
   }
 
   @override
@@ -131,10 +136,13 @@ class _InfusModuleViewState extends ConsumerState<InfusModuleView>
             const SizedBox(height: 16),
             const Text('Faktor Tetes:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
             const SizedBox(height: 8),
-            Row(
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
               children: [
+                _dropChip(10, 'Ped/Donor (10)'),
+                _dropChip(15, 'Blood Set (15)'),
                 _dropChip(20, 'Makro (20)'),
-                const SizedBox(width: 8),
                 _dropChip(60, 'Mikro (60)'),
               ],
             ),
@@ -155,6 +163,7 @@ class _InfusModuleViewState extends ConsumerState<InfusModuleView>
             if (_resultDrop != null) ...[
               const SizedBox(height: 24),
               CalcResultCard(result: _resultDrop!),
+              const CalcBannerAdWidget(), // [STAGE 2] High-dwell banner
             ],
           ],
         ),
@@ -212,6 +221,7 @@ class _InfusModuleViewState extends ConsumerState<InfusModuleView>
             if (_resultPump != null) ...[
               const SizedBox(height: 24),
               CalcResultCard(result: _resultPump!),
+              const CalcBannerAdWidget(), // [STAGE 2] High-dwell banner
             ],
           ],
         ),

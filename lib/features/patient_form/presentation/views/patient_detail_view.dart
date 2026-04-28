@@ -99,11 +99,32 @@ class PatientDetailView extends StatelessWidget {
             const SizedBox(height: 32),
             
             // Footer Info
-            Text(
-              'Record ID: ${record.id.substring(0, 8)}...',
-              style: TextStyle(color: Colors.grey.shade400, fontSize: 10),
+            Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.verified_user, color: Color(0xFF2E7D32), size: 14),
+                    const SizedBox(width: 8),
+                    Text(
+                      'PINNACLE V5.5 CLINICAL AUDIT SEAL',
+                      style: TextStyle(
+                        color: Colors.grey.shade600,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Record ID: ${record.id.substring(0, 8)}...',
+                  style: TextStyle(color: Colors.grey.shade400, fontSize: 10),
+                ),
+              ],
             ),
-            const SizedBox(height: 40),
+            const SizedBox(height: 48),
           ],
         ),
       ),

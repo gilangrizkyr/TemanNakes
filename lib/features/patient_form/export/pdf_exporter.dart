@@ -210,7 +210,7 @@ class PdfExporter {
               children: [
                 pw.Text('TemanNakes — Laporan Data Pasien',
                     style: const pw.TextStyle(fontSize: 8, color: PdfColors.grey600)),
-                pw.Text('Terverifikasi Pinnacle V2.0 Clinical Audit Seal',
+                pw.Text('Terverifikasi Pinnacle V5.5 Clinical Audit Seal',
                     style: pw.TextStyle(fontSize: 6, color: PdfColors.grey400, fontWeight: pw.FontWeight.bold)),
               ],
             ),

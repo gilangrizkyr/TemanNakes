@@ -9,36 +9,44 @@ final searchQueryProvider = StateProvider<String>((ref) => '');
 final categoryFilterProvider = StateProvider<String>((ref) => 'Semua');
 final formFilterProvider = StateProvider<String>((ref) => 'Semua');
 
-// Search Results Provider (with automatic debouncing via watch)
+// Search Results Provider — dengan debounce 350ms agar tidak query DB setiap ketukan
 final medicineListProvider = FutureProvider<List<MedicineSimple>>((ref) async {
   final query = ref.watch(searchQueryProvider);
   final category = ref.watch(categoryFilterProvider);
   final form = ref.watch(formFilterProvider);
-  
+
+  // [PERF FIX] Debounce 350ms: tunggu user berhenti mengetik sebelum query ke DB
+  await Future.delayed(const Duration(milliseconds: 350));
+
+  // Jika state berubah selama delay, batalkan request ini
+  final currentQuery = ref.read(searchQueryProvider);
+  final currentCategory = ref.read(categoryFilterProvider);
+  final currentForm = ref.read(formFilterProvider);
+  if (currentQuery != query || currentCategory != category || currentForm != form) {
+    return [];
+  }
+
   return await DatabaseHelper.instance.searchMedicines(
-    query, 
-    category: category, 
+    query,
+    category: category,
     form: form,
   );
 });
 
-// ISOLATED SEARCH for Interaction Checker (to prevent global search interference)
+// ISOLATED SEARCH for Interaction Checker
 final interactionSearchQueryProvider = StateProvider<String>((ref) => '');
 
 final interactionMedicineListProvider = FutureProvider<List<MedicineSimple>>((ref) async {
   final query = ref.watch(interactionSearchQueryProvider);
+  await Future.delayed(const Duration(milliseconds: 300));
+  final current = ref.read(interactionSearchQueryProvider);
+  if (current != query) return [];
   return await DatabaseHelper.instance.searchMedicines(query);
 });
 
-// Trending Medicines - each searched separately to avoid FTS AND-match returning zero
+// [PERF FIX] Trending Medicines — satu query batch, bukan 5 query serial
 final trendingMedicinesProvider = FutureProvider<List<MedicineSimple>>((ref) async {
-  const topDrugs = ['Amoxicillin', 'Paracetamol', 'Amlodipine', 'Metformin', 'Omeprazole'];
-  final results = <MedicineSimple>[];
-  for (final drug in topDrugs) {
-    final found = await DatabaseHelper.instance.searchMedicines(drug);
-    if (found.isNotEmpty) results.add(found.first);
-  }
-  return results;
+  return await DatabaseHelper.instance.getTrendingMedicines();
 });
 
 // Medicine Detail Provider (Auto-disposing to save memory)
@@ -83,6 +91,16 @@ class FavoritesNotifier extends StateNotifier<AsyncValue<List<MedicineSimple>>> 
 
 final favoritesProvider = StateNotifierProvider<FavoritesNotifier, AsyncValue<List<MedicineSimple>>>((ref) {
   return FavoritesNotifier();
+});
+
+// [PERF FIX] Atomized Favorite Provider: 
+// Hanya men-trigger rebuild untuk Tile yang ID-nya berubah, bukan seluruh list.
+final isFavoriteProvider = Provider.family<bool, int>((ref, id) {
+  return ref.watch(favoritesProvider).when(
+    data: (list) => list.any((m) => m.id == id),
+    loading: () => false,
+    error: (_, __) => false,
+  );
 });
 
 // Categories Provider

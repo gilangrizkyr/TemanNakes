@@ -137,7 +137,7 @@ class _PatientInputViewState extends ConsumerState<PatientInputView> {
         foregroundColor: Colors.white,
         onPressed: _isSaving ? null : _save,
         icon: const Icon(Icons.save),
-        label: const Text('Simpan Data'),
+        label: const Text('Simpan'),
       ),
     );
   }

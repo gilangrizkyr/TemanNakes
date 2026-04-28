@@ -7,6 +7,8 @@ import '../../domain/models/patient_record.dart';
 import '../../export/excel_exporter.dart';
 import '../../export/pdf_exporter.dart';
 import '../providers/patient_form_provider.dart';
+import 'package:temannakes/core/services/ad_service.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 /// Layar untuk memilih template laporan & export Excel/PDF
 class ReportView extends ConsumerStatefulWidget {
@@ -16,7 +18,8 @@ class ReportView extends ConsumerStatefulWidget {
   ConsumerState<ReportView> createState() => _ReportViewState();
 }
 
-class _ReportViewState extends ConsumerState<ReportView> {
+class _ReportViewState extends ConsumerState<ReportView>
+    with WidgetsBindingObserver {
   FormTemplate? _selectedTemplate;
   ReportTemplate _reportTemplate = ReportTemplate.ringkas;
   DateTime? _fromDate;
@@ -24,9 +27,86 @@ class _ReportViewState extends ConsumerState<ReportView> {
   final _institutionCtrl = TextEditingController(text: 'Fasilitas Kesehatan');
   bool _isExporting = false;
 
+  RewardedAd? _rewardedAd;
+  bool _isAdLoaded = false;
+
+  // [V1.0 UX FIX] Reward-flag pattern:
+  // Tandai reward yang diperoleh, lalu jalankan aksi SETELAH layar iklan tutup.
+  bool _rewardEarned = false;
+  VoidCallback? _pendingExportAction;
+
+  @override
+  void initState() {
+    super.initState();
+    // Register lifecycle observer for reward flag persistence
+    WidgetsBinding.instance.addObserver(this);
+    _loadRewardedAd();
+  }
+
+  // [REWARD PERSISTENCE] Catch the app-minimize edge case:
+  // On low-end devices, if user minimizes during a rewarded ad,
+  // onAdDismissedFullScreenContent may fire before onUserEarnedReward.
+  // When app returns to foreground (resumed), we check if reward was
+  // earned but the export action is still pending, and execute it safely.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      if (_rewardEarned && _pendingExportAction != null) {
+        debugPrint('📱 App resumed: executing deferred reward export action.');
+        final action = _pendingExportAction!;
+        _pendingExportAction = null; // Clear first to prevent double-execution
+        _rewardEarned = false;
+        action();
+      }
+    }
+  }
+
+  // [RPM OPT] Rewarded Waterfall Preload:
+  // Load BEFORE user clicks, not when they click. Max 3 silent background retries.
+  // This ensures near-zero delay when user taps Export, maximizing rewarded RPM.
+  void _loadRewardedAd({int attempt = 1}) async {
+    const maxAttempts = 3;
+    if (_isAdLoaded) return; // Already loaded, nothing to do
+
+    final isOnline = await AdService().isOnline();
+    if (!isOnline) {
+      debugPrint('📵 ReportView: Offline — Rewarded preload skipped.');
+      return;
+    }
+
+    debugPrint('🔄 ReportView: Preloading RewardedAd (attempt $attempt/$maxAttempts)...');
+    AdService().loadRewardedAd(
+      onAdLoaded: (ad) {
+        if (!mounted) {
+          ad.dispose();
+          return;
+        }
+        debugPrint('✅ ReportView: RewardedAd PRELOADED & READY (attempt $attempt).');
+        setState(() {
+          _rewardedAd = ad;
+          _isAdLoaded = true;
+        });
+      },
+      onAdFailedToLoad: (error) {
+        debugPrint('⚠️ RewardedAd preload failed (attempt $attempt): ${error.message}');
+        if (!mounted) return;
+        setState(() => _isAdLoaded = false);
+
+        // Silent background retry after 15s — user never feels this
+        if (attempt < maxAttempts) {
+          Future.delayed(const Duration(seconds: 15), () {
+            if (mounted && !_isAdLoaded) _loadRewardedAd(attempt: attempt + 1);
+          });
+        }
+      },
+    );
+  }
+
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this); // Clean up lifecycle observer
     _institutionCtrl.dispose();
+    _rewardedAd?.dispose();
     super.dispose();
   }
 
@@ -263,6 +343,52 @@ class _ReportViewState extends ConsumerState<ReportView> {
       _showError('Pilih form terlebih dahulu');
       return;
     }
+
+    final isOnline = await AdService().isOnline();
+    if (isOnline && _isAdLoaded && _rewardedAd != null) {
+      _showAdConfirmation(() {
+        // Simpan aksi yang akan dijalankan setelah iklan ditutup
+        _pendingExportAction = _performExcelExport;
+        _rewardEarned = false;
+
+        _rewardedAd!.fullScreenContentCallback = FullScreenContentCallback(
+          onAdDismissedFullScreenContent: (ad) {
+            ad.dispose();
+            _rewardedAd = null;
+            _isAdLoaded = false;
+            _loadRewardedAd(); // preload untuk export berikutnya
+            // Jalankan export SETELAH layar iklan benar-benar bersih
+            if (_rewardEarned && _pendingExportAction != null) {
+              _pendingExportAction!();
+              _pendingExportAction = null;
+            }
+          },
+          onAdFailedToShowFullScreenContent: (ad, error) {
+            debugPrint('RewardedAd failed to show: $error');
+            ad.dispose();
+            _rewardedAd = null;
+            _isAdLoaded = false;
+            _loadRewardedAd();
+            // Fallback: jalankan langsung jika iklan gagal tampil
+            _performExcelExport();
+          },
+        );
+
+        _rewardedAd!.show(
+          onUserEarnedReward: (ad, reward) {
+            // Tandai reward sudah diperoleh, tapi jangan export dulu
+            _rewardEarned = true;
+            debugPrint('✅ Reward earned: ${reward.amount} ${reward.type}');
+          },
+        );
+      });
+    } else {
+      // Offline or ad not ready → proceed directly
+      _performExcelExport();
+    }
+  }
+
+  Future<void> _performExcelExport() async {
     setState(() => _isExporting = true);
     try {
       final records = await _fetchRecords();
@@ -302,6 +428,47 @@ class _ReportViewState extends ConsumerState<ReportView> {
       _showError('Pilih form terlebih dahulu');
       return;
     }
+
+    final isOnline = await AdService().isOnline();
+    if (isOnline && _isAdLoaded && _rewardedAd != null) {
+      _showAdConfirmation(() {
+        _pendingExportAction = _performPdfExport;
+        _rewardEarned = false;
+
+        _rewardedAd!.fullScreenContentCallback = FullScreenContentCallback(
+          onAdDismissedFullScreenContent: (ad) {
+            ad.dispose();
+            _rewardedAd = null;
+            _isAdLoaded = false;
+            _loadRewardedAd();
+            if (_rewardEarned && _pendingExportAction != null) {
+              _pendingExportAction!();
+              _pendingExportAction = null;
+            }
+          },
+          onAdFailedToShowFullScreenContent: (ad, error) {
+            debugPrint('RewardedAd failed to show: $error');
+            ad.dispose();
+            _rewardedAd = null;
+            _isAdLoaded = false;
+            _loadRewardedAd();
+            _performPdfExport();
+          },
+        );
+
+        _rewardedAd!.show(
+          onUserEarnedReward: (ad, reward) {
+            _rewardEarned = true;
+            debugPrint('✅ Reward earned: ${reward.amount} ${reward.type}');
+          },
+        );
+      });
+    } else {
+      _performPdfExport();
+    }
+  }
+
+  Future<void> _performPdfExport() async {
     setState(() => _isExporting = true);
     try {
       final records = await _fetchRecords();
@@ -325,5 +492,28 @@ class _ReportViewState extends ConsumerState<ReportView> {
     } finally {
       if (mounted) setState(() => _isExporting = false);
     }
+  }
+
+  void _showAdConfirmation(VoidCallback onAccept) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Export Laporan'),
+        content: const Text('Tonton iklan singkat untuk mendukung pengembangan aplikasi dan mengunduh laporan Anda secara gratis.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Batal'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              onAccept();
+            },
+            child: const Text('Tonton Iklan & Export'),
+          ),
+        ],
+      ),
+    );
   }
 }

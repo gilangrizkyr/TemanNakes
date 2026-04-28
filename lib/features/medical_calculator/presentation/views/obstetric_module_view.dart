@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/logic/obstetric_logic.dart';
 import '../../domain/models/calc_result.dart';
 import '../widgets/calc_result_card.dart';
+import '../widgets/calc_banner_ad_widget.dart';
+import '../../../../../core/services/notification_service.dart';
 
 class ObstetricModuleView extends ConsumerStatefulWidget {
   const ObstetricModuleView({super.key});
@@ -28,6 +30,10 @@ class _ObstetricState extends ConsumerState<ObstetricModuleView>
   void initState() {
     super.initState();
     _tabCtrl = TabController(length: 2, vsync: this);
+    // [Behavioral Tracker] — silent, zero friction
+    NotificationService.instance.onFeatureUsed('hpl');
+    NotificationService.instance.onFeatureUsed('gestational_age');
+    NotificationService.instance.onFeatureUsed('tbj');
   }
 
   @override
@@ -146,6 +152,7 @@ class _ObstetricState extends ConsumerState<ObstetricModuleView>
             CalcResultCard(result: _hplResult!),
             const SizedBox(height: 16),
             CalcResultCard(result: _ageResult!),
+            const CalcBannerAdWidget(), // [STAGE 2] High-dwell banner
           ],
         ],
       ),
@@ -196,6 +203,7 @@ class _ObstetricState extends ConsumerState<ObstetricModuleView>
           if (_tbjResult != null) ...[
             const SizedBox(height: 24),
             CalcResultCard(result: _tbjResult!),
+            const CalcBannerAdWidget(), // [STAGE 2] High-dwell banner
           ],
         ],
       ),

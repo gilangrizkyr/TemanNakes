@@ -5,6 +5,8 @@ import '../../domain/logic/medical_validator.dart';
 import '../../domain/models/calc_result.dart';
 import '../widgets/calc_result_card.dart';
 import '../widgets/calc_input_field.dart';
+import '../widgets/calc_banner_ad_widget.dart';
+import '../../../../../core/services/notification_service.dart';
 
 class DoseCalcModuleView extends ConsumerStatefulWidget {
   const DoseCalcModuleView({super.key});
@@ -46,6 +48,13 @@ class _DoseCalcModuleViewState extends ConsumerState<DoseCalcModuleView> {
             : null,
       );
     });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // [Behavioral Tracker] — silent, zero friction
+    NotificationService.instance.onFeatureUsed('dose');
   }
 
   @override
@@ -165,6 +174,7 @@ class _DoseCalcModuleViewState extends ConsumerState<DoseCalcModuleView> {
               if (_result != null) ...[
                 const SizedBox(height: 24),
                 CalcResultCard(result: _result!),
+                const CalcBannerAdWidget(), // [STAGE 2] High-dwell banner
               ],
               const SizedBox(height: 60),
             ],

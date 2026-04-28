@@ -5,6 +5,8 @@ import '../../domain/logic/medical_validator.dart';
 import '../../domain/models/calc_result.dart';
 import '../widgets/calc_result_card.dart';
 import '../widgets/calc_input_field.dart';
+import '../widgets/calc_banner_ad_widget.dart';
+import '../../../../../core/services/notification_service.dart';
 
 class RenalModuleView extends ConsumerStatefulWidget {
   const RenalModuleView({super.key});
@@ -28,6 +30,9 @@ class _RenalState extends ConsumerState<RenalModuleView>
   void initState() {
     super.initState();
     _tabCtrl = TabController(length: 2, vsync: this);
+    // [Behavioral Tracker] — silent, zero friction
+    NotificationService.instance.onFeatureUsed('renal_clcr');
+    NotificationService.instance.onFeatureUsed('renal_egfr');
   }
 
   @override
@@ -149,6 +154,7 @@ class _RenalState extends ConsumerState<RenalModuleView>
           if (result != null) ...[
             const SizedBox(height: 24),
             CalcResultCard(result: result),
+            const CalcBannerAdWidget(), // [STAGE 2] High-dwell banner
           ],
         ],
       ),
