@@ -27,7 +27,7 @@ class AboutView extends StatelessWidget {
               ),
             ),
             const Text(
-              'Zenith Edition V1.2 — Production Ready',
+              'Zenith Edition V1.0 — Production Ready',
               style: TextStyle(color: Colors.grey, fontSize: 13),
             ),
             const SizedBox(height: 32),

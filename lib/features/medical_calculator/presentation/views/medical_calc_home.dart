@@ -8,6 +8,7 @@ import 'patient_status_module_view.dart';
 import 'obstetric_module_view.dart';
 import 'emergency_module_view.dart';
 import 'renal_module_view.dart';
+import 'kb_module_view.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:temannakes/core/services/ad_service.dart';
 
@@ -91,6 +92,12 @@ class _MedicalCalcHomeState extends ConsumerState<MedicalCalcHome> {
       icon: Icons.science,
       color: Color(0xFF0277BD),
     ),
+    _ModuleCard(
+      title: 'Keluarga Berencana',
+      subtitle: 'Jadwal kembali\nsuntik KB 1 & 3 bln',
+      icon: Icons.calendar_month,
+      color: Color(0xFFE65100),
+    ),
   ];
 
   @override
@@ -104,7 +111,7 @@ class _MedicalCalcHomeState extends ConsumerState<MedicalCalcHome> {
           children: [
             Text('Kalkulator Medis Nakes',
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-            Text('6 Modul Klinis Terintegrasi',
+            Text('7 Modul Klinis Terintegrasi',
                 style: TextStyle(fontSize: 11, color: Colors.white70)),
           ],
         ),
@@ -238,6 +245,7 @@ class _MedicalCalcHomeState extends ConsumerState<MedicalCalcHome> {
       const ObstetricModuleView(),
       const EmergencyModuleView(),
       const RenalModuleView(),
+      const KbModuleView(),
     ];
     Navigator.push(context, MaterialPageRoute(builder: (_) => views[index]));
   }

@@ -13,7 +13,6 @@ class MedicineDetailView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final detailAsync = ref.watch(medicineDetailProvider(medicine.id));
-    final isFavorite = ref.watch(favoritesProvider.notifier).isFavorite(medicine.id);
 
     return Scaffold(
       appBar: AppBar(
@@ -21,15 +20,6 @@ class MedicineDetailView extends ConsumerWidget {
         backgroundColor: const Color(0xFF004D40),
         foregroundColor: Colors.white,
         actions: [
-          IconButton(
-            icon: Icon(
-              isFavorite ? Icons.favorite : Icons.favorite_border,
-              color: isFavorite ? Colors.redAccent : Colors.white,
-            ),
-            onPressed: () {
-              ref.read(favoritesProvider.notifier).toggleFavorite(medicine.id);
-            },
-          ),
         ],
       ),
       body: detailAsync.when(

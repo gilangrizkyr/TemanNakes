@@ -39,6 +39,7 @@ class UsageTracker {
     'apgar': 3,
     'tbj': 2,
     'gestational_age': 1,
+    'kb_calculator': 2,
   };
 
   // General signals (also used to detect non-specialized users)

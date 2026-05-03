@@ -344,11 +344,17 @@ class _ReportViewState extends ConsumerState<ReportView>
       return;
     }
 
+    // [UX FIX] Pre-check records availability BEFORE showing ad
+    final records = await _fetchRecords();
+    if (records.isEmpty) {
+      _showError('Tidak ada data untuk diexport dalam periode ini');
+      return;
+    }
+
     final isOnline = await AdService().isOnline();
     if (isOnline && _isAdLoaded && _rewardedAd != null) {
       _showAdConfirmation(() {
-        // Simpan aksi yang akan dijalankan setelah iklan ditutup
-        _pendingExportAction = _performExcelExport;
+        _pendingExportAction = () => _performExcelExportWithData(records);
         _rewardEarned = false;
 
         _rewardedAd!.fullScreenContentCallback = FullScreenContentCallback(
@@ -356,46 +362,33 @@ class _ReportViewState extends ConsumerState<ReportView>
             ad.dispose();
             _rewardedAd = null;
             _isAdLoaded = false;
-            _loadRewardedAd(); // preload untuk export berikutnya
-            // Jalankan export SETELAH layar iklan benar-benar bersih
+            _loadRewardedAd();
             if (_rewardEarned && _pendingExportAction != null) {
               _pendingExportAction!();
               _pendingExportAction = null;
             }
           },
           onAdFailedToShowFullScreenContent: (ad, error) {
-            debugPrint('RewardedAd failed to show: $error');
             ad.dispose();
             _rewardedAd = null;
             _isAdLoaded = false;
             _loadRewardedAd();
-            // Fallback: jalankan langsung jika iklan gagal tampil
-            _performExcelExport();
+            _performExcelExportWithData(records);
           },
         );
 
         _rewardedAd!.show(
-          onUserEarnedReward: (ad, reward) {
-            // Tandai reward sudah diperoleh, tapi jangan export dulu
-            _rewardEarned = true;
-            debugPrint('✅ Reward earned: ${reward.amount} ${reward.type}');
-          },
+          onUserEarnedReward: (ad, reward) => _rewardEarned = true,
         );
       });
     } else {
-      // Offline or ad not ready → proceed directly
-      _performExcelExport();
+      _performExcelExportWithData(records);
     }
   }
 
-  Future<void> _performExcelExport() async {
+  Future<void> _performExcelExportWithData(List<PatientRecord> records) async {
     setState(() => _isExporting = true);
     try {
-      final records = await _fetchRecords();
-      if (records.isEmpty) {
-        _showError('Tidak ada data untuk diexport');
-        return;
-      }
       final path = await ExcelExporter.export(
           template: _selectedTemplate!, records: records);
       if (mounted) {
@@ -429,10 +422,17 @@ class _ReportViewState extends ConsumerState<ReportView>
       return;
     }
 
+    // [UX FIX] Pre-check records availability BEFORE showing ad
+    final records = await _fetchRecords();
+    if (records.isEmpty) {
+      _showError('Tidak ada data untuk diexport dalam periode ini');
+      return;
+    }
+
     final isOnline = await AdService().isOnline();
     if (isOnline && _isAdLoaded && _rewardedAd != null) {
       _showAdConfirmation(() {
-        _pendingExportAction = _performPdfExport;
+        _pendingExportAction = () => _performPdfExportWithData(records);
         _rewardEarned = false;
 
         _rewardedAd!.fullScreenContentCallback = FullScreenContentCallback(
@@ -447,35 +447,26 @@ class _ReportViewState extends ConsumerState<ReportView>
             }
           },
           onAdFailedToShowFullScreenContent: (ad, error) {
-            debugPrint('RewardedAd failed to show: $error');
             ad.dispose();
             _rewardedAd = null;
             _isAdLoaded = false;
             _loadRewardedAd();
-            _performPdfExport();
+            _performPdfExportWithData(records);
           },
         );
 
         _rewardedAd!.show(
-          onUserEarnedReward: (ad, reward) {
-            _rewardEarned = true;
-            debugPrint('✅ Reward earned: ${reward.amount} ${reward.type}');
-          },
+          onUserEarnedReward: (ad, reward) => _rewardEarned = true,
         );
       });
     } else {
-      _performPdfExport();
+      _performPdfExportWithData(records);
     }
   }
 
-  Future<void> _performPdfExport() async {
+  Future<void> _performPdfExportWithData(List<PatientRecord> records) async {
     setState(() => _isExporting = true);
     try {
-      final records = await _fetchRecords();
-      if (records.isEmpty) {
-        _showError('Tidak ada data untuk diexport');
-        return;
-      }
       final pdfBytes = await PdfExporter.exportBytes(
         template: _selectedTemplate!,
         records: records,

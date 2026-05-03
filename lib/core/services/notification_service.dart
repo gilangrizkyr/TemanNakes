@@ -215,12 +215,14 @@ class NotificationService {
             ('Shift pagi biasanya padat. 🤰', 'HPL, APGAR & TBJ sudah siap — kalau ada yang perlu dihitung cepat.'),
             ('Ada pemeriksaan kehamilan hari ini?', 'HPL & Usia Kehamilan bisa langsung dicek — semua offline.'),
             ('Visite pagi? TemanNakes ikut bantu.', 'TBJ, APGAR, dan HPL siap digunakan kapanpun dibutuhkan.'),
+            ('Banyak akseptor KB pagi ini?', 'Cek jadwal suntik kembali 1 & 3 bulan dengan presisi di sini.'),
           ]);
         }
         return _pick(const [
           ('Ada yang perlu dipantau hari ini? 🤰', 'HPL & APGAR siap membantu — kapanpun kamu butuh.'),
           ('Kalau ada persalinan hari ini,', 'TBJ dan APGAR sudah siap digunakan langsung — tanpa internet.'),
           ('TemanNakes ada kalau dibutuhkan.', 'Kalkulator kebidanan tersedia offline kapanpun di shift ini.'),
+          ('Jadwal suntik KB akurat.', 'Hitung tanggal kembali akseptor KB 1 & 3 bulan secara otomatis.'),
         ]);
 
       case UserSegment.general:

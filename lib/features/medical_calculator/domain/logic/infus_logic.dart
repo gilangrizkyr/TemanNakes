@@ -83,7 +83,7 @@ class InfusLogic {
       );
     }
     final ratePerHour = volumeMl / durationHours;
-    final rounded = ratePerHour.round();
+    final rateString = ratePerHour.toStringAsFixed(1);
 
     CalcSeverity severity = CalcSeverity.normal;
     String interpretation = 'Normal';
@@ -95,14 +95,14 @@ class InfusLogic {
     return CalculationResult(
       moduleName: 'Infus',
       label: 'Kecepatan Infus Pump',
-      value: rounded.toString(),
+      value: rateString,
       unit: 'mL/jam',
       interpretation: interpretation,
       severity: severity,
       steps: [
         'Rumus: Kecepatan (mL/jam) = Volume ÷ Durasi (jam)',
         'Kecepatan = $volumeMl mL ÷ $durationHours jam',
-        'Kecepatan = ${ratePerHour.toStringAsFixed(1)} → dibulatkan = $rounded mL/jam',
+        'Kecepatan = ${ratePerHour.toStringAsFixed(2)} → dibulatkan = $rateString mL/jam',
       ],
       extras: {
         'Volume Total': '$volumeMl mL',

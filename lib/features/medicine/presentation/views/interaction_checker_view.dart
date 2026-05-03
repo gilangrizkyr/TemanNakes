@@ -52,8 +52,9 @@ class _InteractionCheckerTrayState extends State<InteractionCheckerTray> {
     final interactionMatrix = {
       'ACEI': {
         'NSAID': {'txt': 'Risiko penurunan fungsi ginjal & penurunan efek antihipertensi.', 'sev': 'Moderate'},
-        'KALIUM': {'txt': 'Risiko Hiperkalemia berat.', 'sev': 'Major'},
+        'KALIUM': {'txt': 'Risiko Hiperkalemia berat (Potassium-sparing interaction).', 'sev': 'Major'},
         'SPIRONOLAKTON': {'txt': 'Risiko Hiperkalemia berat.', 'sev': 'Major'},
+        'DIURETIK': {'txt': 'Risiko Hipotensi mendadak pada dosis pertama.', 'sev': 'Moderate'},
       },
       'ARB': {
         'NSAID': {'txt': 'Risiko penurunan fungsi ginjal.', 'sev': 'Moderate'},
@@ -61,15 +62,17 @@ class _InteractionCheckerTrayState extends State<InteractionCheckerTray> {
         'SPIRONOLAKTON': {'txt': 'Risiko Hiperkalemia.', 'sev': 'Major'},
       },
       'BETA BLOCKER': {
-        'INSULIN': {'txt': 'Menutupi gejala hipoglikemia (palpitasi/tremor).', 'sev': 'Moderate'},
+        'INSULIN': {'txt': 'Menutupi gejala hipoglikemia (palpitasi/tremor). Penting untuk DM.', 'sev': 'Moderate'},
         'EPINEFRIN': {'txt': 'Risiko kenaikan tekanan darah mendadak (Hipertensi Paroksimal).', 'sev': 'Major'},
         'VERAPAMIL': {'txt': 'Risiko Bradikardia berat & AV Block.', 'sev': 'Major'},
+        'DILTIAZEM': {'txt': 'Risiko depresi fungsi jantung & bradikardia.', 'sev': 'Major'},
       },
       'NSAID': {
         'WARFARIN': {'txt': 'Peningkatan risiko perdarahan hebat (Synergy Antiplatelet).', 'sev': 'Major'},
         'ASPIRIN': {'txt': 'Menurunkan efek perlindungan jantung Aspirin.', 'sev': 'Moderate'},
         'STEROID': {'txt': 'Risiko tinggi perlukaan lambung/tukak/perforasi.', 'sev': 'Major'},
         'METOTREKSAT': {'txt': 'Meningkatkan toksisitas Metotreksat.', 'sev': 'Major'},
+        'QUINOLONE': {'txt': 'Risiko stimulasi SSP & kejang (jarang).', 'sev': 'Minor'},
       },
       'PPI': {
         'CLOPIDOGREL': {'txt': 'Menurunkan efektivitas antithrombotik Clopidogrel (CYP2C19 inhib).', 'sev': 'Moderate'},
@@ -77,8 +80,9 @@ class _InteractionCheckerTrayState extends State<InteractionCheckerTray> {
       },
       'ANTASIDA': {
         'TETRASIKLIN': {'txt': 'Kelasi: Menurunkan penyerapan antibiotik secara drastis.', 'sev': 'Major'},
-        'CIPROFLOXACIN': {'txt': 'Kelasi: Menurunkan penyerapan antibiotik.', 'sev': 'Moderate'},
+        'QUINOLONE': {'txt': 'Kelasi: Menurunkan penyerapan antibiotik (Ciprofloxacin dll).', 'sev': 'Major'},
         'LEVO-TIROKSIN': {'txt': 'Menurunkan penyerapan hormon tiroid.', 'sev': 'Moderate'},
+        'DIGOXIN': {'txt': 'Dapat menurunkan penyerapan Digoxin.', 'sev': 'Minor'},
       },
       'DIGOXIN': {
         'FUROSEMID': {'txt': 'Hipokalemia meningkatkan risiko toksisitas Digoxin.', 'sev': 'Major'},
@@ -88,6 +92,7 @@ class _InteractionCheckerTrayState extends State<InteractionCheckerTray> {
       'WARFARIN': {
         'AMIODARON': {'txt': 'Meningkatkan efek antikoagulan (Risiko Perdarahan Berat).', 'sev': 'Major'},
         'ERITROMISIN': {'txt': 'Meningkatkan efek antikoagulan.', 'sev': 'Major'},
+        'STATIN': {'txt': 'Beberapa statin meningkatkan efek Warfarin.', 'sev': 'Moderate'},
       },
       'STATIN': {
         'ERITROMISIN': {'txt': 'Peningkatan risiko Rhabdomyolysis.', 'sev': 'Major'},
@@ -98,20 +103,46 @@ class _InteractionCheckerTrayState extends State<InteractionCheckerTray> {
         'NITRAT': {'txt': 'KONTRAINDIKASI VITAL: Hipotensi berat yang mematikan.', 'sev': 'Major'},
         'NITROGLISERIN': {'txt': 'KONTRAINDIKASI VITAL: Hipotensi berat yang mematikan.', 'sev': 'Major'},
       },
+      'METFORMIN': {
+        'STEROID': {'txt': 'Steroid meningkatkan gula darah, melawan efek Metformin.', 'sev': 'Moderate'},
+        'DIURETIK': {'txt': 'Risiko asidosis laktat (jarang).', 'sev': 'Minor'},
+      },
     };
 
     String normalizeClass(String? raw) {
       if (raw == null) return '';
       final r = raw.toUpperCase();
-      if (r.contains('ACE-INHIBITOR') || r.contains('ACE INHIBITOR')) return 'ACEI';
-      if (r.contains('NSAID') || r.contains('NON STEROID') || r.contains('ANTI-INFLAMASI NON-STEROID')) return 'NSAID';
-      if (r.contains('PPI') || r.contains('PUMP INHIBITOR')) return 'PPI';
-      if (r.contains('BETA-BLOCKER') || r.contains('BETA BLOCKER')) return 'BETA BLOCKER';
-      if (r.contains('CALCIUM CHANNEL')) return 'CCB';
-      if (r.contains('HMG-COA') || r.contains('STATIN')) return 'STATIN';
-      if (r.contains('ALDOSTERON') || r.contains('SPIRONOLAKTON')) return 'SPIRONOLAKTON';
-      if (r.contains('DIGITALIS') || r.contains('GLIKOSIDA JANTUNG')) return 'DIGOXIN';
+      
+      // ACE Inhibitor
+      if (r.contains('ACE-INHIBITOR') || r.contains('ACE INHIBITOR') || r.contains('PENGHAMBAT ACE')) return 'ACEI';
+      
+      // ARB
+      if (r.contains('ARB') || r.contains('ANGIOTENSIN RECEPTOR BLOCKER') || r.contains('ANTAGONIS RESEPTOR ANGIOTENSIN')) return 'ARB';
+      
+      // NSAID
+      if (r.contains('NSAID') || r.contains('NON STEROID') || r.contains('ANTI-INFLAMASI NON-STEROID') || r.contains('AINS')) return 'NSAID';
+      
+      // PPI
+      if (r.contains('PPI') || r.contains('PUMP INHIBITOR') || r.contains('PENGHAMBAT POMPA PROTON')) return 'PPI';
+      
+      // Beta Blocker
+      if (r.contains('BETA-BLOCKER') || r.contains('BETA BLOCKER') || r.contains('PENGHAMBAT BETA')) return 'BETA BLOCKER';
+      
+      // CCB
+      if (r.contains('CALCIUM CHANNEL') || r.contains('ANTAGONIS KALSIUM')) return 'CCB';
+      
+      // Statin
+      if (r.contains('STATIN') || r.contains('KOLESTEROL')) return 'STATIN';
+      if (r.contains('SPIRONOLAKTON') || r.contains('HEMAT KALIUM')) return 'SPIRONOLAKTON';
+      if (r.contains('DIGOXIN') || r.contains('GLIKOSIDA JANTUNG')) return 'DIGOXIN';
       if (r.contains('STEROID') || r.contains('KORTIKOSTEROID')) return 'STEROID';
+      if (r.contains('METFORMIN') || r.contains('ANTIDIABETIK')) return 'METFORMIN';
+      if (r.contains('QUINOLONE') || r.contains('KUINOLON') || r.contains('CIPROFLOXACIN')) return 'QUINOLONE';
+      if (r.contains('KALIUM') || r.contains('POTASSIUM')) return 'KALIUM';
+      if (r.contains('DIURETIK') || r.contains('FUROSEMID')) return 'DIURETIK';
+      if (r.contains('WARFARIN') || r.contains('ANTIKOAGULAN')) return 'WARFARIN';
+      if (r.contains('NITRAT') || r.contains('ISDN') || r.contains('NITROGLISERIN')) return 'NITRAT';
+      
       return r;
     }
 
@@ -123,21 +154,33 @@ class _InteractionCheckerTrayState extends State<InteractionCheckerTray> {
       for (var j = 0; j < details.length; j++) {
         if (i == j) continue;
         final other = details[j];
-        final otherName = other.namaGenerik.toLowerCase();
+        final otherName = other.namaGenerik.toLowerCase().trim();
         final otherClass = normalizeClass(other.kelasTerapi ?? other.golongan);
         
-        // 1. Direct Keyword Check (Safety Fallback)
-        if (current.interaksi?.toLowerCase().contains(otherName) ?? false) {
-          warnings.add('MAJOR|⚠️ [SPESIFIK] ${current.namaGenerik} + ${other.namaGenerik}: Berisiko interaksi langsung.');
+        // 1. Direct Keyword Check (Concrete Regex Matching)
+        // Menggunakan regex \b (word boundary) agar "Aspirin" tidak match dengan "Aspirin-like compound" secara salah
+        if (current.interaksi != null) {
+          final escapedName = RegExp.escape(otherName);
+          final regExp = RegExp('\\b$escapedName\\b', caseSensitive: false);
+          if (regExp.hasMatch(current.interaksi!)) {
+            warnings.add('MAJOR|⚠️ [DATA KONKRET] ${current.namaGenerik} memiliki catatan interaksi spesifik dengan $otherName di database.');
+          }
         }
 
         // 2. Class-based Matrix Check (Deep Clinical Logic)
         if (interactionMatrix.containsKey(currentClass)) {
           final interClassDict = interactionMatrix[currentClass]!;
-          if (interClassDict.containsKey(otherClass)) {
-            final data = interClassDict[otherClass]!;
+          // Check if other's name OR other's class exists in the matrix for currentClass
+          // Priority: Specific Drug Name > Broad Pharmacological Class
+          final matchKey = [otherName.toUpperCase(), otherClass].firstWhere(
+            (key) => interClassDict.containsKey(key),
+            orElse: () => '',
+          );
+
+          if (matchKey.isNotEmpty) {
+            final data = interClassDict[matchKey]!;
             final sev = data['sev']!.toUpperCase();
-            warnings.add('$sev|${current.namaGenerik} ($currentClass) + ${other.namaGenerik} ($otherClass): ${data['txt']}');
+            warnings.add('$sev|${current.namaGenerik} + ${other.namaGenerik}: ${data['txt']}');
           }
         }
       }
@@ -190,7 +233,7 @@ class _InteractionCheckerTrayState extends State<InteractionCheckerTray> {
           SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Aplikasi memindai database 20k+ obat menggunakan Pharmacological Class-Matrix v2.0.',
+              'Aplikasi memindai database 20k+ obat menggunakan Pharmacological Class-Matrix v1.0.',
               style: TextStyle(fontSize: 13, color: Colors.green, fontWeight: FontWeight.w600),
             ),
           ),
@@ -244,13 +287,26 @@ class _InteractionCheckerTrayState extends State<InteractionCheckerTray> {
   }
 
   Widget _buildWarningPanel() {
+    if (_selectedMedicines.length == 1 && !_isLoading) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        color: Colors.blue.shade50,
+        child: const Text(
+          '💡 Pilih satu obat lagi untuk memindai interaksi.',
+          style: TextStyle(color: Colors.blue, fontWeight: FontWeight.w600),
+          textAlign: TextAlign.center,
+        ),
+      );
+    }
+
     if (_interactionWarnings.isEmpty && _selectedMedicines.length >= 2 && !_isLoading) {
       return Container(
         width: double.infinity,
         padding: const EdgeInsets.all(16),
-        color: Colors.green.shade100,
+        color: Colors.green.shade50,
         child: const Text(
-          '✅ Tidak ditemukan interaksi spesifik.',
+          '✅ Tidak ditemukan interaksi spesifik di database.',
           style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
           textAlign: TextAlign.center,
         ),

@@ -22,7 +22,6 @@ class ProjectMedicineListTile extends ConsumerWidget {
       indicatorLabel = 'T';
     }
 
-    final isFavorite = ref.watch(isFavoriteProvider(medicine.id));
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
@@ -67,26 +66,7 @@ class ProjectMedicineListTile extends ConsumerWidget {
             ),
           ],
         ),
-        trailing: Wrap(
-          spacing: 4,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          children: [
-            IconButton(
-              icon: Icon(
-                isFavorite ? Icons.favorite : Icons.favorite_border,
-                color: isFavorite ? Colors.red : Colors.grey,
-                size: 22,
-              ),
-              onPressed: () {
-                ref.read(favoritesProvider.notifier).toggleFavorite(medicine.id);
-              },
-            ),
-            IconButton(
-              icon: const Icon(Icons.flash_on, color: Colors.orange, size: 22),
-              onPressed: () => _showQuickAction(context, medicine, ref),
-            ),
-          ],
-        ),
+        trailing: const Icon(Icons.chevron_right, color: Colors.grey),
         onTap: () {
           Navigator.push(
             context,
@@ -113,68 +93,4 @@ class ProjectMedicineListTile extends ConsumerWidget {
     );
   }
 
-  void _showQuickAction(BuildContext context, MedicineSimple medicine, WidgetRef ref) {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
-      builder: (context) {
-        // Must use Consumer inside builder — parent ref can't watch inside a separate widget sub-tree
-        return Consumer(
-          builder: (context, innerRef, _) {
-            final detailAsync = innerRef.watch(medicineDetailProvider(medicine.id));
-            return Container(
-              padding: const EdgeInsets.all(32),
-              decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
-              child: detailAsync.when(
-                data: (detail) => Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: Text(medicine.namaGenerik,
-                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-                        ),
-                        Text(medicine.kodeNie ?? '',
-                            style: TextStyle(color: Colors.blue.shade700, fontWeight: FontWeight.bold, fontSize: 12)),
-                      ],
-                    ),
-                    const Divider(height: 32),
-                    _buildQuickRow('INDIKASI', detail?.indikasi ?? '-'),
-                    const SizedBox(height: 16),
-                    _buildQuickRow('DOSIS DEWASA', detail?.dosisDewasa ?? '-'),
-                    const SizedBox(height: 16),
-                    _buildQuickRow('PREGNANCY', detail?.kategoriKehamilan ?? '?', color: Colors.indigo),
-                    const SizedBox(height: 16),
-                    _buildQuickRow('KELAS TERAPI', detail?.kelasTerapi ?? '-', color: Colors.green),
-                  ],
-                ),
-                loading: () => const Padding(
-                  padding: EdgeInsets.all(32),
-                  child: Center(child: CircularProgressIndicator()),
-                ),
-                error: (_, __) => const Padding(
-                  padding: EdgeInsets.all(32),
-                  child: Text('Gagal memuat info.', textAlign: TextAlign.center),
-                ),
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-
-  Widget _buildQuickRow(String label, String value, {Color color = Colors.grey}) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1.1)),
-        const SizedBox(height: 4),
-        Text(value, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
-      ],
-    );
-  }
 }

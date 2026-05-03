@@ -6,7 +6,7 @@ import '../../domain/models/medicine.dart';
 // import 'medicine_detail_view.dart';
 import 'interaction_checker_view.dart';
 import 'category_views.dart';
-import '../../../favorites/presentation/views/favorites_view.dart';
+// import '../../../favorites/presentation/views/favorites_view.dart';
 import '../../../medical_calculator/presentation/views/medical_calc_home.dart';
 import '../../../patient_form/presentation/views/patient_form_home.dart';
 import '../widgets/medicine_list_tile.dart';
@@ -177,15 +177,15 @@ class _HomeSearchViewState extends ConsumerState<HomeSearchView> {
     return Drawer(
       child: Column(
         children: [
-          const DrawerHeader(
-            decoration: BoxDecoration(color: Color(0xFF2E7D32)),
+          DrawerHeader(
+            decoration: const BoxDecoration(color: Color(0xFF2E7D32)),
             child: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.medication_liquid, size: 50, color: Colors.white),
-                  SizedBox(height: 10),
-                  Text('TemanNakes', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+                  Image.asset('assets/images/logo.png', width: 60, height: 60),
+                  const SizedBox(height: 10),
+                  const Text('TemanNakes', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
                 ],
               ),
             ),
@@ -196,27 +196,11 @@ class _HomeSearchViewState extends ConsumerState<HomeSearchView> {
             onTap: () => Navigator.pop(context),
           ),
           ListTile(
-            leading: const Icon(Icons.flash_on, color: Colors.orange),
-            title: const Text('Cek Interaksi'),
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const InteractionCheckerTray()));
-            },
-          ),
-          ListTile(
             leading: const Icon(Icons.category_outlined),
             title: const Text('Kategori Penyakit'),
             onTap: () {
               Navigator.pop(context);
               Navigator.push(context, MaterialPageRoute(builder: (context) => const CategoryListView()));
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.favorite, color: Colors.red),
-            title: const Text('Favorit'),
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const FavoritesView()));
             },
           ),
           ListTile(
@@ -454,8 +438,33 @@ class _HomeSearchViewState extends ConsumerState<HomeSearchView> {
   Widget _buildFilterRow() {
     final categoryFilter = ref.watch(categoryFilterProvider);
     final formFilter = ref.watch(formFilterProvider);
-    const golonganOptions = ['Semua', 'Antibiotik', 'Darurat', 'Psikotropika', 'Analgesik', 'Antidiabetes', 'Antihipertensi', 'NSAID', 'Steroid'];
-    const bentukOptions = ['Semua', 'Tablet', 'Kapsul', 'Sirup', 'Inj', 'Salep', 'Tetes', 'Inhaler'];
+    const golonganOptions = [
+      'Semua', 
+      'Antibiotik', 
+      'Analgetik', 
+      'NSAID', 
+      'Diabetes', 
+      'HT', // Matches HT/Angina, ACEI, ARB via UI Label mapping or LIKE
+      'Vitamin', 
+      'Antivirus', 
+      'Antijamur', 
+      'Steroid', 
+      'Psikotropika', 
+      'Darurat',
+      'Lambung' // Matches PPI, H2 Blocker
+    ];
+    const bentukOptions = [
+      'Semua', 
+      'Tablet', 
+      'Kapsul', 
+      'Sirup', 
+      'Inj', 
+      'Infus',
+      'Krim',
+      'Sachet',
+      'Tetes', 
+      'Inhaler'
+    ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
