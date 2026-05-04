@@ -308,10 +308,12 @@ class _ReportViewState extends ConsumerState<ReportView>
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(date != null
-                ? '${date.day.toString().padLeft(2,'0')}-${date.month.toString().padLeft(2,'0')}-${date.year}'
-                : 'Pilih',
-                style: TextStyle(fontSize: 13, color: date != null ? Colors.black87 : Colors.grey)),
+            Expanded(
+              child: Text(date != null
+                  ? '${date.day.toString().padLeft(2,'0')}-${date.month.toString().padLeft(2,'0')}-${date.year}'
+                  : 'Pilih',
+                  style: TextStyle(fontSize: 13, color: date != null ? Colors.black87 : Colors.grey, overflow: TextOverflow.ellipsis)),
+            ),
             const Icon(Icons.calendar_today, size: 16),
           ],
         ),

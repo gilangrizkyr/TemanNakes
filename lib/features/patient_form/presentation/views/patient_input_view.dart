@@ -209,9 +209,11 @@ class _PatientInputViewState extends ConsumerState<PatientInputView> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    dateStr != null && dateStr.isNotEmpty ? dateStr : 'Pilih Tanggal',
-                    style: TextStyle(color: dateStr != null ? Colors.black87 : Colors.grey.shade400),
+                  Expanded(
+                    child: Text(
+                      dateStr != null && dateStr.isNotEmpty ? dateStr : 'Pilih Tanggal',
+                      style: TextStyle(color: dateStr != null ? Colors.black87 : Colors.grey.shade400, overflow: TextOverflow.ellipsis),
+                    ),
                   ),
                   Icon(Icons.calendar_today, size: 18, color: Colors.grey.shade600),
                 ],

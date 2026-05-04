@@ -16,11 +16,10 @@ class MedicineDetailView extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(medicine.namaGenerik),
+        title: Text(medicine.namaGenerik, overflow: TextOverflow.ellipsis),
         backgroundColor: const Color(0xFF004D40),
         foregroundColor: Colors.white,
-        actions: [
-        ],
+        actions: const [],
       ),
       body: detailAsync.when(
         data: (detail) {
@@ -87,9 +86,12 @@ class MedicineDetailView extends ConsumerWidget {
                       children: [
                         const Icon(Icons.verified_user_outlined, size: 14, color: Colors.grey),
                         const SizedBox(width: 8),
-                        Text(
-                          'DATA TERVERIFIKASI PINNACLE V5.5',
-                          style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: Colors.grey.shade600, letterSpacing: 1),
+                        Flexible(
+                          child: Text(
+                            'DATA TERVERIFIKASI PINNACLE V5.5',
+                            style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: Colors.grey.shade600, letterSpacing: 1),
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
                       ],
                     ),
@@ -112,11 +114,26 @@ class MedicineDetailView extends ConsumerWidget {
         color: Color(0xFF004D40),
         borderRadius: BorderRadius.vertical(bottom: Radius.circular(24)),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildBadge('PREGNANCY', detail.kategoriKehamilan ?? 'N/A', Colors.amber),
-          const SizedBox(width: 12),
-          _buildBadge('CLASS', detail.kelasTerapi ?? '-', Colors.white),
+          Row(
+            children: [
+              Expanded(child: _buildBadge('PREGNANCY', detail.kategoriKehamilan ?? 'N/A', Colors.amber)),
+              const SizedBox(width: 12),
+              Expanded(child: _buildBadge('CLASS', detail.kelasTerapi ?? '-', Colors.white)),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(child: _buildBadge('DAGANG', medicine.namaDagang ?? '-', Colors.white70)),
+              const SizedBox(width: 12),
+              Expanded(child: _buildBadge('NIE', medicine.kodeNie ?? '-', Colors.white70)),
+            ],
+          ),
+          const SizedBox(height: 12),
+          _buildBadge('GOLONGAN', detail.golongan ?? '-', Colors.white70),
         ],
       ),
     );
@@ -159,15 +176,13 @@ class MedicineDetailView extends ConsumerWidget {
   }
 
   Widget _buildBadge(String title, String value, Color color) {
-    return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: color.withOpacity(0.6), letterSpacing: 1)),
-          const SizedBox(height: 4),
-          Text(value, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: color, overflow: TextOverflow.ellipsis)),
-        ],
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: color.withOpacity(0.6), letterSpacing: 1)),
+        const SizedBox(height: 4),
+        Text(value, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: color, overflow: TextOverflow.ellipsis)),
+      ],
     );
   }
 

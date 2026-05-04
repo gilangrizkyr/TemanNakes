@@ -425,12 +425,21 @@ class _DoseCalculatorViewState extends State<DoseCalculatorView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(widget.medicine.namaGenerik, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-                Text(widget.detail.kelasTerapi ?? '-', style: TextStyle(color: color.withOpacity(0.7), fontSize: 13)),
+                Text(widget.medicine.namaGenerik, 
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Text(widget.detail.kelasTerapi ?? '-', 
+                  style: TextStyle(color: color.withOpacity(0.7), fontSize: 13),
+                  overflow: TextOverflow.ellipsis,
+                ),
               ],
             ),
           ),
-          _buildPillTag('CAT: ${widget.detail.kategoriKehamilan ?? "?"}', color),
+          const SizedBox(width: 8),
+          Flexible(
+            child: _buildPillTag('CAT: ${widget.detail.kategoriKehamilan ?? "?"}', color),
+          ),
         ],
       ),
     );
@@ -578,25 +587,35 @@ class _DoseCalculatorViewState extends State<DoseCalculatorView> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(_result, style: const TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold)),
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text(_result, 
+                        style: const TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold),
+                      ),
+                    ),
                     if (_calculationMetadata.isNotEmpty)
                       Padding(
                         padding: const EdgeInsets.only(top: 8),
                         child: Text(
                           _calculationMetadata,
                           style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 11, fontStyle: FontStyle.italic),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                   ],
                 ),
               ),
-              IconButton(
-                visualDensity: VisualDensity.compact,
-                icon: const Icon(Icons.copy, color: Colors.white30, size: 16),
-                onPressed: () {
-                  Clipboard.setData(ClipboardData(text: 'Dosis ${widget.medicine.namaGenerik}: $_result/sekali (Total $_calculationMetadata), Volume: $_volumeResult/sekali'));
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('✅ Hasil disalin ke clipboard'), duration: Duration(seconds: 1)));
-                },
+              const SizedBox(width: 8),
+              Flexible(
+                child: IconButton(
+                  visualDensity: VisualDensity.compact,
+                  icon: const Icon(Icons.copy, color: Colors.white30, size: 16),
+                  onPressed: () {
+                    Clipboard.setData(ClipboardData(text: 'Dosis ${widget.medicine.namaGenerik}: $_result/sekali (Total $_calculationMetadata), Volume: $_volumeResult/sekali'));
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('✅ Hasil disalin ke clipboard'), duration: Duration(seconds: 1)));
+                  },
+                ),
               ),
             ],
           ),
@@ -613,8 +632,9 @@ class _DoseCalculatorViewState extends State<DoseCalculatorView> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildResultSub('DOSIS TOTAL 24 JAM', _calculationMetadata),
-              _buildResultSub('FREKUENSI', widget.detail.frekuensi ?? '-'),
+              Expanded(child: _buildResultSub('DOSIS TOTAL 24 JAM', _calculationMetadata)),
+              const SizedBox(width: 12),
+              Expanded(child: _buildResultSub('FREKUENSI', widget.detail.frekuensi ?? '-')),
             ],
           ),
           if (_formulaDetail.isNotEmpty) ...[

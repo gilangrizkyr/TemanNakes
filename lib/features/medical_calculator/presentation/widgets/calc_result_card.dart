@@ -59,13 +59,17 @@ class CalcResultCard extends ConsumerWidget {
               Icon(_icon(), color: accent, size: 22),
               const SizedBox(width: 8),
               Expanded(
-                child: Text(
-                  result.label,
-                  style: TextStyle(
-                    color: accent,
-                    fontWeight: FontWeight.w900,
-                    fontSize: 12,
-                    letterSpacing: 0.8,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    result.label,
+                    style: TextStyle(
+                      color: accent,
+                      fontWeight: FontWeight.w900,
+                      fontSize: 12,
+                      letterSpacing: 0.8,
+                    ),
                   ),
                 ),
               ),
@@ -89,13 +93,19 @@ class CalcResultCard extends ConsumerWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text(
-                result.value,
-                style: TextStyle(
-                  color: accent,
-                  fontSize: 40,
-                  fontWeight: FontWeight.w900,
-                  height: 1.0,
+              Expanded(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    result.value,
+                    style: TextStyle(
+                      color: accent,
+                      fontSize: 40,
+                      fontWeight: FontWeight.w900,
+                      height: 1.0,
+                    ),
+                  ),
                 ),
               ),
               const SizedBox(width: 8),
@@ -132,16 +142,22 @@ class CalcResultCard extends ConsumerWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(e.key,
-                        style: TextStyle(
-                            color: accent.withOpacity(0.7),
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600)),
-                    Text(e.value,
-                        style: TextStyle(
-                            color: accent,
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold)),
+                    Flexible(
+                      child: Text(e.key,
+                          style: TextStyle(
+                              color: accent.withOpacity(0.7),
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600)),
+                    ),
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: Text(e.value,
+                          textAlign: TextAlign.right,
+                          style: TextStyle(
+                              color: accent,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold)),
+                    ),
                   ],
                 ),
               ),
@@ -158,24 +174,29 @@ class CalcResultCard extends ConsumerWidget {
             Row(
               children: [
                 if (result.confidenceLabel != null)
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: accent.withOpacity(0.08),
-                      borderRadius: BorderRadius.circular(6),
-                      border: Border.all(color: accent.withOpacity(0.2)),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.info_outline, color: accent, size: 12),
-                        const SizedBox(width: 4),
-                        Text(result.confidenceLabel!,
-                            style: TextStyle(
-                                color: accent,
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold)),
-                      ],
+                  Flexible(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: accent.withOpacity(0.08),
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(color: accent.withOpacity(0.2)),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.info_outline, color: accent, size: 12),
+                          const SizedBox(width: 4),
+                          Flexible(
+                            child: Text(result.confidenceLabel!,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                    color: accent,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold)),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 if (result.confidenceLabel != null && result.sourceLabel != null)

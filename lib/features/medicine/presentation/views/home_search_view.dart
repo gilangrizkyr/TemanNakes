@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/medicine_provider.dart';
 import '../../domain/models/medicine.dart';
 // import 'medicine_detail_view.dart';
-import 'interaction_checker_view.dart';
+// import 'interaction_checker_view.dart';
 import 'category_views.dart';
 // import '../../../favorites/presentation/views/favorites_view.dart';
 import '../../../medical_calculator/presentation/views/medical_calc_home.dart';
@@ -128,7 +128,6 @@ class _HomeSearchViewState extends ConsumerState<HomeSearchView> {
   @override
   Widget build(BuildContext context) {
     final medicineList = ref.watch(medicineListProvider);
-    final trending = ref.watch(trendingMedicinesProvider);
 
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
@@ -143,7 +142,6 @@ class _HomeSearchViewState extends ConsumerState<HomeSearchView> {
       body: Column(
         children: [
           _buildSearchHeader(context, ref),
-          _buildSmartSuggestions(trending),
           Expanded(
             child: medicineList.when(
               data: (list) {
@@ -185,7 +183,12 @@ class _HomeSearchViewState extends ConsumerState<HomeSearchView> {
                 children: [
                   Image.asset('assets/images/logo.png', width: 60, height: 60),
                   const SizedBox(height: 10),
-                  const Text('TemanNakes', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+                  const Flexible(
+                    child: Text('TemanNakes', 
+                      style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -326,7 +329,7 @@ class _HomeSearchViewState extends ConsumerState<HomeSearchView> {
       child: ActionChip(
         onPressed: _toggleEmergencyMode,
         backgroundColor: _isEmergencyMode ? Colors.red : Colors.red.shade50,
-        avatar: Icon(Icons.emergency_share, color: _isEmergencyMode ? Colors.white : Colors.red, size: 16),
+        avatar: Icon(Icons.flash_on, color: _isEmergencyMode ? Colors.white : Colors.red, size: 16),
         label: Text(
           'EMERGENCY',
           style: TextStyle(
@@ -340,39 +343,6 @@ class _HomeSearchViewState extends ConsumerState<HomeSearchView> {
     );
   }
 
-  Widget _buildSmartSuggestions(AsyncValue<List<MedicineSimple>> trending) {
-    return trending.when(
-      data: (list) => Container(
-        height: 50,
-        color: Colors.white,
-        child: ListView(
-          scrollDirection: Axis.horizontal,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          children: [
-            const Padding(
-              padding: EdgeInsets.only(top: 8, right: 12),
-              child: Text('Sering Dicari:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey)),
-            ),
-            ...list.take(4).map((m) => Container(
-              margin: const EdgeInsets.only(right: 8),
-              child: ActionChip(
-                label: Text(m.namaGenerik, style: const TextStyle(fontSize: 11)),
-                onPressed: () {
-                  _setSearch(m.namaGenerik);
-                  ref.read(searchHistoryProvider.notifier).add(m.namaGenerik);
-                },
-                backgroundColor: Colors.green.shade50,
-                side: BorderSide(color: Colors.green.shade100),
-                visualDensity: VisualDensity.compact,
-              ),
-            )),
-          ],
-        ),
-      ),
-      loading: () => const SizedBox.shrink(),
-      error: (_, __) => const SizedBox.shrink(),
-    );
-  }
 
   Widget _buildSearchHeader(BuildContext context, WidgetRef ref) {
     return Container(

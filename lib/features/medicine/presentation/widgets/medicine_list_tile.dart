@@ -59,9 +59,9 @@ class ProjectMedicineListTile extends ConsumerWidget {
             const SizedBox(height: 4),
             Row(
               children: [
-                _buildTag(medicine.bentuk ?? 'Sediaan', Colors.grey.shade100, Colors.grey.shade700),
+                Flexible(child: _buildTag(medicine.bentuk ?? 'Sediaan', Colors.grey.shade100, Colors.grey.shade700)),
                 const SizedBox(width: 6),
-                _buildTag(medicine.kodeNie ?? 'NIE', Colors.blue.shade50, Colors.blue.shade700),
+                Flexible(child: _buildTag(medicine.kodeNie ?? 'NIE', Colors.blue.shade50, Colors.blue.shade700)),
               ],
             ),
           ],
@@ -116,21 +116,45 @@ class ProjectMedicineListTile extends ConsumerWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Expanded(
+                          flex: 2,
                           child: Text(medicine.namaGenerik,
+                              overflow: TextOverflow.ellipsis,
                               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
                         ),
-                        Text(medicine.kodeNie ?? '',
-                            style: TextStyle(color: Colors.blue.shade700, fontWeight: FontWeight.bold, fontSize: 12)),
+                        const SizedBox(width: 8),
+                        Flexible(
+                          child: Text(medicine.kodeNie ?? '',
+                              textAlign: TextAlign.right,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(color: Colors.blue.shade700, fontWeight: FontWeight.bold, fontSize: 12)),
+                        ),
                       ],
                     ),
                     const Divider(height: 32),
                     _buildQuickRow('INDIKASI', detail?.indikasi ?? '-'),
                     const SizedBox(height: 16),
-                    _buildQuickRow('DOSIS DEWASA', detail?.dosisDewasa ?? '-'),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(child: _buildQuickRow('DOSIS DEWASA', detail?.dosisDewasa ?? '-')),
+                        const SizedBox(width: 16),
+                        Expanded(child: _buildQuickRow('DOSIS ANAK', detail?.dosisAnak ?? '-')),
+                      ],
+                    ),
                     const SizedBox(height: 16),
-                    _buildQuickRow('PREGNANCY', detail?.kategoriKehamilan ?? '?', color: Colors.indigo),
+                    _buildQuickRow('G-PEARLS (MUTIARA KLINIS)', detail?.clinicalPearls ?? '-', color: Colors.purple),
                     const SizedBox(height: 16),
-                    _buildQuickRow('KELAS TERAPI', detail?.kelasTerapi ?? '-', color: Colors.green),
+                    _buildQuickRow('EFEK SAMPING', detail?.efekSamping ?? '-'),
+                    const SizedBox(height: 16),
+                    _buildQuickRow('INTERAKSI OBAT', detail?.interaksi ?? '-'),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Expanded(child: _buildQuickRow('PREGNANCY', detail?.kategoriKehamilan ?? '?', color: Colors.indigo)),
+                        const SizedBox(width: 32),
+                        Expanded(child: _buildQuickRow('KELAS TERAPI', detail?.kelasTerapi ?? '-', color: Colors.green)),
+                      ],
+                    ),
                   ],
                 ),
                 loading: () => const Padding(

@@ -454,9 +454,12 @@ class _DatePicker extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(value != null
-                ? '${value!.day.toString().padLeft(2,'0')}-${value!.month.toString().padLeft(2,'0')}-${value!.year}'
-                : 'Pilih', style: TextStyle(fontSize: 12, color: value != null ? Colors.black87 : Colors.grey)),
+            Expanded(
+              child: Text(value != null
+                  ? '${value!.day.toString().padLeft(2,'0')}-${value!.month.toString().padLeft(2,'0')}-${value!.year}'
+                  : 'Pilih', style: const TextStyle(fontSize: 12, color: Colors.black87),
+                  overflow: TextOverflow.ellipsis),
+            ),
             const Icon(Icons.calendar_today, size: 16),
           ],
         ),

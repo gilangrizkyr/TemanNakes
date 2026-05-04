@@ -139,36 +139,6 @@ class DatabaseHelper {
     }
   }
 
-  // [PERF FIX] Get Trending Medicines — single batch query, replaces 5 sequential queries
-  Future<List<MedicineSimple>> getTrendingMedicines() async {
-    final db = await instance.database;
-    const topDrugs = ['Amoxicillin', 'Paracetamol', 'Amlodipine', 'Metformin', 'Omeprazole'];
-    // CASE WHEN untuk menjaga urutan yang diinginkan
-    final orderCase = topDrugs.asMap().entries
-        .map((e) => "WHEN LOWER(nama_generik) LIKE LOWER('${e.value}%') THEN ${e.key}")
-        .join(' ');
-    final result = await db.rawQuery('''
-      SELECT * FROM obat
-      WHERE ${topDrugs.map((_) => 'nama_generik LIKE ?').join(' OR ')}
-      ORDER BY CASE $orderCase ELSE ${topDrugs.length} END
-      LIMIT 5
-    ''', topDrugs.map((d) => '$d%').toList());
-    // Ambil satu per nama generik yang matching
-    final seen = <String>{};
-    final medicines = <MedicineSimple>[];
-    for (final row in result) {
-      final nama = (row['nama_generik'] as String).toLowerCase();
-      final matchedDrug = topDrugs.firstWhere(
-        (d) => nama.startsWith(d.toLowerCase()),
-        orElse: () => '',
-      );
-      if (matchedDrug.isNotEmpty && !seen.contains(matchedDrug)) {
-        seen.add(matchedDrug);
-        medicines.add(MedicineSimple.fromMap(row));
-      }
-    }
-    return medicines;
-  }
 
   // Fallback LIKE search
   Future<List<MedicineSimple>> _searchMedicinesLike(String query, {String? category, String? form}) async {
