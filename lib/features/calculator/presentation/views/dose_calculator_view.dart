@@ -44,13 +44,15 @@ class _DoseCalculatorViewState extends State<DoseCalculatorView> {
   void initState() {
     super.initState();
     _initBanner();
+    _result = 'Masukkan berat badan';
+    _calculate();
   }
 
   void _initBanner() async {
     final isOnline = await AdService().isOnline();
     if (!isOnline) return;
 
-    _bannerAd = AdService().createBannerAd(
+    final ad = AdService().createBannerAd(
       onAdLoaded: (ad) {
         if (!mounted) {
           ad.dispose();
@@ -63,7 +65,11 @@ class _DoseCalculatorViewState extends State<DoseCalculatorView> {
         if (!mounted) return;
         setState(() => _isBannerLoaded = false);
       },
-    )..load();
+    );
+    
+    if (ad != null) {
+      _bannerAd = ad..load();
+    }
   }
 
   @override
@@ -147,7 +153,7 @@ class _DoseCalculatorViewState extends State<DoseCalculatorView> {
     
     final doseAnak = widget.detail.dosisAnak ?? '';
     final doseDewasa = widget.detail.dosisDewasa ?? '';
-    final doseString = (doseAnak.isNotEmpty && doseAnak != '-') ? doseAnak : doseDewasa;
+    final doseString = (doseAnak.isNotEmpty && doseAnak != '-') ? doseAnak : (doseDewasa.isNotEmpty ? doseDewasa : '');
 
     final normalizedWeight = double.tryParse(_weightController.text.replaceAll(',', '.')) ?? 0;
     
@@ -327,20 +333,22 @@ class _DoseCalculatorViewState extends State<DoseCalculatorView> {
 
       if (finalMin <= 0) {
         _result = 'Hitung Manual';
-      } else if (singleMin == singleMax) {
-        _result = '${singleMin.toStringAsFixed(precision)} $unit';
+        _calculationMetadata = '';
+        _tddResult = '';
       } else {
-        _result = '${singleMin.toStringAsFixed(precision)}-${singleMax.toStringAsFixed(precision)} $unit';
-      }
-      _calculationMetadata = proof;
+        if (singleMin == singleMax) {
+          _result = '${singleMin.toStringAsFixed(precision)} $unit';
+        } else {
+          _result = '${singleMin.toStringAsFixed(precision)}-${singleMax.toStringAsFixed(precision)} $unit';
+        }
 
-      String tddDisplay = '';
-      if (totalMin == totalMax) {
-        tddDisplay = '${totalMin.toStringAsFixed(precision)} $unit/hari';
-      } else {
-        tddDisplay = '${totalMin.toStringAsFixed(precision)}-${totalMax.toStringAsFixed(precision)} $unit/hari';
+        if (totalMin == totalMax) {
+          _tddResult = '${totalMin.toStringAsFixed(precision)} $unit/hari';
+        } else {
+          _tddResult = '${totalMin.toStringAsFixed(precision)}-${totalMax.toStringAsFixed(precision)} $unit/hari';
+        }
+        _calculationMetadata = proof;
       }
-      _calculationMetadata = tddDisplay;
 
       if (_allergyController.text.isNotEmpty) {
         _warnings.add('⚠️ ALERGI: Pasien sensitif terhadap "${_allergyController.text}". Pertimbangkan alternatif yang aman.');
@@ -356,6 +364,7 @@ class _DoseCalculatorViewState extends State<DoseCalculatorView> {
   }
 
   String _calculationMetadata = '';
+  String _tddResult = '';
 
   @override
   Widget build(BuildContext context) {
@@ -454,7 +463,8 @@ class _DoseCalculatorViewState extends State<DoseCalculatorView> {
   }
 
   Widget _buildInputSection() {
-    final bool isDataMissing = (widget.detail.dosisAnak == '-' || widget.detail.dosisAnak!.isEmpty);
+    final bool isDataMissing = (widget.detail.dosisAnak == null || widget.detail.dosisAnak == '-' || widget.detail.dosisAnak!.isEmpty) &&
+                               (widget.detail.dosisDewasa == null || widget.detail.dosisDewasa == '-' || widget.detail.dosisDewasa!.isEmpty);
     return Column(
       children: [
         if (isDataMissing) 
@@ -632,7 +642,7 @@ class _DoseCalculatorViewState extends State<DoseCalculatorView> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Expanded(child: _buildResultSub('DOSIS TOTAL 24 JAM', _calculationMetadata)),
+              Expanded(child: _buildResultSub('DOSIS TOTAL 24 JAM', _tddResult)),
               const SizedBox(width: 12),
               Expanded(child: _buildResultSub('FREKUENSI', widget.detail.frekuensi ?? '-')),
             ],

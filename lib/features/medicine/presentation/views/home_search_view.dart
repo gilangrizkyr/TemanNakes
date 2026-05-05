@@ -63,7 +63,7 @@ class _HomeSearchViewState extends ConsumerState<HomeSearchView> {
     // Only dispose if not loaded (safe cleanup of previous failed attempt)
     if (!_isBannerLoaded) _bannerAd?.dispose();
 
-    _bannerAd = AdService().createBannerAd(
+    final ad = AdService().createBannerAd(
       onAdLoaded: (ad) {
         if (!mounted) {
           ad.dispose();
@@ -88,7 +88,11 @@ class _HomeSearchViewState extends ConsumerState<HomeSearchView> {
           debugPrint('⛔ Banner max attempts reached. Running without ads.');
         }
       },
-    )..load();
+    );
+
+    if (ad != null) {
+      _bannerAd = ad..load();
+    }
   }
 
   @override

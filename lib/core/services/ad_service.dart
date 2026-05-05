@@ -39,8 +39,14 @@ class AdService {
     return '';
   }
 
-  // ─── SDK Initialization (Idempotent) ─────────────────────────────────────────
+  // [FIX B] Platform Guard: AdMob only supports mobile
+  bool get isSupportedPlatform => Platform.isAndroid || Platform.isIOS;
+
   Future<void> initialize() async {
+    if (!isSupportedPlatform) {
+      debugPrint('ℹ️ AdMob skipped: Unsupported platform.');
+      return;
+    }
     // [FIX D] Double-call race condition guard
     if (_isInitializing) return;
 
@@ -110,10 +116,14 @@ class AdService {
   // ─── Banner Ad ───────────────────────────────────────────────────────────────
   // [FIX B] Slow-network: Banner creation is now a simple factory.
   // Retry logic is handled at the widget level (see _initBannerWithRetry).
-  BannerAd createBannerAd({
+  BannerAd? createBannerAd({
     required void Function(Ad) onAdLoaded,
     required void Function(Ad, LoadAdError) onAdFailedToLoad,
   }) {
+    if (!isSupportedPlatform || bannerAdUnitId.isEmpty) {
+      debugPrint('⚠️ AdService: Banner creation skipped (unsupported/no ID).');
+      return null;
+    }
     debugPrint('🚀 AdService: Requesting BannerAd (ID: $bannerAdUnitId)');
     return BannerAd(
       adUnitId: bannerAdUnitId,
@@ -142,6 +152,10 @@ class AdService {
     required void Function(RewardedAd) onAdLoaded,
     required void Function(LoadAdError) onAdFailedToLoad,
   }) {
+    if (!isSupportedPlatform || rewardedAdUnitId.isEmpty) {
+      debugPrint('⚠️ AdService: Rewarded load skipped (unsupported/no ID).');
+      return;
+    }
     debugPrint('🚀 AdService: Loading RewardedAd (ID: $rewardedAdUnitId)');
     RewardedAd.load(
       adUnitId: rewardedAdUnitId,

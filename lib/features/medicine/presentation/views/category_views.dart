@@ -26,7 +26,7 @@ class _CategoryListViewState extends ConsumerState<CategoryListView> {
     final isOnline = await AdService().isOnline();
     if (!isOnline) return;
 
-    _bannerAd = AdService().createBannerAd(
+    final ad = AdService().createBannerAd(
       onAdLoaded: (ad) {
         if (!mounted) {
           ad.dispose();
@@ -39,7 +39,11 @@ class _CategoryListViewState extends ConsumerState<CategoryListView> {
         if (!mounted) return;
         setState(() => _isBannerLoaded = false);
       },
-    )..load();
+    );
+
+    if (ad != null) {
+      _bannerAd = ad..load();
+    }
   }
 
   @override
@@ -127,7 +131,7 @@ class _CategoryDetailViewState extends ConsumerState<CategoryDetailView> {
     final isOnline = await AdService().isOnline();
     if (!isOnline) return;
 
-    _bannerAd = AdService().createBannerAd(
+    final ad = AdService().createBannerAd(
       onAdLoaded: (ad) {
         if (!mounted) {
           ad.dispose();
@@ -140,7 +144,11 @@ class _CategoryDetailViewState extends ConsumerState<CategoryDetailView> {
         if (!mounted) return;
         setState(() => _isBannerLoaded = false);
       },
-    )..load();
+    );
+
+    if (ad != null) {
+      _bannerAd = ad..load();
+    }
   }
 
   @override

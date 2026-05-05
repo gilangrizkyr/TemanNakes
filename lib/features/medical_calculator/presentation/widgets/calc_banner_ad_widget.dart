@@ -39,7 +39,7 @@ class _CalcBannerAdWidgetState extends State<CalcBannerAdWidget> {
     if (!isOnline || !mounted) return;
 
     _bannerAd?.dispose();
-    _bannerAd = AdService().createBannerAd(
+    final ad = AdService().createBannerAd(
       onAdLoaded: (ad) {
         if (!mounted) { ad.dispose(); return; }
         setState(() => _isLoaded = true);
@@ -53,7 +53,11 @@ class _CalcBannerAdWidgetState extends State<CalcBannerAdWidget> {
           });
         }
       },
-    )..load();
+    );
+    
+    if (ad != null) {
+      _bannerAd = ad..load();
+    }
   }
 
   @override

@@ -33,7 +33,7 @@ class _MedicalCalcHomeState extends ConsumerState<MedicalCalcHome> {
     final isOnline = await AdService().isOnline();
     if (!isOnline) return;
 
-    _bannerAd = AdService().createBannerAd(
+    final ad = AdService().createBannerAd(
       onAdLoaded: (ad) {
         if (!mounted) {
           ad.dispose();
@@ -46,7 +46,11 @@ class _MedicalCalcHomeState extends ConsumerState<MedicalCalcHome> {
         if (!mounted) return;
         setState(() => _isBannerLoaded = false);
       },
-    )..load();
+    );
+
+    if (ad != null) {
+      _bannerAd = ad..load();
+    }
   }
 
   @override
