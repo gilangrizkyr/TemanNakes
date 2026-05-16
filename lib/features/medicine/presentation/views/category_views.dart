@@ -57,7 +57,11 @@ class _CategoryListViewState extends ConsumerState<CategoryListView> {
     final categoriesAsync = ref.watch(categoriesProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Kategori Penyakit')),
+      appBar: AppBar(
+        title: const Text('Kategori Penyakit'),
+        backgroundColor: const Color(0xFF3F51B5),
+        foregroundColor: Colors.white,
+      ),
       body: Column(
         children: [
           Expanded(
@@ -67,7 +71,7 @@ class _CategoryListViewState extends ConsumerState<CategoryListView> {
                 itemBuilder: (context, index) {
                   final cat = categories[index];
                   return ListTile(
-                    leading: const Icon(Icons.category_outlined, color: Color(0xFF2E7D32)),
+                    leading: const Icon(Icons.category_outlined, color: Color(0xFF3F51B5)),
                     title: Text(cat['nama']),
                     trailing: const Icon(Icons.chevron_right),
                     onTap: () {
@@ -89,9 +93,10 @@ class _CategoryListViewState extends ConsumerState<CategoryListView> {
             ),
           ),
           if (_isBannerLoaded && _bannerAd != null)
-            SafeArea(
-              child: Container(
-                alignment: Alignment.center,
+            Container(
+              alignment: Alignment.center,
+              padding: const EdgeInsets.only(bottom: 8),
+              child: SizedBox(
                 width: _bannerAd!.size.width.toDouble(),
                 height: _bannerAd!.size.height.toDouble(),
                 child: AdWidget(ad: _bannerAd!),
@@ -162,7 +167,11 @@ class _CategoryDetailViewState extends ConsumerState<CategoryDetailView> {
     final medicinesAsync = ref.watch(categoryMedicinesProvider(widget.categoryId));
 
     return Scaffold(
-      appBar: AppBar(title: Text(widget.categoryName)),
+      appBar: AppBar(
+        title: Text(widget.categoryName),
+        backgroundColor: const Color(0xFF3F51B5),
+        foregroundColor: Colors.white,
+      ),
       body: Column(
         children: [
           Expanded(

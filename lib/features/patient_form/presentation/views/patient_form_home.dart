@@ -66,8 +66,9 @@ class _PatientFormHomeState extends ConsumerState<PatientFormHome> {
                 style: TextStyle(fontSize: 11, color: Colors.white70)),
           ],
         ),
-        backgroundColor: const Color(0xFF0277BD),
+        backgroundColor: const Color(0xFF009688),
         foregroundColor: Colors.white,
+        automaticallyImplyLeading: false,
       ),
       body: Column(
         children: [
@@ -138,7 +139,7 @@ class _PatientFormHomeState extends ConsumerState<PatientFormHome> {
                     error: (_, __) => const SizedBox.shrink(),
                   ),
                 ],
-              ).paddingBottom(50), // Prevent coverage by banner
+              ).paddingBottom(20), // Standard bottom padding
             ),
           ),
           if (_isBannerLoaded && _bannerAd != null)
@@ -208,9 +209,9 @@ class _PatientFormHomeState extends ConsumerState<PatientFormHome> {
     return Row(
       children: [
         _buildStatChip(
-            Icons.dynamic_form, '$templateCount', 'Template Form', const Color(0xFF0277BD)),
+            Icons.dynamic_form, '$templateCount', 'Template Form', const Color(0xFF009688)),
         const SizedBox(width: 12),
-        _buildStatChip(Icons.cloud_off, 'OFFLINE', 'Status', const Color(0xFF2E7D32)),
+        _buildStatChip(Icons.cloud_off, 'OFFLINE', 'Status', const Color(0xFF009688)),
         const SizedBox(width: 12),
         _buildStatChip(Icons.lock_outline, 'LOKAL', 'Privasi', const Color(0xFF6A1B9A)),
       ],

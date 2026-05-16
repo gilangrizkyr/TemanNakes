@@ -64,43 +64,43 @@ class _MedicalCalcHomeState extends ConsumerState<MedicalCalcHome> {
       title: 'Dosis Obat',
       subtitle: 'mg/kgBB, konversi\ntablet & sirup',
       icon: Icons.medication,
-      color: Color(0xFF1565C0),
+      color: Color(0xFF3F51B5),
     ),
     _ModuleCard(
       title: 'Infus',
       subtitle: 'Tetes/menit &\npump mL/jam',
       icon: Icons.water_drop,
-      color: Color(0xFF00695C),
+      color: Color(0xFF0288D1),
     ),
     _ModuleCard(
       title: 'Status Pasien',
       subtitle: 'BMI, MAP &\nShock Index',
       icon: Icons.monitor_heart,
-      color: Color(0xFF6A1B9A),
+      color: Color(0xFFD81B60),
     ),
     _ModuleCard(
       title: 'Kebidanan',
       subtitle: 'HPL, Usia Hamil\n& TBJ',
       icon: Icons.pregnant_woman,
-      color: Color(0xFFAD1457),
+      color: Color(0xFF8E24AA),
     ),
     _ModuleCard(
       title: 'Emergency',
       subtitle: 'GCS &\nAPGAR Score',
       icon: Icons.emergency,
-      color: Color(0xFFB71C1C),
+      color: Color(0xFFC62828),
     ),
     _ModuleCard(
       title: 'Ginjal & Obat',
       subtitle: 'CrCl &\neGFR (CKD-EPI)',
       icon: Icons.science,
-      color: Color(0xFF0277BD),
+      color: Color(0xFF2E7D32),
     ),
     _ModuleCard(
       title: 'Keluarga Berencana',
       subtitle: 'Jadwal kembali\nsuntik KB 1 & 3 bln',
       icon: Icons.calendar_month,
-      color: Color(0xFFE65100),
+      color: Color(0xFFF57C00),
     ),
   ];
 
@@ -113,14 +113,15 @@ class _MedicalCalcHomeState extends ConsumerState<MedicalCalcHome> {
         title: const Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Kalkulator Medis Nakes',
+            Text('Kalkulator Medis',
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
             Text('7 Modul Klinis Terintegrasi',
                 style: TextStyle(fontSize: 11, color: Colors.white70)),
           ],
         ),
-        backgroundColor: const Color(0xFF1B5E20),
+        backgroundColor: const Color(0xFFE65100),
         foregroundColor: Colors.white,
+        automaticallyImplyLeading: false,
         actions: [
           if (history.isNotEmpty)
             IconButton(
@@ -174,9 +175,10 @@ class _MedicalCalcHomeState extends ConsumerState<MedicalCalcHome> {
             ),
           ),
           if (_isBannerLoaded && _bannerAd != null)
-            SafeArea(
-              child: Container(
-                alignment: Alignment.center,
+            Container(
+              alignment: Alignment.center,
+              padding: const EdgeInsets.only(bottom: 8),
+              child: SizedBox(
                 width: _bannerAd!.size.width.toDouble(),
                 height: _bannerAd!.size.height.toDouble(),
                 child: AdWidget(ad: _bannerAd!),
@@ -281,10 +283,12 @@ class _HistoryView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final history = ref.watch(calcHistoryProvider);
     return Scaffold(
+      backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
-        title: const Text('Riwayat Perhitungan'),
-        backgroundColor: const Color(0xFF1B5E20),
+        title: const Text('Kalkulator Medis'),
+        backgroundColor: const Color(0xFFE65100),
         foregroundColor: Colors.white,
+        automaticallyImplyLeading: false,
         actions: [
           TextButton(
             onPressed: () => ref.read(calcHistoryProvider.notifier).clear(),

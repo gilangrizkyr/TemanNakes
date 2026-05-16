@@ -74,7 +74,7 @@ class _ObstetricState extends ConsumerState<ObstetricModuleView>
 
   @override
   Widget build(BuildContext context) {
-    const accentColor = Color(0xFFAD1457);
+    const accentColor = Color(0xFF8E24AA);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Kalkulator Kebidanan'),
@@ -166,6 +166,7 @@ class _ObstetricState extends ConsumerState<ObstetricModuleView>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           TextFormField(
+            autofocus: false,
             controller: _tfuCtrl,
             keyboardType: TextInputType.number,
             onChanged: (_) => _calcTBJ(),

@@ -22,8 +22,20 @@ void main() async {
   );
 }
 
-class TemanNakesApp extends StatelessWidget {
+class TemanNakesApp extends StatefulWidget {
   const TemanNakesApp({super.key});
+
+  @override
+  State<TemanNakesApp> createState() => _TemanNakesAppState();
+}
+
+class _TemanNakesAppState extends State<TemanNakesApp> {
+  @override
+  void initState() {
+    super.initState();
+    // Initial load for App Open Ad (Ready for Disclaimer transition)
+    AppOpenAdManager().loadAd();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,6 +43,32 @@ class TemanNakesApp extends StatelessWidget {
       title: 'TemanNakes',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
+      navigatorObservers: [GlobalFocusObserver()],
+      builder: (context, child) {
+        return GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: () {
+            // V7.3: Global Double-Kill (Tap)
+            FocusManager.instance.primaryFocus?.unfocus();
+            FocusScope.of(context).requestFocus(FocusNode());
+          },
+          onVerticalDragStart: (_) {
+            // V7.3: Global Double-Kill (Drag)
+            FocusManager.instance.primaryFocus?.unfocus();
+            FocusScope.of(context).requestFocus(FocusNode());
+          },
+          child: NotificationListener<ScrollNotification>(
+            onNotification: (notification) {
+              if (notification is ScrollStartNotification) {
+                // V7.2: Global Unfocus on Scroll for EVERY page in the app
+                FocusManager.instance.primaryFocus?.unfocus();
+              }
+              return false;
+            },
+            child: child!,
+          ),
+        );
+      },
       home: const SplashScreen(),
     );
   }
@@ -119,9 +157,10 @@ class DisclaimerPage extends StatelessWidget {
                 height: 56,
                 child: ElevatedButton(
                   onPressed: () {
+                    // V7.0: Move to dedicated Ad Transition Page
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(builder: (context) => const HomeSearchView()),
+                      MaterialPageRoute(builder: (context) => const AdTransitionPage()),
                     );
                   },
                   child: const Text('SAYA MENGERTI & LANJUTKAN'),
@@ -132,5 +171,99 @@ class DisclaimerPage extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+/// [V7.0] Dedicated Ad Transition Page
+/// Provides a clean, professional space for App Open Ads during entry flow.
+class AdTransitionPage extends StatefulWidget {
+  const AdTransitionPage({super.key});
+
+  @override
+  State<AdTransitionPage> createState() => _AdTransitionPageState();
+}
+
+class _AdTransitionPageState extends State<AdTransitionPage> {
+  @override
+  void initState() {
+    super.initState();
+    _triggerAdFlow();
+  }
+
+  void _triggerAdFlow() {
+    // Small delay to let the page settle
+    Future.delayed(const Duration(milliseconds: 300), () {
+      AppOpenAdManager().showAdIfAvailable(
+        onComplete: () {
+          if (mounted) {
+            _navigateToHome();
+          }
+        },
+      );
+    });
+
+    // Safety Timeout: If ad fails or takes too long, continue to home
+    Future.delayed(const Duration(seconds: 8), () {
+      if (mounted) {
+        _navigateToHome();
+      }
+    });
+  }
+
+  void _navigateToHome() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const HomeSearchView()),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFF1A1C1E), // Dark professional background
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.white70),
+              strokeWidth: 2,
+            ),
+            const SizedBox(height: 32),
+            Text(
+              'Menyiapkan Layanan...',
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.7),
+                fontSize: 14,
+                letterSpacing: 1.2,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// [V7.2] Global Navigator Observer to kill focus on any transition
+/// This ensures Swipe Back or Push always cleans up the blinking cursor "|"
+class GlobalFocusObserver extends NavigatorObserver {
+  @override
+  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    super.didPush(route, previousRoute);
+    _forceUnfocus();
+  }
+
+  @override
+  void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    super.didPop(route, previousRoute);
+    _forceUnfocus();
+  }
+
+  void _forceUnfocus() {
+    // V7.3: Double-Kill Focus Strategy (Global)
+    FocusManager.instance.primaryFocus?.unfocus();
+    // Use a small delay if needed or direct requestFocus
+    // For Observer, FocusManager is usually enough, but let's be aggressive
   }
 }

@@ -17,7 +17,7 @@ class MedicineDetailView extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(medicine.namaGenerik, overflow: TextOverflow.ellipsis),
-        backgroundColor: const Color(0xFF004D40),
+        backgroundColor: const Color(0xFF2E7D32),
         foregroundColor: Colors.white,
         actions: const [],
       ),
@@ -111,7 +111,7 @@ class MedicineDetailView extends ConsumerWidget {
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
       decoration: const BoxDecoration(
-        color: Color(0xFF004D40),
+        color: Color(0xFF2E7D32),
         borderRadius: BorderRadius.vertical(bottom: Radius.circular(24)),
       ),
       child: Column(

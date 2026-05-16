@@ -52,7 +52,7 @@ class _KbModuleState extends ConsumerState<KbModuleView> {
 
   @override
   Widget build(BuildContext context) {
-    const accentColor = Color(0xFFE65100); // Deep Orange for KB
+    const accentColor = Color(0xFFF57C00); // Deep Orange for KB
     
     return Scaffold(
       appBar: AppBar(

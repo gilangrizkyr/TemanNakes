@@ -99,6 +99,7 @@ class _PatientListViewState extends ConsumerState<PatientListView> {
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
             child: TextField(
+              autofocus: false,
               controller: _searchCtrl,
               onChanged: (v) =>
                   ref.read(recordSearchProvider.notifier).state = v,
@@ -150,18 +151,28 @@ class _PatientListViewState extends ConsumerState<PatientListView> {
             child: recordsAsync.when(
               data: (records) => records.isEmpty
                   ? _buildEmpty()
-                  : ListView.builder(
-                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
-                      itemCount: records.length,
-                      itemBuilder: (context, i) =>
-                          _buildRecordCard(context, ref, records[i]),
+                  : NotificationListener<ScrollNotification>(
+                      onNotification: (notification) {
+                        if (notification is ScrollStartNotification) {
+                          FocusManager.instance.primaryFocus?.unfocus();
+                        }
+                        return false;
+                      },
+                      child: ListView.builder(
+                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
+                        itemCount: records.length,
+                        itemBuilder: (context, i) =>
+                            _buildRecordCard(context, ref, records[i]),
+                      ),
                     ),
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (e, _) => Center(child: Text('Error: $e')),
             ),
           ),
           if (_isBannerLoaded && _bannerAd != null)
-            SafeArea(
+            Container(
+              alignment: Alignment.center,
+              padding: const EdgeInsets.only(bottom: 8),
               child: SizedBox(
                 width: _bannerAd!.size.width.toDouble(),
                 height: _bannerAd!.size.height.toDouble(),

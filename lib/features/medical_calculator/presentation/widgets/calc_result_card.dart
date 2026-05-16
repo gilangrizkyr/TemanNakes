@@ -219,9 +219,9 @@ class CalcResultCard extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
-                color: const Color(0xFF006064).withOpacity(0.06),
+                color: const Color(0xFFE65100).withOpacity(0.06),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: const Color(0xFF006064).withOpacity(0.18)),
+                border: Border.all(color: const Color(0xFFE65100).withOpacity(0.18)),
               ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -229,14 +229,15 @@ class CalcResultCard extends ConsumerWidget {
                   const Icon(Icons.book_outlined, size: 14, color: Color(0xFF006064)),
                   const SizedBox(width: 8),
                   Expanded(
-                    child: Text(
-                      result.interpretationHint!,
-                      style: const TextStyle(
-                        fontSize: 11,
-                        color: Color(0xFF004D40),
-                        height: 1.5,
+                      child: Text(
+                        result.moduleName,
+                        style: const TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 1.2,
+                          color: Color(0xFFE65100),
+                        ),
                       ),
-                    ),
                   ),
                 ],
               ),

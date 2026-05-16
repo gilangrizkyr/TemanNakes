@@ -104,7 +104,7 @@ class PatientDetailView extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.verified_user, color: Color(0xFF2E7D32), size: 14),
+                    const Icon(Icons.verified_user, color: Color(0xFF009688), size: 14),
                     const SizedBox(width: 8),
                     Text(
                       'PINNACLE V5.5 CLINICAL AUDIT SEAL',

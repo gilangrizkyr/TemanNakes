@@ -56,7 +56,7 @@ class _EmergencyState extends ConsumerState<EmergencyModuleView>
 
   @override
   Widget build(BuildContext context) {
-    const accent = Color(0xFFB71C1C);
+    const accent = Color(0xFFC62828);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Emergency Score'),

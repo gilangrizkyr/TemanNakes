@@ -199,6 +199,7 @@ class _ReportViewState extends ConsumerState<ReportView>
             _sectionTitle('4. Nama Instansi (untuk header PDF)'),
             const SizedBox(height: 8),
             TextField(
+              autofocus: false,
               controller: _institutionCtrl,
               decoration: const InputDecoration(
                   labelText: 'Nama Instansi / Fasilitas Kesehatan',

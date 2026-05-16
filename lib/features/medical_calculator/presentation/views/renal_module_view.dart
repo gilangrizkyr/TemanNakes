@@ -66,7 +66,7 @@ class _RenalState extends ConsumerState<RenalModuleView>
 
   @override
   Widget build(BuildContext context) {
-    const accent = Color(0xFF0277BD);
+    const accent = Color(0xFF2E7D32);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Fungsi Ginjal & Obat'),

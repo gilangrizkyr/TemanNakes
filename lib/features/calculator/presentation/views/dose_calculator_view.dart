@@ -368,7 +368,7 @@ class _DoseCalculatorViewState extends State<DoseCalculatorView> {
 
   @override
   Widget build(BuildContext context) {
-    const themeColor = Color(0xFF2E7D32);
+    const themeColor = Color(0xFF3F51B5);
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -377,35 +377,43 @@ class _DoseCalculatorViewState extends State<DoseCalculatorView> {
         foregroundColor: Colors.white,
         elevation: 0,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildMedicineHeader(themeColor),
-            const SizedBox(height: 24),
-            _buildSectionTitle('DATA PASIEN'),
-            _buildInputSection(),
-            const SizedBox(height: 24),
-            _buildSectionTitle('KONDISI KHUSUS'),
-            _buildConditionsSection(),
-            const SizedBox(height: 24),
-            _buildSectionTitle('KONVERSI VOLUME (SIRUP/SUSPENSI)'),
-            _buildConcentrationSection(themeColor),
-            const SizedBox(height: 32),
-            _buildResultPanel(themeColor),
-            if (_warnings.isNotEmpty) _buildWarningSection(),
-            if (_isBannerLoaded && _bannerAd != null)
-              Container(
-                alignment: Alignment.center,
-                padding: const EdgeInsets.only(top: 24),
-                child: SizedBox(
-                  width: _bannerAd!.size.width.toDouble(),
-                  height: _bannerAd!.size.height.toDouble(),
-                  child: AdWidget(ad: _bannerAd!),
+      body: NotificationListener<ScrollNotification>(
+        onNotification: (notification) {
+          if (notification is ScrollStartNotification) {
+            FocusManager.instance.primaryFocus?.unfocus();
+          }
+          return false;
+        },
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildMedicineHeader(themeColor),
+              const SizedBox(height: 24),
+              _buildSectionTitle('DATA PASIEN'),
+              _buildInputSection(),
+              const SizedBox(height: 24),
+              _buildSectionTitle('KONDISI KHUSUS'),
+              _buildConditionsSection(),
+              const SizedBox(height: 24),
+              _buildSectionTitle('KONVERSI VOLUME (SIRUP/SUSPENSI)'),
+              _buildConcentrationSection(themeColor),
+              const SizedBox(height: 32),
+              _buildResultPanel(themeColor),
+              if (_warnings.isNotEmpty) _buildWarningSection(),
+              if (_isBannerLoaded && _bannerAd != null)
+                Container(
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.only(top: 24),
+                  child: SizedBox(
+                    width: _bannerAd!.size.width.toDouble(),
+                    height: _bannerAd!.size.height.toDouble(),
+                    child: AdWidget(ad: _bannerAd!),
+                  ),
                 ),
-              ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -536,6 +544,7 @@ class _DoseCalculatorViewState extends State<DoseCalculatorView> {
 
   Widget _buildTextField(TextEditingController controller, String label, IconData? icon, {bool isNumeric = true, String? hint}) {
     return TextField(
+      autofocus: false,
       controller: controller,
       keyboardType: isNumeric ? const TextInputType.numberWithOptions(decimal: true) : TextInputType.text,
       decoration: InputDecoration(

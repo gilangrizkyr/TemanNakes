@@ -2,18 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/medicine_provider.dart';
-import '../../domain/models/medicine.dart';
-// import 'medicine_detail_view.dart';
-// import 'interaction_checker_view.dart';
 import 'category_views.dart';
-// import '../../../favorites/presentation/views/favorites_view.dart';
 import '../../../medical_calculator/presentation/views/medical_calc_home.dart';
 import '../../../patient_form/presentation/views/patient_form_home.dart';
 import '../widgets/medicine_list_tile.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:temannakes/core/services/ad_service.dart';
-import 'package:temannakes/features/settings/presentation/views/about_view.dart';
-import 'package:temannakes/features/settings/presentation/views/privacy_policy_view.dart';
+import 'package:temannakes/features/settings/presentation/views/settings_view.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 
 class HomeSearchView extends ConsumerStatefulWidget {
@@ -24,68 +19,212 @@ class HomeSearchView extends ConsumerStatefulWidget {
 }
 
 class _HomeSearchViewState extends ConsumerState<HomeSearchView> {
-  bool _isEmergencyMode = false;
-  final _searchCtrl = TextEditingController();
+  int _currentIndex = 2; // Default to Dashboard (Home)
 
+  @override
+  Widget build(BuildContext context) {
+    return PopScope(
+      onPopInvoked: (didPop) {
+        // V7.3: Kill focus on ANY back gesture (swipe or button)
+        FocusManager.instance.primaryFocus?.unfocus();
+      },
+      child: Scaffold(
+        body: IndexedStack(
+          index: _currentIndex,
+          children: const [
+            CategoryListView(),
+            PatientFormHome(),
+            MedicineDashboardContent(),
+            MedicalCalcHome(),
+            SettingsView(),
+          ],
+        ),
+        bottomNavigationBar: CustomBottomNavBar(
+          currentIndex: _currentIndex,
+          onTap: (index) {
+            // V7.3: Double-Kill Focus Strategy
+          // 1. Tell the manager to unfocus
+          FocusManager.instance.primaryFocus?.unfocus();
+          // 2. Force the scope to focus on a "dummy" node (The Ultimate Fix)
+          FocusScope.of(context).requestFocus(FocusNode());
+          setState(() => _currentIndex = index);
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class CustomBottomNavBar extends StatelessWidget {
+  final int currentIndex;
+  final Function(int) onTap;
+
+  const CustomBottomNavBar({
+    super.key,
+    required this.currentIndex,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final List<Map<String, dynamic>> items = [
+      {'icon': Icons.category_outlined, 'activeIcon': Icons.category, 'label': 'Kategori', 'color': const Color(0xFF3F51B5)},
+      {'icon': Icons.assignment_outlined, 'activeIcon': Icons.assignment, 'label': 'Pasien', 'color': const Color(0xFF009688)},
+      {'icon': Icons.dashboard_outlined, 'activeIcon': Icons.dashboard_rounded, 'label': 'Home', 'color': const Color(0xFF2E7D32)},
+      {'icon': Icons.calculate_outlined, 'activeIcon': Icons.calculate, 'label': 'Hitung', 'color': const Color(0xFFE65100)},
+      {'icon': Icons.settings_outlined, 'activeIcon': Icons.settings, 'label': 'Setelan', 'color': const Color(0xFF607D8B)},
+    ];
+
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final double itemWidth = screenWidth / items.length;
+
+    return Container(
+      height: 85,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 20,
+            offset: const Offset(0, -10),
+          ),
+        ],
+      ),
+      child: SafeArea(
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            // Liquid Morphing Indicator (The "Infinity" Glow)
+            AnimatedPositioned(
+              duration: const Duration(milliseconds: 500),
+              curve: Curves.fastOutSlowIn,
+              left: currentIndex * itemWidth + (itemWidth * 0.15),
+              bottom: 8,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                width: itemWidth * 0.7,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: items[currentIndex]['color'],
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: [
+                    BoxShadow(
+                      color: (items[currentIndex]['color'] as Color).withOpacity(0.6),
+                      blurRadius: 15,
+                      spreadRadius: 2,
+                      offset: const Offset(0, -2),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            // Navigation Items
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: List.generate(items.length, (index) {
+                final isSelected = currentIndex == index;
+                final itemColor = items[index]['color'] as Color;
+                return GestureDetector(
+                  onTap: () {
+                    // V7.1: Force unfocus to prevent keyboard pop-ups when switching tabs
+                    FocusScope.of(context).unfocus();
+                    onTap(index);
+                  },
+                  behavior: HitTestBehavior.opaque,
+                  child: SizedBox(
+                    width: itemWidth,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 400),
+                          curve: Curves.easeOutBack,
+                          transform: Matrix4.translationValues(0, isSelected ? -12 : 0, 0),
+                          child: Column(
+                            children: [
+                              Icon(
+                                isSelected ? items[index]['activeIcon'] : items[index]['icon'],
+                                color: isSelected ? itemColor : Colors.grey.shade400,
+                                size: isSelected ? 30 : 24,
+                              ),
+                              if (isSelected) 
+                                AnimatedOpacity(
+                                  duration: const Duration(milliseconds: 300),
+                                  opacity: isSelected ? 1 : 0,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(top: 4),
+                                    child: Text(
+                                      items[index]['label'],
+                                      style: TextStyle(
+                                        color: itemColor,
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.bold,
+                                        letterSpacing: 0.5,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                        if (!isSelected)
+                          const SizedBox(height: 22), // Space for labels of non-selected
+                      ],
+                    ),
+                  ),
+                );
+              }),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class MedicineDashboardContent extends ConsumerStatefulWidget {
+  const MedicineDashboardContent({super.key});
+
+  @override
+  ConsumerState<MedicineDashboardContent> createState() => _MedicineDashboardContentState();
+}
+
+class _MedicineDashboardContentState extends ConsumerState<MedicineDashboardContent> {
+  final TextEditingController _searchCtrl = TextEditingController();
+  final FocusNode _searchFocusNode = FocusNode();
   BannerAd? _bannerAd;
   bool _isBannerLoaded = false;
+  bool _isEmergencyMode = false;
 
   @override
   void initState() {
     super.initState();
-    // [FIX D] Timing guard: start banner AFTER first frame to avoid race condition
-    // where AdMob SDK is not yet ready when widget initializes.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initBannerWithRetry();
     });
   }
 
-  // [RPM OPT] Slow-network banner retry with cache guard.
-  // IMPORTANT: If banner already loaded, do nothing — never destroy a live ad.
   Future<void> _initBannerWithRetry({int attempt = 1}) async {
     const maxAttempts = 3;
-
-    // [CACHE GUARD] Exit immediately if banner is already successfully loaded.
-    // This prevents accidentally disposing a healthy live banner on a retry call.
-    if (_isBannerLoaded) {
-      debugPrint('🎯 Banner cache hit — skipping reload.');
-      return;
-    }
-
-    debugPrint('🔍 HomeSearchView: Banner attempt $attempt/$maxAttempts...');
-
+    if (_isBannerLoaded) return;
+    
     final isOnline = await AdService().isOnline();
-    if (!isOnline) {
-      debugPrint('📵 HomeSearchView: Offline — Banner skipped.');
-      return;
-    }
+    if (!isOnline) return;
 
-    // Only dispose if not loaded (safe cleanup of previous failed attempt)
     if (!_isBannerLoaded) _bannerAd?.dispose();
 
     final ad = AdService().createBannerAd(
       onAdLoaded: (ad) {
-        if (!mounted) {
-          ad.dispose();
-          return;
-        }
-        debugPrint('🎯 HomeSearchView: Banner loaded on attempt $attempt.');
+        if (!mounted) { ad.dispose(); return; }
         setState(() => _isBannerLoaded = true);
       },
       onAdFailedToLoad: (ad, error) {
-        debugPrint('💥 Banner failed (attempt $attempt): ${error.message}');
         if (!mounted) return;
         setState(() => _isBannerLoaded = false);
-
-        // [FIX B] Retry with exponential backoff if attempts remain
         if (attempt < maxAttempts) {
-          final delay = Duration(seconds: attempt == 1 ? 2 : 6);
-          debugPrint('🔄 Retrying banner in ${delay.inSeconds}s...');
-          Future.delayed(delay, () {
+          Future.delayed(Duration(seconds: attempt == 1 ? 2 : 6), () {
             if (mounted) _initBannerWithRetry(attempt: attempt + 1);
           });
-        } else {
-          debugPrint('⛔ Banner max attempts reached. Running without ads.');
         }
       },
     );
@@ -98,16 +237,9 @@ class _HomeSearchViewState extends ConsumerState<HomeSearchView> {
   @override
   void dispose() {
     _searchCtrl.dispose();
+    _searchFocusNode.dispose();
     _bannerAd?.dispose();
     super.dispose();
-  }
-
-  void _setSearch(String value) {
-    _searchCtrl.text = value;
-    _searchCtrl.selection = TextSelection.fromPosition(
-      TextPosition(offset: value.length),
-    );
-    _onSearchChanged(value);
   }
 
   void _onSearchChanged(String value) {
@@ -119,13 +251,10 @@ class _HomeSearchViewState extends ConsumerState<HomeSearchView> {
       _isEmergencyMode = !_isEmergencyMode;
     });
     if (_isEmergencyMode) {
-      // Emergency: filter by 'Darurat' golongan — exact match from DB
       ref.read(categoryFilterProvider.notifier).state = 'Darurat';
       ref.read(formFilterProvider.notifier).state = 'Semua';
-      _setSearch('');
     } else {
       ref.read(categoryFilterProvider.notifier).state = 'Semua';
-      _setSearch('');
     }
   }
 
@@ -134,15 +263,24 @@ class _HomeSearchViewState extends ConsumerState<HomeSearchView> {
     final medicineList = ref.watch(medicineListProvider);
 
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
+      backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
-        title: const Text('TemanNakes'),
+        title: const Text(
+          'TemanNakes',
+          style: TextStyle(
+            fontWeight: FontWeight.w900,
+            letterSpacing: -0.5,
+            fontSize: 22,
+          ),
+        ),
+        centerTitle: false,
+        titleSpacing: 20,
+        automaticallyImplyLeading: false,
         actions: [
           _buildEmergencyToggle(),
           _buildNetworkIndicator(ref),
         ],
       ),
-      drawer: _buildDrawer(context),
       body: Column(
         children: [
           _buildSearchHeader(context, ref),
@@ -156,14 +294,30 @@ class _HomeSearchViewState extends ConsumerState<HomeSearchView> {
                   return _buildHistorySection();
                 }
                 if (list.isEmpty) return _buildNoResults();
-                return _buildMedicinesList(list);
+                return NotificationListener<ScrollNotification>(
+                  onNotification: (notification) {
+                    if (notification is ScrollStartNotification) {
+                      // V7.2: Kill focus as soon as user starts browsing results
+                      FocusManager.instance.primaryFocus?.unfocus();
+                    }
+                    return false;
+                  },
+                  child: ListView.builder(
+                    padding: const EdgeInsets.only(bottom: 120), // Space for dock
+                    itemCount: list.length,
+                    itemBuilder: (context, index) => ProjectMedicineListTile(medicine: list[index]),
+                  ),
+                );
               },
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (err, _) => Center(child: Text('Koneksi Database Error: $err')),
+              error: (err, _) => Center(child: Text('Error: $err')),
             ),
           ),
-          if (_isBannerLoaded && _bannerAd != null)
-            SafeArea(
+          // V7.4: Removed double SafeArea to prevent the ad from floating too high above the bottom dock
+          if (_isBannerLoaded && _bannerAd != null && MediaQuery.of(context).viewInsets.bottom == 0)
+            Container(
+              alignment: Alignment.center,
+              padding: const EdgeInsets.only(bottom: 8),
               child: SizedBox(
                 width: _bannerAd!.size.width.toDouble(),
                 height: _bannerAd!.size.height.toDouble(),
@@ -171,158 +325,6 @@ class _HomeSearchViewState extends ConsumerState<HomeSearchView> {
               ),
             ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildDrawer(BuildContext context) {
-    return Drawer(
-      child: Column(
-        children: [
-          DrawerHeader(
-            decoration: const BoxDecoration(color: Color(0xFF2E7D32)),
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset('assets/images/logo.png', width: 60, height: 60),
-                  const SizedBox(height: 10),
-                  const Flexible(
-                    child: Text('TemanNakes', 
-                      style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          ListTile(
-            leading: const Icon(Icons.search),
-            title: const Text('Cari Obat'),
-            onTap: () => Navigator.pop(context),
-          ),
-          ListTile(
-            leading: const Icon(Icons.category_outlined),
-            title: const Text('Kategori Penyakit'),
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const CategoryListView()));
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.calculate, color: Color(0xFF1B5E20)),
-            title: const Text('Kalkulator Medis'),
-            subtitle: const Text('6 modul klinis', style: TextStyle(fontSize: 11)),
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const MedicalCalcHome()));
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.assignment, color: Color(0xFF0277BD)),
-            title: const Text('Form Pasien'),
-            subtitle: const Text('Data & Laporan Otomatis', style: TextStyle(fontSize: 11)),
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const PatientFormHome()));
-            },
-          ),
-          const Divider(),
-          ListTile(
-            leading: const Icon(Icons.info_outline),
-            title: const Text('Tentang Aplikasi'),
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const AboutView()));
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.privacy_tip_outlined),
-            title: const Text('Kebijakan Privasi'),
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const PrivacyPolicyView()));
-            },
-          ),
-          const Spacer(),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              children: [
-                const Text(
-                  'Institutional Data Integrity Verified',
-                  style: TextStyle(color: Colors.green, fontSize: 10, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 4),
-                RichText(
-                  text: const TextSpan(
-                    children: [
-                      TextSpan(
-                        text: 'Developed by ',
-                        style: TextStyle(color: Colors.grey, fontSize: 10),
-                      ),
-                      TextSpan(
-                        text: 'GilangRizky',
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 8),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMedicinesList(List<MedicineSimple> list) {
-    return ListView.builder(
-      itemCount: list.length,
-      itemBuilder: (context, index) => ProjectMedicineListTile(medicine: list[index]),
-    );
-  }
-
-  Widget _buildNoResults() {
-    final query = ref.watch(searchQueryProvider);
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 40),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.search_off_rounded, size: 80, color: Colors.grey.shade300),
-            const SizedBox(height: 16),
-            Text(
-              'Tidak ada hasil untuk "$query"',
-              style: TextStyle(color: Colors.grey.shade600, fontSize: 16, fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              'Pastikan ejaan benar atau gunakan nama generik. Jika obat baru saja rilis, silakan cek database online.',
-              style: TextStyle(color: Colors.grey, fontSize: 12),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 24),
-            OutlinedButton.icon(
-              onPressed: () => launchUrl(Uri.parse('https://cekbpom.pom.go.id/'), mode: LaunchMode.externalApplication),
-              icon: const Icon(Icons.open_in_new, size: 18),
-              label: const Text('CEK BPOM ONLINE'),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.green.shade700,
-                side: BorderSide(color: Colors.green.shade700),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -347,46 +349,6 @@ class _HomeSearchViewState extends ConsumerState<HomeSearchView> {
     );
   }
 
-
-  Widget _buildSearchHeader(BuildContext context, WidgetRef ref) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(20, 10, 20, 20),
-      decoration: BoxDecoration(
-        color: Theme.of(context).primaryColor,
-        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(32)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.green.withOpacity(0.3),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          TextField(
-            controller: _searchCtrl,
-            onChanged: _onSearchChanged,
-            style: const TextStyle(color: Colors.black87),
-            decoration: InputDecoration(
-              hintText: 'Cari 20.000+ Produk & Referensi...',
-              prefixIcon: const Icon(Icons.search, color: Colors.green),
-              filled: true,
-              fillColor: Colors.white,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(16),
-                borderSide: BorderSide.none,
-              ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-            ),
-          ),
-          const SizedBox(height: 10),
-          _buildFilterRow(),
-        ],
-      ),
-    );
-  }
-
   Widget _buildNetworkIndicator(WidgetRef ref) {
     final connectivity = ref.watch(connectivityProvider);
     return connectivity.when(
@@ -401,11 +363,38 @@ class _HomeSearchViewState extends ConsumerState<HomeSearchView> {
           ),
         );
       },
-      loading: () => const Padding(
-        padding: EdgeInsets.only(right: 12),
-        child: SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white24)),
+      loading: () => const SizedBox.shrink(),
+      error: (_, __) => const SizedBox.shrink(),
+    );
+  }
+
+  Widget _buildSearchHeader(BuildContext context, WidgetRef ref) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(20, 10, 20, 20),
+      decoration: BoxDecoration(
+        color: Theme.of(context).primaryColor,
+        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(32)),
       ),
-      error: (_, __) => const Icon(Icons.wifi_off, color: Colors.white24, size: 20),
+      child: Column(
+        children: [
+          TextField(
+            autofocus: false,
+            focusNode: _searchFocusNode,
+            controller: _searchCtrl,
+            onChanged: _onSearchChanged,
+            decoration: InputDecoration(
+              hintText: 'Cari 20.000+ Referensi Obat...',
+              prefixIcon: const Icon(Icons.search, color: Colors.green),
+              filled: true,
+              fillColor: Colors.white,
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            ),
+          ),
+          const SizedBox(height: 12),
+          _buildFilterRow(),
+        ],
+      ),
     );
   }
 
@@ -413,146 +402,89 @@ class _HomeSearchViewState extends ConsumerState<HomeSearchView> {
     final categoryFilter = ref.watch(categoryFilterProvider);
     final formFilter = ref.watch(formFilterProvider);
     const golonganOptions = [
-      'Semua', 
-      'Antibiotik', 
-      'Analgetik', 
-      'NSAID', 
-      'Diabetes', 
-      'HT', // Matches HT/Angina, ACEI, ARB via UI Label mapping or LIKE
-      'Vitamin', 
-      'Antivirus', 
-      'Antijamur', 
-      'Steroid', 
-      'Psikotropika', 
-      'Darurat',
-      'Lambung' // Matches PPI, H2 Blocker
+      'Semua', 'Antibiotik', 'Analgetik', 'NSAID', 'Diabetes', 
+      'HT', 'Vitamin', 'Antivirus', 'Antijamur', 'Steroid', 
+      'Psikotropika', 'Darurat', 'Lambung'
     ];
     const bentukOptions = [
-      'Semua', 
-      'Tablet', 
-      'Kapsul', 
-      'Sirup', 
-      'Inj', 
-      'Infus',
-      'Krim',
-      'Sachet',
-      'Tetes', 
-      'Inhaler'
+      'Semua', 'Tablet', 'Kapsul', 'Sirup', 'Susp', 'Drop', 'Inj', 'Infus',
+      'Krim', 'Sachet', 'Tetes', 'Inhaler'
     ];
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            children: [
-              const Padding(
-                padding: EdgeInsets.only(right: 8),
-                child: Text('Golongan:', style: TextStyle(color: Colors.white70, fontSize: 11, fontWeight: FontWeight.bold)),
-              ),
-              ...golonganOptions.map((g) {
-                final selected = categoryFilter == g;
-                return Padding(
-                  padding: const EdgeInsets.only(right: 6),
-                  child: GestureDetector(
-                    onTap: () => ref.read(categoryFilterProvider.notifier).state = g,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-                      decoration: BoxDecoration(
-                        color: selected ? Colors.white : Colors.white.withOpacity(0.15),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(g,
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                            color: selected ? const Color(0xFF1B5E20) : Colors.white,
-                          )),
-                    ),
-                  ),
-                );
-              }),
-            ],
-          ),
-        ),
-        const SizedBox(height: 6),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            children: [
-              const Padding(
-                padding: EdgeInsets.only(right: 8),
-                child: Text('Bentuk:', style: TextStyle(color: Colors.white70, fontSize: 11, fontWeight: FontWeight.bold)),
-              ),
-              ...bentukOptions.map((b) {
-                final selected = formFilter == b;
-                return Padding(
-                  padding: const EdgeInsets.only(right: 6),
-                  child: GestureDetector(
-                    onTap: () => ref.read(formFilterProvider.notifier).state = b,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-                      decoration: BoxDecoration(
-                        color: selected ? Colors.white : Colors.white.withOpacity(0.15),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(b,
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                            color: selected ? const Color(0xFF1B5E20) : Colors.white,
-                          )),
-                    ),
-                  ),
-                );
-              }),
-            ],
-          ),
-        ),
+        _buildChipList('Golongan:', golonganOptions, categoryFilter, (v) => ref.read(categoryFilterProvider.notifier).state = v),
+        const SizedBox(height: 8),
+        _buildChipList('Bentuk:', bentukOptions, formFilter, (v) => ref.read(formFilterProvider.notifier).state = v),
       ],
     );
   }
 
+  Widget _buildChipList(String label, List<String> options, String current, Function(String) onSelect) {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: [
+          Text(label, style: const TextStyle(color: Colors.white70, fontSize: 10, fontWeight: FontWeight.bold)),
+          const SizedBox(width: 8),
+          ...options.map((o) {
+            final selected = current == o;
+            return Padding(
+              padding: const EdgeInsets.only(right: 6),
+              child: GestureDetector(
+                onTap: () => onSelect(o),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: selected ? Colors.white : Colors.white.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(o, style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: selected ? Colors.green.shade900 : Colors.white)),
+                ),
+              ),
+            );
+          }),
+        ],
+      ),
+    );
+  }
 
   Widget _buildHistorySection() {
     final history = ref.watch(searchHistoryProvider);
-    if (history.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.inventory_2_outlined, size: 80, color: Colors.grey.shade200),
-            const SizedBox(height: 16),
-            Text('Siap melayani referensi klinis.', style: TextStyle(color: Colors.grey.shade400)),
-          ],
-        ),
-      );
-    }
+    if (history.isEmpty) return const Center(child: Icon(Icons.inventory_2_outlined, size: 60, color: Colors.black12));
     return ListView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             const Text('Riwayat Pencarian', style: TextStyle(fontWeight: FontWeight.bold)),
-            TextButton(
-              onPressed: () => ref.read(searchHistoryProvider.notifier).clear(),
-              child: const Text('Hapus'),
-            ),
+            TextButton(onPressed: () => ref.read(searchHistoryProvider.notifier).clear(), child: const Text('Hapus')),
           ],
         ),
         Wrap(
           spacing: 8,
-          children: history.map((q) => ActionChip(
-            label: Text(q),
-            onPressed: () => _setSearch(q),
-          )).toList(),
+          children: history.map((q) => ActionChip(label: Text(q), onPressed: () {
+            _searchCtrl.text = q;
+            ref.read(searchQueryProvider.notifier).state = q;
+          })).toList(),
         ),
       ],
     );
   }
 
-
+  Widget _buildNoResults() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.search_off, size: 60, color: Colors.grey),
+          const SizedBox(height: 16),
+          Text('Tidak ada hasil.', style: TextStyle(color: Colors.grey.shade600)),
+          TextButton(onPressed: () => launchUrl(Uri.parse('https://cekbpom.pom.go.id/')), child: const Text('Cek BPOM Online')),
+        ],
+      ),
+    );
+  }
 }
 

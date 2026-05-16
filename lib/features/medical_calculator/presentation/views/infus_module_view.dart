@@ -77,7 +77,7 @@ class _InfusModuleViewState extends ConsumerState<InfusModuleView>
     return Scaffold(
       appBar: AppBar(
         title: const Text('Kalkulator Infus'),
-        backgroundColor: const Color(0xFF00695C),
+        backgroundColor: const Color(0xFF0288D1),
         foregroundColor: Colors.white,
         bottom: TabBar(
           controller: _tabCtrl,
@@ -153,7 +153,7 @@ class _InfusModuleViewState extends ConsumerState<InfusModuleView>
                 icon: const Icon(Icons.calculate),
                 label: const Text('HITUNG TETESAN'),
                 style: FilledButton.styleFrom(
-                  backgroundColor: const Color(0xFF00695C),
+                  backgroundColor: const Color(0xFF0288D1),
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
@@ -211,7 +211,7 @@ class _InfusModuleViewState extends ConsumerState<InfusModuleView>
                 icon: const Icon(Icons.speed),
                 label: const Text('HITUNG KECEPATAN PUMP'),
                 style: FilledButton.styleFrom(
-                  backgroundColor: const Color(0xFF00695C),
+                  backgroundColor: const Color(0xFF0288D1),
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
@@ -234,8 +234,8 @@ class _InfusModuleViewState extends ConsumerState<InfusModuleView>
       label: Text(label),
       selected: _dropFactor == value,
       onSelected: (_) => setState(() { _dropFactor = value; _calcDrop(); }),
-      selectedColor: const Color(0xFF00695C).withOpacity(0.2),
-      checkmarkColor: const Color(0xFF00695C),
+      selectedColor: const Color(0xFF0288D1).withOpacity(0.2),
+      checkmarkColor: const Color(0xFF0288D1),
     );
   }
 }

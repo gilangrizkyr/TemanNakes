@@ -70,7 +70,7 @@ class _DoseCalcModuleViewState extends ConsumerState<DoseCalcModuleView> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Kalkulator Dosis Obat'),
-        backgroundColor: const Color(0xFF1565C0),
+        backgroundColor: const Color(0xFF3F51B5),
         foregroundColor: Colors.white,
       ),
       body: SingleChildScrollView(
@@ -164,7 +164,7 @@ class _DoseCalcModuleViewState extends ConsumerState<DoseCalcModuleView> {
                   icon: const Icon(Icons.calculate),
                   label: const Text('HITUNG DOSIS'),
                   style: FilledButton.styleFrom(
-                    backgroundColor: const Color(0xFF1565C0),
+                    backgroundColor: const Color(0xFF3F51B5),
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
@@ -176,7 +176,7 @@ class _DoseCalcModuleViewState extends ConsumerState<DoseCalcModuleView> {
                 CalcResultCard(result: _result!),
                 const CalcBannerAdWidget(), // [STAGE 2] High-dwell banner
               ],
-              const SizedBox(height: 60),
+              const SizedBox(height: 100),
             ],
           ),
         ),
@@ -190,7 +190,7 @@ class _DoseCalcModuleViewState extends ConsumerState<DoseCalcModuleView> {
           fontSize: 11,
           fontWeight: FontWeight.w900,
           letterSpacing: 1.2,
-          color: Color(0xFF1565C0),
+          color: Color(0xFF3F51B5),
         ),
       );
 }

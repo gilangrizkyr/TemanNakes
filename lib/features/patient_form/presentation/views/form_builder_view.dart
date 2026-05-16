@@ -128,7 +128,7 @@ class FormBuilderListView extends ConsumerWidget {
           children: [
             TextField(
               controller: nameCtrl,
-              autofocus: true,
+              autofocus: false,
               decoration: const InputDecoration(
                   labelText: 'Nama Form *', border: OutlineInputBorder()),
             ),
@@ -542,7 +542,7 @@ class _FieldEditorSheetState extends State<FieldEditorSheet> {
             // Label
             TextField(
               controller: _labelCtrl,
-              autofocus: true,
+              autofocus: false,
               decoration: const InputDecoration(
                 labelText: 'Label Field *',
                 border: OutlineInputBorder(),

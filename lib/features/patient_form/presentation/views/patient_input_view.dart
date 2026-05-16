@@ -85,33 +85,41 @@ class _PatientInputViewState extends ConsumerState<PatientInputView> {
       ),
       body: Form(
         key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.all(20),
-          children: [
-            Container(
-              padding: const EdgeInsets.all(14),
-              margin: const EdgeInsets.only(bottom: 24),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10)],
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.assignment, color: Color(0xFF00695C)),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      widget.template.name,
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF263238)),
+        child: NotificationListener<ScrollNotification>(
+          onNotification: (notification) {
+            if (notification is ScrollStartNotification) {
+              FocusManager.instance.primaryFocus?.unfocus();
+            }
+            return false;
+          },
+          child: ListView(
+            padding: const EdgeInsets.all(20),
+            children: [
+              Container(
+                padding: const EdgeInsets.all(14),
+                margin: const EdgeInsets.only(bottom: 24),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10)],
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.assignment, color: Color(0xFF00695C)),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        widget.template.name,
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF263238)),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            ...widget.template.fields.map((field) => _buildFieldWidget(field)),
-            const SizedBox(height: 100),
-          ],
+              ...widget.template.fields.map((field) => _buildFieldWidget(field)),
+              const SizedBox(height: 100),
+            ],
+          ),
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
@@ -159,6 +167,7 @@ class _PatientInputViewState extends ConsumerState<PatientInputView> {
 
   Widget _buildText(FormFieldConfig f) {
     return TextFormField(
+      autofocus: false,
       initialValue: _values[f.id]?.toString(),
       decoration: _decoration(f),
       textInputAction: TextInputAction.next,
@@ -169,6 +178,7 @@ class _PatientInputViewState extends ConsumerState<PatientInputView> {
 
   Widget _buildNumber(FormFieldConfig f) {
     return TextFormField(
+      autofocus: false,
       initialValue: _values[f.id]?.toString() ?? '',
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
       decoration: _decoration(f),
@@ -256,6 +266,7 @@ class _PatientInputViewState extends ConsumerState<PatientInputView> {
 
   Widget _buildTextarea(FormFieldConfig f) {
     return TextFormField(
+      autofocus: false,
       initialValue: _values[f.id]?.toString(),
       maxLines: 4,
       keyboardType: TextInputType.multiline,

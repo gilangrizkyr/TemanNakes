@@ -39,6 +39,15 @@ class AdService {
     return '';
   }
 
+  static String get appOpenAdUnitId {
+    if (Platform.isAndroid) {
+      return 'ca-app-pub-9846253095644135/5339261669'; // Production Android
+    } else if (Platform.isIOS) {
+      return 'ca-app-pub-9846253095644135/5694484886'; // Production iOS
+    }
+    return '';
+  }
+
   // [FIX B] Platform Guard: AdMob only supports mobile
   bool get isSupportedPlatform => Platform.isAndroid || Platform.isIOS;
 
@@ -171,5 +180,111 @@ class AdService {
         },
       ),
     );
+  }
+}
+
+/// [PRO-FEATURE] AppOpenAdManager
+/// Manages the full lifecycle of App Open Ads with cooldown and expiration protection.
+class AppOpenAdManager {
+  static final AppOpenAdManager _instance = AppOpenAdManager._internal();
+  factory AppOpenAdManager() => _instance;
+  AppOpenAdManager._internal();
+
+  AppOpenAd? _appOpenAd;
+  bool _isShowingAd = false;
+  DateTime? _lastShowTime;
+  DateTime? _loadTime;
+
+  /// Cooldown duration (Set to 1 hour as per user preference)
+  static const Duration _cooldownDuration = Duration(hours: 1);
+  
+  /// Expiration duration (Ads are valid for 4 hours per AdMob policy)
+  static const Duration _maxCacheDuration = Duration(hours: 4);
+
+  bool get _isAdAvailable => _appOpenAd != null && _isAdValid;
+
+  bool get _isAdValid {
+    if (_loadTime == null) return false;
+    return DateTime.now().difference(_loadTime!) < _maxCacheDuration;
+  }
+
+  bool get _isWithinCooldown {
+    if (_lastShowTime == null) return false;
+    return DateTime.now().difference(_lastShowTime!) < _cooldownDuration;
+  }
+
+  /// Load an App Open Ad
+  void loadAd() {
+    if (_isAdAvailable || !AdService().isSupportedPlatform) return;
+
+    AppOpenAd.load(
+      adUnitId: AdService.appOpenAdUnitId,
+      request: const AdRequest(),
+      adLoadCallback: AppOpenAdLoadCallback(
+        onAdLoaded: (ad) {
+          debugPrint('✅ AppOpenAd loaded.');
+          _appOpenAd = ad;
+          _loadTime = DateTime.now();
+        },
+        onAdFailedToLoad: (error) {
+          debugPrint('❌ AppOpenAd FAILED to load: $error');
+        },
+      ),
+    );
+  }
+
+  /// Show the ad if available and not within cooldown
+  /// [onComplete] is called when the ad is dismissed or failed to show, 
+  /// or immediately if no ad is available.
+  void showAdIfAvailable({VoidCallback? onComplete}) {
+    if (!AdService().isSupportedPlatform) {
+      onComplete?.call();
+      return;
+    }
+
+    if (_isShowingAd) {
+      debugPrint('⚠️ AppOpenAd is already showing.');
+      // Don't call onComplete here because we are still showing an ad
+      return;
+    }
+
+    if (!_isAdAvailable) {
+      debugPrint('ℹ️ AppOpenAd not available. Loading for next time...');
+      loadAd();
+      onComplete?.call();
+      return;
+    }
+
+    if (_isWithinCooldown) {
+      debugPrint('🛡️ AppOpenAd skipped: Within cooldown.');
+      onComplete?.call();
+      return;
+    }
+
+    _appOpenAd!.fullScreenContentCallback = FullScreenContentCallback(
+      onAdShowedFullScreenContent: (ad) {
+        _isShowingAd = true;
+        debugPrint('📱 AppOpenAd showed.');
+      },
+      onAdDismissedFullScreenContent: (ad) {
+        _isShowingAd = false;
+        _lastShowTime = DateTime.now();
+        ad.dispose();
+        _appOpenAd = null;
+        loadAd();
+        debugPrint('🏠 AppOpenAd dismissed.');
+        onComplete?.call(); // Continue to next screen
+      },
+      onAdFailedToShowFullScreenContent: (ad, error) {
+        _isShowingAd = false;
+        ad.dispose();
+        _appOpenAd = null;
+        loadAd();
+        debugPrint('❌ AppOpenAd failed to show: $error');
+        onComplete?.call(); // Continue anyway
+      },
+    );
+
+    _appOpenAd!.show();
   }
 }

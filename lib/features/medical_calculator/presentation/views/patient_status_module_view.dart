@@ -54,7 +54,7 @@ class _PatientStatusState extends ConsumerState<PatientStatusModuleView>
     return Scaffold(
       appBar: AppBar(
         title: const Text('Status Pasien'),
-        backgroundColor: const Color(0xFF6A1B9A),
+                  backgroundColor: const Color(0xFFD81B60),
         foregroundColor: Colors.white,
         bottom: TabBar(
           controller: _tabCtrl,
@@ -86,7 +86,7 @@ class _PatientStatusState extends ConsumerState<PatientStatusModuleView>
           prefixIcon: const Icon(Icons.height),
           validator: MedicalValidator.height, onChanged: _calcBMI)),
       ]),
-      _button('HITUNG BMI', const Color(0xFF6A1B9A), _calcBMI),
+      _button('HITUNG BMI', const Color(0xFFD81B60), _calcBMI),
       if (_bmiResult != null) ...[
         CalcResultCard(result: _bmiResult!),
         const CalcBannerAdWidget(), // [STAGE 2] High-dwell banner
@@ -105,7 +105,7 @@ class _PatientStatusState extends ConsumerState<PatientStatusModuleView>
           prefixIcon: const Icon(Icons.arrow_downward),
           validator: (v) => MedicalValidator.bloodPressure(v, 'Diastolik'), onChanged: _calcMAP)),
       ]),
-      _button('HITUNG MAP', const Color(0xFF6A1B9A), _calcMAP),
+      _button('HITUNG MAP', const Color(0xFFD81B60), _calcMAP),
       if (_mapResult != null) ...[
         CalcResultCard(result: _mapResult!),
         const CalcBannerAdWidget(), // [STAGE 2] High-dwell banner
@@ -124,7 +124,7 @@ class _PatientStatusState extends ConsumerState<PatientStatusModuleView>
           prefixIcon: const Icon(Icons.arrow_upward),
           validator: (v) => MedicalValidator.bloodPressure(v, 'Sistolik'), onChanged: _calcSI)),
       ]),
-      _button('HITUNG SHOCK INDEX', const Color(0xFF6A1B9A), _calcSI),
+      _button('HITUNG SHOCK INDEX', const Color(0xFFD81B60), _calcSI),
       if (_siResult != null) ...[
         CalcResultCard(result: _siResult!),
         const CalcBannerAdWidget(), // [STAGE 2] High-dwell banner
