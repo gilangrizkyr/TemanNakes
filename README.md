@@ -13,8 +13,8 @@
 
 ---
 
-## 🌟 Apa Itu TemanNakes?
-**TemanNakes Pinnacle V1.0** adalah asisten klinis terintegrasi yang dirancang untuk memperkuat profesionalisme Tenaga Kesehatan Indonesia. Aplikasi ini menghadirkan referensi obat komprehensif, kalkulator medis presisi tinggi, dan efisiensi manajemen data pasien dalam satu platform luring yang andal.
+## 🌟 What Is TemanNakes?
+**TemanNakes Pinnacle V1.0** is an integrated clinical assistant designed to strengthen the professionalism of Indonesian Healthcare Workers. The app delivers a comprehensive drug reference, high-precision medical calculators, and efficient patient data management, all in a single reliable offline platform.
 
 <p align="center">
   <img src="home.jpeg" alt="Home Interface" width="600"/>
@@ -22,55 +22,55 @@
 
 ---
 
-## 🚀 Visi & Manfaat Klinis (The Impact)
-Memberdayakan Tenaga Kesehatan untuk memberikan asuhan yang aman dan berkualitas melalui:
-- **Menghilangkan Medication Error**: Label dosis eksplisit (Sekali Beri vs Total 24 Jam) menekan risiko salah dosis hingga 0%.
-- **Keamanan Neonatus & Pediatrik**: Akurasi hingga **3 desimal** untuk obat *high-potency*, menjamin keselamatan bayi di NICU.
-- **Efisiensi Administrasi**: Digitalisasi rekam medis kustom secara instan, menghemat waktu dokumentasi kertas.
-- **Monetasi Berkelanjutan**: Integrasi **Banner & Rewarded Ads** dengan deteksi koneksi dinamis tanpa mengganggu fitur luring.
+## 🚀 Vision & Clinical Impact (The Impact)
+Empowering Healthcare Workers to deliver safe, high-quality care through:
+- **Eliminating Medication Errors**: Explicit dosage labels (Single Dose vs. Total 24-Hour Dose) reduce the risk of dosing errors to 0%.
+- **Neonatal & Pediatric Safety**: Accuracy to **3 decimal places** for high-potency drugs, ensuring the safety of babies in the NICU.
+- **Administrative Efficiency**: Instant digitization of custom medical records, saving time on paper documentation.
+- **Sustainable Monetization**: Integrated **Banner & Rewarded Ads** with dynamic connectivity detection that doesn't interrupt offline features.
 
 ---
 
-## 🔥 Fitur Unggulan "Pinnacle V1.0"
+## 🔥 Key Features of "Pinnacle V1.0"
 
 ### 1. 💉 Pinnacle V1.0 Dose Engine (Surgical Precision)
-- **Explicit Derivation Labels**: Menampilkan rumus dan langkah kalkulasi (Langkah BB, BSA, Frekuensi) secara transparan.
-- **Volume Conversion Proof**: Menampilkan rincian cara mendapatkan hasil Volume (ml) dari dosis Mg.
-- **Neonatal & Pediatric Precision**: Akurasi cerdas hingga **3 desimal** untuk dosis mikro (<0.1 mg).
-- **Safety Guards**: `Age-Guard`, `Renal Guard`, dan `Capping Maksimum Dewasa`.
+- **Explicit Derivation Labels**: Transparently displays the formulas and calculation steps (Body Weight step, BSA, Frequency).
+- **Volume Conversion Proof**: Shows the detailed steps for deriving the Volume (ml) result from an Mg dose.
+- **Neonatal & Pediatric Precision**: Smart accuracy up to **3 decimal places** for micro-doses (<0.1 mg).
+- **Safety Guards**: `Age-Guard`, `Renal Guard`, and `Adult Maximum Capping`.
 
 ### 2. 📝 Revolutionary Dynamic Form Builder & Data Integrity
-- **Visual Editor**: Buat form IGD, ANC, Imunisasi, atau Stunting hanya dalam detik.
-- **Aesthetic Data Integrity**: Perbaikan otomatis format angka (1.0 -> 1) dan penyimpanan **Literal Raw String** untuk integritas data klinis.
-- **Professional Export**: Hasilkan laporan Excel & PDF dengan Zebra-Striping dan **Pinnacle V1.0 Clinical Audit Seal**.
+- **Visual Editor**: Build ER, ANC, Immunization, or Stunting forms in seconds.
+- **Aesthetic Data Integrity**: Automatic number-format correction (1.0 → 1) alongside **Literal Raw String** storage for clinical data integrity.
+- **Professional Export**: Generate Excel & PDF reports with zebra-striping and a **Pinnacle V1.0 Clinical Audit Seal**.
 
-### 3. 🛡️ Matrix Interaksi & Normalisasi v3
-- Memindai interaksi antar-obat menggunakan basis kelas farmakologi (ACEI, NSAID, PPI, dll).
-- **Normalization Engine**: Mengenali variasi penulisan obat se-Indonesia.
+### 3. 🛡️ Interaction Matrix & Normalization v3
+- Scans for drug-drug interactions using a pharmacological class database (ACEI, NSAID, PPI, etc).
+- **Normalization Engine**: Recognizes drug-name spelling variations used across Indonesia.
 
 ---
 
-## 🏥 Skenario Penggunaan Praktis
+## 🏥 Practical Use Case Scenarios
 
 <p align="center">
   <img src="menu.jpeg" alt="Clinical Menu" width="600"/>
 </p>
 
-1.  **Dinas di Puskesmas/RS**: Verifikasi cepat indikasi, efek samping, dan kategori keamanan obat untuk ibu hamil saat anamnesa.
-2.  **Penanganan Kritis (NICU/ICU)**: Mendapatkan dosis obat yang sangat kecil secara akurat, mencegah risiko toksisitas.
-3.  **Rekam Medis Lokal (Bidan/Perawat)**: Mencatat perkembangan pasien Home-care menggunakan Form Kustom yang dirancang sendiri.
-4.  **Cek Polifarmasi**: Memastikan obat-obat yang dikonsumsi pasien tidak saling berinteraksi secara fatal.
+1.  **Working at a Community Health Center/Hospital**: Quickly verify indications, side effects, and pregnancy safety categories for a drug during history-taking.
+2.  **Critical Care (NICU/ICU)**: Obtain very small drug doses with accuracy, preventing toxicity risk.
+3.  **Local Medical Records (Midwives/Nurses)**: Record home-care patient progress using a self-designed Custom Form.
+4.  **Polypharmacy Check**: Ensure a patient's medications don't have fatal interactions with each other.
 
 ---
 
 ## 🏗️ Technical Mastery (The Source)
-- **FTS5 Ranked Search**: Sub-300ms latency pada 20.565+ data obat.
-- **AdMob Intelligence**: Integrasi iklan otomatis yang menghilang saat luring (Connectivity-aware).
-- **Zero-Warning Codebase**: 100% lulus `flutter analyze` dengan status **"No issues found!"**.
+- **FTS5 Ranked Search**: Sub-300ms latency across 20,565+ drug records.
+- **AdMob Intelligence**: Automatic ad integration that disappears when offline (Connectivity-aware).
+- **Zero-Warning Codebase**: 100% passes `flutter analyze` with a **"No issues found!"** status.
 
 ---
 
-## 📦 Instalasi Institutional
+## 📦 Institutional Installation
 ```bash
 git clone https://github.com/gilangrizkyr/TemanNakes.git
 flutter pub get
@@ -79,18 +79,18 @@ flutter run --release
 
 ---
 
-## 🏛️ Sertifikasi & Keamanan (Pinnacle V1.0)
+## 🏛️ Certification & Security (Pinnacle V1.0)
 
-Aplikasi ini telah melewati audit klinis **Genesis Guard** dan disertifikasi untuk penggunaan institusional:
-- **Absolute Precision**: Mesin kalkulasi dosis V1.0 dengan derifasi transparan.
-- **Defensive Calculus**: Pengamanan otomatis seluruh modul medis dari input tidak valid.
-- **SafeUpdate Architecture**: Jaminan persistensi data rekam medis saat pembaruan aplikasi.
-- **Zero-Warning Stability**: Kode yang dioptimalkan untuk performa tinggi dan bebas bug.
+This app has passed the **Genesis Guard** clinical audit and is certified for institutional use:
+- **Absolute Precision**: V1.0 dose calculation engine with transparent derivation.
+- **Defensive Calculus**: Automatic safeguarding of every medical module against invalid input.
+- **SafeUpdate Architecture**: Guaranteed persistence of medical record data during app updates.
+- **Zero-Warning Stability**: Code optimized for high performance and bug-free operation.
 
 ---
-**Status Produksi**: 💎 **GOD-TIER STABILITY** | TemanNakes Pinnacle V1.0 Genesis Guard.
+**Production Status**: 💎 **GOD-TIER STABILITY** | TemanNakes Pinnacle V1.0 Genesis Guard.
 
 <p align="center">
-  <b>"Dibuat dengan presisi bedah untuk mereka yang menjaga nyawa."</b><br>
+  <b>"Built with surgical precision for those who protect lives."</b><br>
   🏥 <i>Zero Error. Maximum Impact. TemanNakes Pinnacle.</i>
 </p>
