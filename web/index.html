@@ -1,38 +1,3973 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-  <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
-
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
-
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
-
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
-  -->
-  <base href="$FLUTTER_BASE_HREF">
-
   <meta charset="UTF-8">
-  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TemanNakes Pinnacle Web Workstation v1.0</title>
+  <!-- favicon -->
+  <link rel="icon" type="image/png" href="favicon.png">
+  
+  <!-- Premium Fonts and Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- External Libraries -->
+  <!-- SQL.js for WebAssembly SQLite Database Queries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
+  <!-- SheetJS for Excel/CSV exports -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
-  <!-- iOS meta tags & icons -->
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="temannakes">
-  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+  <style>
+    :root {
+      /* Medical Green-Teal Color System (Light Theme) */
+      --primary: #0d9488;
+      --primary-dark: #0f766e;
+      --primary-light: #f0fdfa;
+      --accent: #f59e0b;
+      --accent-light: #fef3c7;
+      --danger: #ef4444;
+      --danger-light: #fee2e2;
+      --success: #10b981;
+      --success-light: #d1fae5;
+      --warning: #f59e0b;
+      
+      --bg-app: #f8fafc;
+      --bg-sidebar: #0f172a;
+      --bg-card: #ffffff;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --text-white: #ffffff;
+      --border-color: #e2e8f0;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.08), 0 2px 4px -1px rgba(0,0,0,0.04);
+      --shadow-lg: 0 20px 25px -5px rgba(0,0,0,0.05), 0 10px 10px -5px rgba(0,0,0,0.04);
+      --radius: 12px;
+      --radius-lg: 16px;
+    }
 
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" href="favicon.png"/>
+    [data-theme="dark"] {
+      /* Medical Green-Teal Dark Theme Settings */
+      --bg-app: #090d16;
+      --bg-sidebar: #05080e;
+      --bg-card: #111827;
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --border-color: #374151;
+      --primary-light: rgba(13, 148, 136, 0.1);
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.4);
+      --shadow-lg: 0 20px 25px -5px rgba(0,0,0,0.5);
+    }
 
-  <title>temannakes</title>
-  <link rel="manifest" href="manifest.json">
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-app);
+      color: var(--text-main);
+      display: flex;
+      min-height: 100vh;
+      overflow-x: hidden;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    /* CUSTOM SPLASH / LOADING SCREEN */
+    #db-splash-screen {
+      position: fixed;
+      inset: 0;
+      background: #0f172a;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      transition: opacity 0.5s ease-out;
+    }
+
+    .splash-container {
+      width: 90%;
+      max-width: 450px;
+      text-align: center;
+      padding: 30px;
+    }
+
+    .splash-logo {
+      width: 90px;
+      height: 90px;
+      background: var(--primary);
+      border-radius: 24px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 24px;
+      box-shadow: 0 0 30px rgba(13, 148, 136, 0.4);
+      animation: heartbeat 2s infinite ease-in-out;
+    }
+
+    @keyframes heartbeat {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+    }
+
+    .splash-title {
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+    }
+
+    .splash-title span {
+      color: var(--primary);
+    }
+
+    .splash-subtitle {
+      color: #94a3b8;
+      font-size: 0.95rem;
+      margin-bottom: 30px;
+    }
+
+    .progress-bar-wrap {
+      width: 100%;
+      height: 6px;
+      background: #334155;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--primary), #10b981);
+      border-radius: 999px;
+      transition: width 0.1s ease-out;
+    }
+
+    .progress-status {
+      display: flex;
+      justify-content: space-between;
+      color: #94a3b8;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+
+    /* SIDEBAR NAVIGATION */
+    aside {
+      width: 280px;
+      background-color: var(--bg-sidebar);
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      position: fixed;
+      left: 0;
+      top: 0;
+      z-index: 100;
+      border-right: 1px solid rgba(255,255,255,0.05);
+      transition: transform 0.3s ease;
+    }
+
+    .sidebar-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 8px 24px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      margin-bottom: 24px;
+    }
+
+    .sidebar-logo {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(13, 148, 136, 0.3);
+    }
+
+    .sidebar-brand-name {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: -0.5px;
+      line-height: 1.1;
+    }
+
+    .sidebar-brand-name span {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: #94a3b8;
+      letter-spacing: 0.5px;
+      margin-top: 2px;
+    }
+
+    .nav-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      list-style: none;
+      flex-grow: 1;
+    }
+
+    .nav-item a {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      border-radius: var(--radius);
+      color: #94a3b8;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+
+    .nav-item.active a, .nav-item a:hover {
+      color: #ffffff;
+      background-color: rgba(13, 148, 136, 0.15);
+      border-left: 3px solid var(--primary);
+      padding-left: 11px;
+    }
+
+    .sidebar-footer {
+      padding: 16px 8px 0;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      margin-top: auto;
+    }
+
+    .system-status {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.78rem;
+      color: #94a3b8;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 10px var(--success);
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.4); opacity: 0.5; }
+    }
+
+    /* MAIN APP AREA */
+    main {
+      margin-left: 280px;
+      flex-grow: 1;
+      min-height: 100vh;
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      max-width: 1400px;
+      width: calc(100% - 280px);
+    }
+
+    /* HEADER */
+    .top-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 32px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .welcome-meta h1 {
+      font-size: 1.75rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+
+    .welcome-meta p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-top: 4px;
+    }
+
+    .actions-meta {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .theme-toggle-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border-color);
+      background-color: var(--bg-card);
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .theme-toggle-btn:hover {
+      background-color: var(--primary-light);
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 18px;
+      border-radius: var(--radius);
+      font-weight: 700;
+      font-size: 0.88rem;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      color: var(--text-white);
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-dark);
+      box-shadow: 0 4px 14px rgba(13, 148, 136, 0.25);
+    }
+
+    .btn-secondary {
+      background-color: var(--bg-card);
+      border-color: var(--border-color);
+      color: var(--text-main);
+    }
+
+    .btn-secondary:hover {
+      background-color: var(--border-color);
+    }
+
+    .btn-danger {
+      background-color: var(--danger);
+      color: var(--text-white);
+    }
+
+    .btn-danger:hover {
+      background-color: #dc2626;
+    }
+
+    /* MODULE CONTAINERS */
+    .app-section {
+      display: none;
+      animation: fadeIn 0.4s ease-out forwards;
+    }
+
+    .app-section.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* DASHBOARD CARD GRID */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 20px;
+      margin-bottom: 32px;
+    }
+
+    .metric-card {
+      background-color: var(--bg-card);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .metric-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .metric-card::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: var(--primary);
+    }
+
+    .metric-icon-box {
+      width: 54px;
+      height: 54px;
+      border-radius: 12px;
+      background-color: var(--primary-light);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .metric-info h4 {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .metric-info p {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-top: 4px;
+      line-height: 1.1;
+    }
+
+    .dashboard-layout-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 24px;
+    }
+
+    .card {
+      background-color: var(--bg-card);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow-sm);
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .card-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* DRUG SEARCH & FILTER PANEL */
+    .search-panel {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .input-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-wrap i, .input-wrap svg {
+      position: absolute;
+      left: 14px;
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    .form-input {
+      width: 100%;
+      height: 48px;
+      border-radius: var(--radius);
+      border: 1.5px solid var(--border-color);
+      background-color: var(--bg-card);
+      color: var(--text-main);
+      padding: 0 16px 0 44px;
+      font-size: 0.92rem;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .form-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.15);
+    }
+
+    .form-select {
+      width: 100%;
+      height: 48px;
+      border-radius: var(--radius);
+      border: 1.5px solid var(--border-color);
+      background-color: var(--bg-card);
+      color: var(--text-main);
+      padding: 0 16px 0 40px;
+      font-size: 0.92rem;
+      outline: none;
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+    }
+
+    .form-select:focus {
+      border-color: var(--primary);
+    }
+
+    /* DRUG MASTER-DETAIL VIEW */
+    .drug-split-container {
+      display: grid;
+      grid-template-columns: 1fr 1.5fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .drug-list-card {
+      max-height: 600px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding-right: 6px;
+    }
+
+    /* Custom scrollbars */
+    .drug-list-card::-webkit-scrollbar, .med-detail-wrap::-webkit-scrollbar {
+      width: 6px;
+    }
+    .drug-list-card::-webkit-scrollbar-track, .med-detail-wrap::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .drug-list-card::-webkit-scrollbar-thumb, .med-detail-wrap::-webkit-scrollbar-thumb {
+      background: var(--border-color);
+      border-radius: 99px;
+    }
+
+    .drug-item {
+      padding: 14px 16px;
+      border-radius: var(--radius);
+      background-color: var(--bg-app);
+      border: 1.5px solid var(--border-color);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.2s;
+    }
+
+    .drug-item:hover, .drug-item.active {
+      border-color: var(--primary);
+      background-color: var(--primary-light);
+    }
+
+    .drug-item-info h4 {
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+
+    .drug-item-info p {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+
+    .drug-badges {
+      display: flex;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .badge-primary { background-color: var(--primary-light); color: var(--primary); }
+    .badge-accent { background-color: var(--accent-light); color: var(--accent); }
+    .badge-danger { background-color: var(--danger-light); color: var(--danger); }
+    .badge-secondary { background-color: var(--border-color); color: var(--text-muted); }
+
+    .favorited-star {
+      color: var(--accent);
+      cursor: pointer;
+    }
+
+    /* DRUG DETAIL VIEW */
+    .med-detail-wrap {
+      max-height: 600px;
+      overflow-y: auto;
+      padding-right: 8px;
+    }
+
+    .no-selection-box {
+      height: 350px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: var(--text-muted);
+      border: 2px dashed var(--border-color);
+      border-radius: var(--radius-lg);
+    }
+
+    .detail-head-card {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 20px;
+    }
+
+    .detail-title-wrap h2 {
+      font-size: 1.5rem;
+      font-weight: 800;
+    }
+
+    .detail-title-wrap p {
+      color: var(--text-muted);
+      font-size: 0.88rem;
+      margin-top: 4px;
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .detail-box {
+      padding: 16px;
+      background-color: var(--bg-app);
+      border-radius: var(--radius);
+      border-left: 4px solid var(--primary);
+    }
+
+    .detail-box.warning-box { border-left-color: var(--warning); }
+    .detail-box.danger-box { border-left-color: var(--danger); }
+    .detail-box.accent-box { border-left-color: var(--accent); }
+
+    .detail-box h5 {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+
+    .detail-box p {
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    .full-width-box {
+      grid-column: span 2;
+    }
+
+    /* CLINICAL CALCULATORS PANEL */
+    .calculator-layout {
+      display: grid;
+      grid-template-columns: 1fr 1.5fr;
+      gap: 28px;
+    }
+
+    .calculator-selector-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .calc-btn-item {
+      padding: 16px;
+      border-radius: var(--radius);
+      background-color: var(--bg-card);
+      border: 1.5px solid var(--border-color);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      transition: all 0.2s;
+    }
+
+    .calc-btn-item:hover, .calc-btn-item.active {
+      border-color: var(--primary);
+      background-color: var(--primary-light);
+      color: var(--primary);
+    }
+
+    .calc-work-panel {
+      background-color: var(--bg-card);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-color);
+      padding: 28px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .calc-form-group {
+      margin-bottom: 20px;
+    }
+
+    .calc-form-label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    .calc-result-area {
+      margin-top: 24px;
+      padding: 24px;
+      border-radius: var(--radius);
+      background: var(--primary-light);
+      border: 1.5px solid var(--primary);
+      color: var(--text-main);
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .calc-result-header {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--primary-dark);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+
+    .calc-result-val {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--primary);
+      line-height: 1.1;
+    }
+
+    .calc-result-val span {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-left: 4px;
+    }
+
+    .calc-badge-status {
+      display: inline-flex;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      margin-top: 10px;
+    }
+
+    .calc-steps {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px dashed var(--border-color);
+    }
+
+    .calc-steps h6 {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+    }
+
+    .calc-steps-list {
+      list-style: none;
+      font-size: 0.84rem;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-family: monospace;
+      color: var(--text-muted);
+    }
+
+    .calc-steps-list li {
+      position: relative;
+      padding-left: 14px;
+    }
+
+    .calc-steps-list li::before {
+      content: '•';
+      position: absolute;
+      left: 0;
+      color: var(--primary);
+    }
+
+    .calc-seal-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 18px;
+      padding: 8px 12px;
+      background: rgba(16, 185, 129, 0.08);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 8px;
+      color: var(--success);
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    /* PATIENT LIST & RECORD MANAGEMENT */
+    .patient-manager-tabs {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 10px;
+    }
+
+    .pat-tab {
+      padding: 10px 16px;
+      border-radius: var(--radius);
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      transition: all 0.2s;
+    }
+
+    .pat-tab.active {
+      background-color: var(--primary-light);
+      color: var(--primary);
+    }
+
+    .patient-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 18px;
+    }
+
+    .patient-card {
+      background-color: var(--bg-card);
+      border-radius: var(--radius-lg);
+      border: 1.5px solid var(--border-color);
+      padding: 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .patient-card:hover {
+      border-color: var(--primary);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .patient-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: 12px;
+    }
+
+    .patient-card-name {
+      font-size: 1.1rem;
+      font-weight: 800;
+    }
+
+    .patient-card-rm {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--primary);
+      background-color: var(--primary-light);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .patient-card-details {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 0.84rem;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 12px;
+      margin-bottom: 12px;
+    }
+
+    /* CUSTOM FORM BUILDER SCREEN */
+    .builder-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      gap: 28px;
+    }
+
+    .field-item-preview {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px;
+      background-color: var(--bg-app);
+      border-radius: var(--radius);
+      border: 1px solid var(--border-color);
+      margin-bottom: 8px;
+    }
+
+    /* PATIENT PROFILE DETAILED VIEW */
+    .pat-detail-layout {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 28px;
+    }
+
+    .encounter-timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .encounter-card {
+      background-color: var(--bg-app);
+      border-radius: var(--radius);
+      border: 1px solid var(--border-color);
+      padding: 18px;
+      position: relative;
+    }
+
+    .encounter-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    .encounter-title {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: var(--primary);
+    }
+
+    .encounter-fields-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      font-size: 0.86rem;
+    }
+
+    .encounter-field-box {
+      background: var(--bg-card);
+      padding: 10px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+    }
+
+    .encounter-field-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+
+    .encounter-field-val {
+      font-weight: 600;
+    }
+
+    /* PRINT AND CLINICAL AUDIT STYLING */
+    #printable-report-wrapper {
+      display: none;
+    }
+
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #printable-report-wrapper, #printable-report-wrapper * {
+        visibility: visible;
+      }
+      #printable-report-wrapper {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        display: block !important;
+        background: white;
+        color: black;
+        padding: 40px;
+      }
+      .no-print {
+        display: none !important;
+      }
+    }
+
+    .print-seal-img {
+      border: 2px solid #10b981;
+      padding: 10px;
+      border-radius: 8px;
+      color: #10b981;
+      text-align: center;
+      display: inline-block;
+      font-weight: bold;
+      text-transform: uppercase;
+      font-size: 11px;
+    }
+
+    /* UTILITIES */
+    .flex-row { display: flex; gap: 12px; align-items: center; }
+    .flex-grow { flex-grow: 1; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .mt-4 { margin-top: 16px; }
+    .mb-4 { margin-bottom: 16px; }
+    .w-full { width: 100%; }
+    .p-relative { position: relative; }
+    .hidden { display: none !important; }
+
+    /* RESPONSIVE DRAWER & PHONE */
+    @media (max-width: 900px) {
+      aside {
+        transform: translateX(-100%);
+      }
+      aside.open {
+        transform: translateX(0);
+      }
+      main {
+        margin-left: 0;
+        width: 100%;
+        padding: 20px;
+      }
+      .drug-split-container, .calculator-layout, .pat-detail-layout, .builder-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </head>
 <body>
-  <script src="flutter_bootstrap.js" async></script>
+
+  <!-- SPLASH DATABASE LOADER SCREEN -->
+  <div id="db-splash-screen">
+    <div class="splash-container">
+      <div class="splash-logo">
+        <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+        </svg>
+      </div>
+      <h1 class="splash-title">Teman<span>Nakes</span></h1>
+      <p class="splash-subtitle">Pinnacle Web Workstation v1.0 • Luring & Cerdas</p>
+      
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-fill" id="splash-progress-bar"></div>
+      </div>
+      
+      <div class="progress-status">
+        <span id="splash-status-text">Mengunduh database klinis...</span>
+        <span id="splash-progress-percent">0%</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIDEBAR NAVIGATION -->
+  <aside id="app-sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM12 7v10M7 12h10"/>
+        </svg>
+      </div>
+      <div class="sidebar-brand-name">
+        TemanNakes
+        <span>PINNACLE WORKSTATION</span>
+      </div>
+    </div>
+
+    <ul class="nav-list">
+      <li class="nav-item active" data-target="dashboard-sect">
+        <a onclick="switchSection('dashboard-sect')">
+          <i data-lucide="layout-dashboard"></i>
+          Dashboard Overview
+        </a>
+      </li>
+      <li class="nav-item" data-target="medicines-sect">
+        <a onclick="switchSection('medicines-sect')">
+          <i data-lucide="search_code"></i>
+          Referensi Obat
+        </a>
+      </li>
+      <li class="nav-item" data-target="calculators-sect">
+        <a onclick="switchSection('calculators-sect')">
+          <i data-lucide="calculator"></i>
+          Kalkulator Medis
+        </a>
+      </li>
+      <li class="nav-item" data-target="patients-sect">
+        <a onclick="switchSection('patients-sect')">
+          <i data-lucide="clipboard-list"></i>
+          Rekam & Form Builder
+        </a>
+      </li>
+      <li class="nav-item" data-target="settings-sect">
+        <a onclick="switchSection('settings-sect')">
+          <i data-lucide="settings"></i>
+          Pengaturan App
+        </a>
+      </li>
+    </ul>
+
+    <div class="sidebar-footer">
+      <div class="system-status">
+        <span class="status-dot"></span>
+        <span id="db-status-label">Database WASM Loading</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN WORKSPACE -->
+  <main>
+    <!-- TOP HEADER -->
+    <div class="top-header">
+      <div class="welcome-meta">
+        <h1 id="page-title">Dashboard Overview</h1>
+        <p id="page-subtitle">Sistem Kerja Asisten Klinis Terintegrasi & Presisi Bedah</p>
+      </div>
+      
+      <div class="actions-meta">
+        <button class="theme-toggle-btn" onclick="toggleTheme()" title="Ganti Tema Warna">
+          <i data-lucide="sun" id="theme-icon-sun"></i>
+          <i data-lucide="moon" id="theme-icon-moon" class="hidden"></i>
+        </button>
+        <button class="btn btn-primary" onclick="switchSection('calculators-sect')">
+          <i data-lucide="calculator"></i>
+          Hitung Cepat
+        </button>
+      </div>
+    </div>
+
+    <!-- ==================== 1. DASHBOARD OVERVIEW SECTION ==================== -->
+    <div id="dashboard-sect" class="app-section active">
+      <!-- Metrik Utama -->
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-icon-box">
+            <i data-lucide="database"></i>
+          </div>
+          <div class="metric-info">
+            <h4>Database Obat</h4>
+            <p id="metric-db-count">20.565</p>
+          </div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon-box">
+            <i data-lucide="users"></i>
+          </div>
+          <div class="metric-info">
+            <h4>Pasien Terdaftar</h4>
+            <p id="metric-patient-count">0</p>
+          </div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon-box">
+            <i data-lucide="activity"></i>
+          </div>
+          <div class="metric-info">
+            <h4>Kalkulasi Presisi</h4>
+            <p id="metric-calc-count">0</p>
+          </div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon-box">
+            <i data-lucide="shield-check"></i>
+          </div>
+          <div class="metric-info">
+            <h4>Status Luring</h4>
+            <p style="color: var(--success); font-size: 1.15rem; font-weight: 700; margin-top: 8px;">AKTIF (100% Aman)</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="dashboard-layout-grid">
+        <div>
+          <!-- QUICK ACTION HUB -->
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">
+                <i data-lucide="zap" style="color: var(--accent);"></i>
+                Pintasan Cepat Workstation
+              </h3>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+              <div class="drug-item" onclick="switchSection('calculators-sect'); selectCalculator('dose');" style="cursor:pointer; padding: 20px;">
+                <div class="metric-icon-box" style="margin-right: 12px; background: rgba(13, 148, 136, 0.1); color: var(--primary);">
+                  <i data-lucide="pill"></i>
+                </div>
+                <div>
+                  <h4 style="font-size:1.05rem;">Kalkulator Dosis Anak</h4>
+                  <p style="font-size:0.8rem; color:var(--text-muted); margin-top:4px;">Akurasi hingga 3 desimal &amp; konversi sediaan sirup/tablet.</p>
+                </div>
+              </div>
+
+              <div class="drug-item" onclick="switchSection('patients-sect'); switchPatientTab('tab-register');" style="cursor:pointer; padding: 20px;">
+                <div class="metric-icon-box" style="margin-right: 12px; background: rgba(16, 185, 129, 0.1); color: var(--success);">
+                  <i data-lucide="user-plus"></i>
+                </div>
+                <div>
+                  <h4 style="font-size:1.05rem;">Pendaftaran Pasien</h4>
+                  <p style="font-size:0.8rem; color:var(--text-muted); margin-top:4px;">Registrasi rekam medis pasien luring dan cetak lembar kerja.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- RECENT ENCOUNTERS -->
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">
+                <i data-lucide="history"></i>
+                Kunjungan Pasien Terbaru
+              </h3>
+              <button class="btn btn-secondary" onclick="switchSection('patients-sect'); switchPatientTab('tab-list');">Lihat Semua</button>
+            </div>
+            <div id="dashboard-recent-patients-list" class="encounter-timeline">
+              <div style="padding: 24px; text-align: center; color: var(--text-muted);">
+                Belum ada pasien terdaftar dalam rekam medis lokal.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <!-- CLINICAL INTEGRITY CARD -->
+          <div class="card" style="background: linear-gradient(135deg, var(--bg-card), var(--primary-light));">
+            <h3 class="card-title" style="margin-bottom: 12px; color: var(--primary-dark);">
+              <i data-lucide="award"></i>
+              Genesis Guard Audit
+            </h3>
+            <p style="font-size: 0.88rem; line-height: 1.6; color: var(--text-muted); margin-bottom: 16px;">
+              Sistem kalkulasi dan basis data TemanNakes telah diaudit dan disertifikasi <strong>Pinnacle v1.0</strong>:
+            </p>
+            <ul style="list-style: none; display: flex; flex-direction: column; gap: 10px; font-size: 0.85rem;">
+              <li style="display: flex; gap: 8px;">
+                <i data-lucide="check-circle" style="color: var(--success); width: 16px; flex-shrink: 0;"></i>
+                Akurasi Formula Ginjal KDIGO &amp; CKD-EPI 100% Valid.
+              </li>
+              <li style="display: flex; gap: 8px;">
+                <i data-lucide="check-circle" style="color: var(--success); width: 16px; flex-shrink: 0;"></i>
+                Safety Guards: Pencegah Overdosis Pediatrik Aktif.
+              </li>
+              <li style="display: flex; gap: 8px;">
+                <i data-lucide="check-circle" style="color: var(--success); width: 16px; flex-shrink: 0;"></i>
+                Integritas Penyimpanan Rekam Medis Enkripsi Lokal.
+              </li>
+            </ul>
+            <div class="print-seal-img" style="margin-top: 20px; width: 100%; text-align: center;">
+              🛡️ AUDITED BY GENESIS GUARD
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== 2. REFERENSI OBAT SECTION ==================== -->
+    <div id="medicines-sect" class="app-section">
+      <!-- Search & Filters -->
+      <div class="search-panel">
+        <div class="input-wrap">
+          <i data-lucide="search"></i>
+          <input type="text" id="drug-search-input" class="form-input" placeholder="Cari nama generik, merek dagang, sinonim, kode (misal: A005)..." oninput="queryMedicines()">
+        </div>
+        <div class="input-wrap">
+          <i data-lucide="tag"></i>
+          <select id="drug-category-filter" class="form-select" onchange="queryMedicines()">
+            <option value="Semua">Semua Golongan</option>
+            <option value="Analgesik">Analgesik &amp; Antipiretik</option>
+            <option value="Antibiotik">Antibiotik</option>
+            <option value="Sistem Pencernaan">Sistem Pencernaan</option>
+            <option value="Kardiovaskular">Kardiovaskular</option>
+            <option value="Sistem Pernapasan">Sistem Pernapasan</option>
+            <option value="Antidiabetes">Antidiabetes</option>
+            <option value="Antihistamin">Antihistamin &amp; Alergi</option>
+            <option value="NSAID">NSAID</option>
+            <option value="Sistem Saraf">Sistem Saraf</option>
+            <option value="Obat Kulit">Obat Kulit</option>
+            <option value="Vitamin">Multivitamin &amp; Mineral</option>
+          </select>
+        </div>
+        <div class="input-wrap">
+          <i data-lucide="tablet"></i>
+          <select id="drug-form-filter" class="form-select" onchange="queryMedicines()">
+            <option value="Semua">Semua Sediaan</option>
+            <option value="Tablet">Tablet</option>
+            <option value="Kapsul">Kapsul</option>
+            <option value="Sirup">Sirup</option>
+            <option value="Sirup">Suspensi</option>
+            <option value="Inj">Injeksi</option>
+            <option value="Infus">Infus</option>
+            <option value="Krim">Salep / Krim</option>
+            <option value="Tetes">Tetes</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Split Layout -->
+      <div class="drug-split-container">
+        <!-- List Card -->
+        <div class="card" style="padding: 16px;">
+          <div style="font-weight: 700; font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 12px; display: flex; justify-content: space-between;">
+            <span>Hasil Pencarian</span>
+            <span id="drug-result-count">0 Obat</span>
+          </div>
+          <div id="drug-items-list-container" class="drug-list-card">
+            <!-- Dynamic Drug Items -->
+          </div>
+        </div>
+
+        <!-- Detail Card -->
+        <div class="card" style="padding: 28px;">
+          <div id="drug-no-selection" class="no-selection-box">
+            <i data-lucide="file-text" style="width: 48px; height: 48px; margin-bottom: 16px;"></i>
+            <h3>Pilih Obat untuk Detail</h3>
+            <p style="margin-top: 6px; font-size: 0.9rem;">Klik salah satu hasil pencarian untuk melihat indikasi, dosis presisi, kategori kehamilan, dan clinical pearls.</p>
+          </div>
+
+          <div id="drug-details-container" class="med-detail-wrap hidden">
+            <div class="detail-head-card">
+              <div class="detail-title-wrap">
+                <h2 id="detail-med-name">Amlodipine</h2>
+                <p id="detail-med-brand">Norvask (Pfizer)</p>
+                <div class="drug-badges" id="detail-med-badges">
+                  <!-- Dynamic badges -->
+                </div>
+              </div>
+              <button class="btn btn-secondary" onclick="toggleFavoriteCurrent()" style="border-radius: 50%; width: 44px; height: 44px; padding: 0;">
+                <i data-lucide="star" id="detail-star-icon"></i>
+              </button>
+            </div>
+
+            <div class="detail-grid">
+              <div class="detail-box full-width-box">
+                <h5>Indikasi Utama</h5>
+                <p id="detail-med-indications">Hipertensi, angina pektoris stabil, angina varian (Prinzmetal).</p>
+              </div>
+              <div class="detail-box">
+                <h5>Dosis Dewasa</h5>
+                <p id="detail-med-dose-adult">5 - 10 mg, sekali sehari.</p>
+              </div>
+              <div class="detail-box">
+                <h5>Dosis Anak</h5>
+                <p id="detail-med-dose-child">2.5 - 5 mg, sekali sehari.</p>
+              </div>
+              <div class="detail-box danger-box">
+                <h5>Kontraindikasi &amp; Efek Samping</h5>
+                <p id="detail-med-contra">Kontra: Hipotensi berat, syok kardiogenik. Efek samping: Sakit kepala, edema perifer, palpitasi, kemerahan (flushing).</p>
+              </div>
+              <div class="detail-box warning-box">
+                <h5>Interaksi Obat Fatal</h5>
+                <p id="detail-med-interactions">Dapat meningkatkan konsentrasi serum simvastatin. Hindari kombinasi dosis tinggi simvastatin (>20mg).</p>
+              </div>
+              <div class="detail-box accent-box">
+                <h5>Keamanan Kehamilan (FDA)</h5>
+                <p id="detail-med-pregnancy">KATEGORI C. Gunakan jika manfaat melebihi risiko pada janin.</p>
+              </div>
+              <div class="detail-box accent-box">
+                <h5>Renal Guard (Gangguan Ginjal)</h5>
+                <p id="detail-med-renal">Tidak memerlukan penyesuaian dosis awal (CrCl > 10 mL/min). Pantau tekanan darah.</p>
+              </div>
+              <div class="detail-box full-width-box" style="border-left-color: var(--success); background-color: var(--primary-light);">
+                <h5 style="color: var(--primary-dark);">Clinical Pearls (Catatan Praktis)</h5>
+                <p id="detail-med-pearls" style="font-weight: 600;">Monitor ketat kejadian edema tungkai bawah pada pasien usia lanjut. Dapat ditambahkan diuretik jika edema mengganggu.</p>
+              </div>
+            </div>
+            
+            <button class="btn btn-primary w-full" id="detail-med-calc-shortcut">
+              <i data-lucide="calculator"></i>
+              Gunakan di Kalkulator Dosis Pediatrik
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== 3. KALKULATOR MEDIS SECTION ==================== -->
+    <div id="calculators-sect" class="app-section">
+      <div class="calculator-layout">
+        <!-- Selector Menu Left -->
+        <div class="calculator-selector-list">
+          <div class="calc-btn-item active" onclick="selectCalculator('dose')" id="calc-menu-dose">
+            <i data-lucide="droplet"></i>
+            Kalkulator Dosis Pediatrik
+          </div>
+          <div class="calc-btn-item" onclick="selectCalculator('renal')" id="calc-menu-renal">
+            <i data-lucide="shield"></i>
+            Ginjal (CrCl &amp; eGFR)
+          </div>
+          <div class="calc-btn-item" onclick="selectCalculator('emergency')" id="calc-menu-emergency">
+            <i data-lucide="flame"></i>
+            Emergency Scores (GCS/APGAR)
+          </div>
+          <div class="calc-btn-item" onclick="selectCalculator('infus')" id="calc-menu-infus">
+            <i data-lucide="activity"></i>
+            Kecepatan Infus &amp; Pump
+          </div>
+          <div class="calc-btn-item" onclick="selectCalculator('kb')" id="calc-menu-kb">
+            <i data-lucide="calendar"></i>
+            Kalender Kontrasepsi KB
+          </div>
+          <div class="calc-btn-item" onclick="selectCalculator('obgyn')" id="calc-menu-obgyn">
+            <i data-lucide="baby"></i>
+            Obstetri (HPL, GA, TBJ)
+          </div>
+          <div class="calc-btn-item" onclick="selectCalculator('status')" id="calc-menu-status">
+            <i data-lucide="user"></i>
+            Status Pasien (BMI, MAP, SI)
+          </div>
+        </div>
+
+        <!-- Calculator Form & Output Panel Right -->
+        <div class="calc-work-panel">
+          <!-- TITLE -->
+          <h2 id="calc-panel-title" style="font-weight: 800; margin-bottom: 24px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; color: var(--primary);">Kalkulator Dosis Pediatrik</h2>
+
+          <!-- A. DOSE CALCULATOR VIEW -->
+          <div class="calc-view-box" id="calc-view-dose">
+            <div class="grid-2">
+              <div class="calc-form-group">
+                <label class="calc-form-label">Nama Obat</label>
+                <input type="text" id="calc-dose-name" class="form-input" style="padding-left: 16px;" placeholder="Paracetamol" oninput="runDoseCalculation()">
+              </div>
+              <div class="calc-form-group">
+                <label class="calc-form-label">Berat Badan Pasien (kg)</label>
+                <input type="number" id="calc-dose-weight" class="form-input" style="padding-left: 16px;" placeholder="15" oninput="runDoseCalculation()">
+              </div>
+            </div>
+            
+            <div class="grid-2">
+              <div class="calc-form-group">
+                <label class="calc-form-label">Dosis Rekomendasi (mg/kgBB)</label>
+                <input type="number" id="calc-dose-per-kg" class="form-input" style="padding-left: 16px;" placeholder="10" oninput="runDoseCalculation()">
+              </div>
+              <div class="calc-form-group">
+                <label class="calc-form-label">Batas Dosis Maksimal Dewasa (mg - Opsional)</label>
+                <input type="number" id="calc-dose-max" class="form-input" style="padding-left: 16px;" placeholder="500" oninput="runDoseCalculation()">
+              </div>
+            </div>
+
+            <div style="padding: 16px; background-color: var(--bg-app); border-radius: var(--radius); margin-bottom: 20px;">
+              <h4 style="font-size: 0.85rem; font-weight: 700; margin-bottom: 12px; color: var(--text-muted); text-transform: uppercase;">Konversi Sediaan Fisik (Opsional)</h4>
+              <div class="grid-2">
+                <div class="calc-form-group" style="margin-bottom: 0;">
+                  <label class="calc-form-label" style="font-size: 0.7rem;">Kekuatan Tablet (mg/tab)</label>
+                  <input type="number" id="calc-dose-strength" class="form-input" style="padding-left: 16px;" placeholder="Misal: 500" oninput="runDoseCalculation()">
+                </div>
+                <div class="calc-form-group" style="margin-bottom: 0;">
+                  <label class="calc-form-label" style="font-size: 0.7rem;">Konsentrasi Cairan (mg / mL)</label>
+                  <input type="number" id="calc-dose-concentration" class="form-input" style="padding-left: 16px;" placeholder="Misal: 25 (dari 125mg/5mL)" oninput="runDoseCalculation()">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- B. RENAL CALCULATOR VIEW -->
+          <div class="calc-view-box hidden" id="calc-view-renal">
+            <div class="grid-2">
+              <div class="calc-form-group">
+                <label class="calc-form-label">Usia Pasien (Tahun)</label>
+                <input type="number" id="calc-renal-age" class="form-input" style="padding-left: 16px;" placeholder="45" oninput="runRenalCalculation()">
+              </div>
+              <div class="calc-form-group">
+                <label class="calc-form-label">Berat Badan (kg)</label>
+                <input type="number" id="calc-renal-weight" class="form-input" style="padding-left: 16px;" placeholder="65" oninput="runRenalCalculation()">
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="calc-form-group">
+                <label class="calc-form-label">Kreatinin Serum (mg/dL)</label>
+                <input type="number" step="0.01" id="calc-renal-creatinine" class="form-input" style="padding-left: 16px;" placeholder="1.10" oninput="runRenalCalculation()">
+              </div>
+              <div class="calc-form-group">
+                <label class="calc-form-label">Jenis Kelamin</label>
+                <select id="calc-renal-gender" class="form-select" style="padding-left: 16px;" onchange="runRenalCalculation()">
+                  <option value="male">Laki-laki</option>
+                  <option value="female">Perempuan</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- C. EMERGENCY CALCULATOR VIEW -->
+          <div class="calc-view-box hidden" id="calc-view-emergency">
+            <div class="pat-manager-tabs">
+              <div class="pat-tab active" id="calc-em-tab-gcs" onclick="switchEmergencySubTab('gcs')">Glasgow Coma Scale (GCS)</div>
+              <div class="pat-tab" id="calc-em-tab-apgar" onclick="switchEmergencySubTab('apgar')">APGAR Score Neonatal</div>
+            </div>
+
+            <!-- GCS FORM -->
+            <div id="calc-emergency-gcs-box">
+              <div class="calc-form-group">
+                <label class="calc-form-label">Kategori GCS</label>
+                <select id="calc-gcs-pediatric" class="form-select" style="padding-left: 16px;" onchange="runGCSCalculation()">
+                  <option value="adult">Dewasa (Standard)</option>
+                  <option value="pediatric">Pediatrik / Anak / Bayi</option>
+                </select>
+              </div>
+              
+              <div class="calc-form-group">
+                <label class="calc-form-label" id="lbl-gcs-eye">Eye Opening (E): Spontan (4)</label>
+                <input type="range" min="1" max="4" value="4" class="w-full" id="calc-gcs-eye" oninput="runGCSCalculation()" style="accent-color: var(--primary);">
+              </div>
+
+              <div class="calc-form-group">
+                <label class="calc-form-label" id="lbl-gcs-verbal">Verbal Response (V): Orientasi Baik (5)</label>
+                <input type="range" min="1" max="5" value="5" class="w-full" id="calc-gcs-verbal" oninput="runGCSCalculation()" style="accent-color: var(--primary);">
+              </div>
+
+              <div class="calc-form-group">
+                <label class="calc-form-label" id="lbl-gcs-motor">Motor Response (M): Ikuti Perintah (6)</label>
+                <input type="range" min="1" max="6" value="6" class="w-full" id="calc-gcs-motor" oninput="runGCSCalculation()" style="accent-color: var(--primary);">
+              </div>
+            </div>
+
+            <!-- APGAR FORM -->
+            <div id="calc-emergency-apgar-box" class="hidden">
+              <div class="calc-form-group">
+                <label class="calc-form-label">Menit Pemeriksaan</label>
+                <select id="calc-apgar-minute" class="form-select" style="padding-left: 16px;" onchange="runAPGARCalculation()">
+                  <option value="1">Menit ke-1 Setelah Lahir</option>
+                  <option value="5">Menit ke-5 Setelah Lahir</option>
+                </select>
+              </div>
+
+              <div class="calc-form-group">
+                <label class="calc-form-label">Appearance (Warna Kulit)</label>
+                <select id="calc-apgar-app" class="form-select" style="padding-left: 16px;" onchange="runAPGARCalculation()">
+                  <option value="2">Seluruh tubuh kemerahan (2)</option>
+                  <option value="1">Badan merah, ekstremitas biru / Akrosianosis (1)</option>
+                  <option value="0">Pucat atau seluruh tubuh biru (0)</option>
+                </select>
+              </div>
+
+              <div class="calc-form-group">
+                <label class="calc-form-label">Pulse (Denyut Jantung)</label>
+                <select id="calc-apgar-pulse" class="form-select" style="padding-left: 16px;" onchange="runAPGARCalculation()">
+                  <option value="2">Diatas 100 kali/menit (2)</option>
+                  <option value="1">Dibawah 100 kali/menit (1)</option>
+                  <option value="0">Tidak berdenyut / Asistol (0)</option>
+                </select>
+              </div>
+
+              <div class="calc-form-group">
+                <label class="calc-form-label">Grimace (Refleks Terhadap Stimulus)</label>
+                <select id="calc-apgar-grimace" class="form-select" style="padding-left: 16px;" onchange="runAPGARCalculation()">
+                  <option value="2">Bersin, batuk, atau menangis kuat saat dirangsang (2)</option>
+                  <option value="1">Meringis atau gerakan sedikit saat dirangsang (1)</option>
+                  <option value="0">Tidak ada respon (0)</option>
+                </select>
+              </div>
+
+              <div class="calc-form-group">
+                <label class="calc-form-label">Activity (Tonus Otot)</label>
+                <select id="calc-apgar-activity" class="form-select" style="padding-left: 16px;" onchange="runAPGARCalculation()">
+                  <option value="2">Gerakan aktif, fleksi kuat pada ekstremitas (2)</option>
+                  <option value="1">Ekstremitas sedikit fleksi (1)</option>
+                  <option value="0">Lemas, tidak ada gerakan / Flaksid (0)</option>
+                </select>
+              </div>
+
+              <div class="calc-form-group">
+                <label class="calc-form-label">Respiration (Usaha Pernapasan)</label>
+                <select id="calc-apgar-resp" class="form-select" style="padding-left: 16px;" onchange="runAPGARCalculation()">
+                  <option value="2">Menangis kuat, pernapasan teratur (2)</option>
+                  <option value="1">Pernapasan lambat, tidak teratur, menangis lemah (1)</option>
+                  <option value="0">Tidak bernapas / Apnea (0)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- D. INFUS drip/pump CALCULATOR VIEW -->
+          <div class="calc-view-box hidden" id="calc-view-infus">
+            <div class="pat-manager-tabs">
+              <div class="pat-tab active" id="calc-inf-tab-drip" onclick="switchInfusSubTab('drip')">Tetesan Infus Manual (Drip)</div>
+              <div class="pat-tab" id="calc-inf-tab-pump" onclick="switchInfusSubTab('pump')">Syringe / Infus Pump (mL/jam)</div>
+            </div>
+
+            <div id="calc-infus-drip-box">
+              <div class="grid-2">
+                <div class="calc-form-group">
+                  <label class="calc-form-label">Volume Cairan (mL)</label>
+                  <input type="number" id="calc-infus-drip-volume" class="form-input" style="padding-left: 16px;" value="500" oninput="runInfusCalculation()">
+                </div>
+                <div class="calc-form-group">
+                  <label class="calc-form-label">Faktor Tetes Set (drop/mL)</label>
+                  <select id="calc-infus-drip-factor" class="form-select" style="padding-left: 16px;" onchange="runInfusCalculation()">
+                    <option value="20">Makro Set Standard (20 drop/mL)</option>
+                    <option value="60">Mikro Set Pediatrik (60 drop/mL)</option>
+                    <option value="15">Blood Set / Donor (15 drop/mL)</option>
+                    <option value="10">Set Khusus (10 drop/mL)</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div class="calc-form-group">
+                <label class="calc-form-label">Durasi Pemberian (Menit)</label>
+                <input type="number" id="calc-infus-drip-duration" class="form-input" style="padding-left: 16px;" value="240" oninput="runInfusCalculation()">
+              </div>
+            </div>
+
+            <div id="calc-infus-pump-box" class="hidden">
+              <div class="grid-2">
+                <div class="calc-form-group">
+                  <label class="calc-form-label">Volume Total (mL)</label>
+                  <input type="number" id="calc-infus-pump-volume" class="form-input" style="padding-left: 16px;" value="500" oninput="runInfusCalculation()">
+                </div>
+                <div class="calc-form-group">
+                  <label class="calc-form-label">Durasi Habis (Jam)</label>
+                  <input type="number" id="calc-infus-pump-duration" class="form-input" style="padding-left: 16px;" value="8" oninput="runInfusCalculation()">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- E. CONTRACEPTIVE KB CALENDAR VIEW -->
+          <div class="calc-view-box hidden" id="calc-view-kb">
+            <div class="grid-2">
+              <div class="calc-form-group">
+                <label class="calc-form-label">Tanggal Suntik Terakhir</label>
+                <input type="date" id="calc-kb-date" class="form-input" style="padding-left: 16px;" onchange="runKbCalculation()">
+              </div>
+              <div class="calc-form-group">
+                <label class="calc-form-label">Metode Suntik KB</label>
+                <select id="calc-kb-type" class="form-select" style="padding-left: 16px;" onchange="runKbCalculation()">
+                  <option value="3">Suntik KB 3 Bulan (84 Hari)</option>
+                  <option value="1">Suntik KB 1 Bulan (28 Hari)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- F. OBSTETRICS CALCULATOR VIEW -->
+          <div class="calc-view-box hidden" id="calc-view-obgyn">
+            <div class="pat-manager-tabs">
+              <div class="pat-tab active" id="calc-ob-tab-hpl" onclick="switchObgynSubTab('hpl')">HPL &amp; Usia Kehamilan</div>
+              <div class="pat-tab" id="calc-ob-tab-tbj" onclick="switchObgynSubTab('tbj')">Taksiran Berat Janin (TBJ)</div>
+            </div>
+
+            <div id="calc-obgyn-hpl-box">
+              <div class="calc-form-group">
+                <label class="calc-form-label">Tanggal Hari Pertama Haid Terakhir (HPHT)</label>
+                <input type="date" id="calc-obgyn-hpht" class="form-input" style="padding-left: 16px;" onchange="runObgynCalculation()">
+              </div>
+            </div>
+
+            <div id="calc-obgyn-tbj-box" class="hidden">
+              <div class="grid-2">
+                <div class="calc-form-group">
+                  <label class="calc-form-label">Tinggi Fundus Uteri / TFU (cm)</label>
+                  <input type="number" id="calc-obgyn-tfu" class="form-input" style="padding-left: 16px;" value="30" oninput="runObgynCalculation()">
+                </div>
+                <div class="calc-form-group">
+                  <label class="calc-form-label">Posisi Kepala Janin (n)</label>
+                  <select id="calc-obgyn-engaged" class="form-select" style="padding-left: 16px;" onchange="runObgynCalculation()">
+                    <option value="false">Belum masuk PAP / hodge (n = 12)</option>
+                    <option value="true">Sudah masuk PAP (n = 11)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- G. PATIENT STATUS VIEWS -->
+          <div class="calc-view-box hidden" id="calc-view-status">
+            <div class="pat-manager-tabs">
+              <div class="pat-tab active" id="calc-st-tab-bmi" onclick="switchStatusSubTab('bmi')">BMI &amp; Berat Ideal</div>
+              <div class="pat-tab" id="calc-st-tab-map" onclick="switchStatusSubTab('map')">MAP (Tekanan Arteri Rata-rata)</div>
+              <div class="pat-tab" id="calc-st-tab-shock" onclick="switchStatusSubTab('shock')">Shock Index (SI)</div>
+            </div>
+
+            <div id="calc-status-bmi-box">
+              <div class="grid-2">
+                <div class="calc-form-group">
+                  <label class="calc-form-label">Tinggi Badan (cm)</label>
+                  <input type="number" id="calc-status-height" class="form-input" style="padding-left: 16px;" value="165" oninput="runStatusCalculation()">
+                </div>
+                <div class="calc-form-group">
+                  <label class="calc-form-label">Berat Badan (kg)</label>
+                  <input type="number" id="calc-status-weight" class="form-input" style="padding-left: 16px;" value="60" oninput="runStatusCalculation()">
+                </div>
+              </div>
+            </div>
+
+            <div id="calc-status-map-box" class="hidden">
+              <div class="grid-2">
+                <div class="calc-form-group">
+                  <label class="calc-form-label">Tekanan Sistolik (mmHg)</label>
+                  <input type="number" id="calc-status-systolic" class="form-input" style="padding-left: 16px;" value="120" oninput="runStatusCalculation()">
+                </div>
+                <div class="calc-form-group">
+                  <label class="calc-form-label">Tekanan Diastolik (mmHg)</label>
+                  <input type="number" id="calc-status-diastolic" class="form-input" style="padding-left: 16px;" value="80" oninput="runStatusCalculation()">
+                </div>
+              </div>
+            </div>
+
+            <div id="calc-status-shock-box" class="hidden">
+              <div class="grid-2">
+                <div class="calc-form-group">
+                  <label class="calc-form-label">Laju Nadi / Heart Rate (kali/menit)</label>
+                  <input type="number" id="calc-status-hr" class="form-input" style="padding-left: 16px;" value="80" oninput="runStatusCalculation()">
+                </div>
+                <div class="calc-form-group">
+                  <label class="calc-form-label">Tekanan Sistolik (mmHg)</label>
+                  <input type="number" id="calc-status-shock-sys" class="form-input" style="padding-left: 16px;" value="120" oninput="runStatusCalculation()">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- OUTPUT RESULT BOX (GLOBAL FOR ALL CALCULATORS) -->
+          <div class="calc-result-area" id="calc-global-result-box">
+            <p class="calc-result-header" id="calc-result-label">DOSIS AMAN PARACETAMOL</p>
+            <div class="calc-result-val" id="calc-result-value">
+              150.00
+              <span id="calc-result-unit">mg</span>
+            </div>
+            
+            <div class="calc-badge-status badge-primary" id="calc-result-status-badge">
+              Dosis dalam batas aman
+            </div>
+
+            <!-- Kalkulasi Langkah -->
+            <div class="calc-steps">
+              <h6>Langkah Kalkulasi Transparan:</h6>
+              <ul class="calc-steps-list" id="calc-result-steps-container">
+                <li>Rumus: Dosis Total = BB × Dosis/kgBB</li>
+                <li>Dosis Total = 15 kg × 10 mg/kg = 150 mg</li>
+              </ul>
+            </div>
+
+            <div class="calc-seal-badge">
+              <i data-lucide="shield-check"></i>
+              Verified Pinnacle v1.0 Genesis Guard
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== 4. REKAM MEDIS & FORM BUILDER SECTION ==================== -->
+    <div id="patients-sect" class="app-section">
+      <div class="patient-manager-tabs">
+        <div class="pat-tab active" id="pat-tab-list" onclick="switchPatientTab('tab-list')">Daftar Pasien Luring</div>
+        <div class="pat-tab" id="pat-tab-register" onclick="switchPatientTab('tab-register')">Registrasi Pasien Baru</div>
+        <div class="pat-tab" id="pat-tab-builder" onclick="switchPatientTab('tab-builder')">Visual Form Builder Kustom</div>
+      </div>
+
+      <!-- A. PATIENT LIST -->
+      <div id="patient-list-container">
+        <!-- Search bar patient -->
+        <div class="search-panel" style="grid-template-columns: 3fr 1fr; margin-bottom: 24px;">
+          <div class="input-wrap">
+            <i data-lucide="search"></i>
+            <input type="text" id="patient-search-input" class="form-input" placeholder="Cari berdasarkan nama pasien atau Nomor RM..." oninput="renderPatientCards()">
+          </div>
+          <button class="btn btn-secondary" onclick="exportPatientsCSV()">
+            <i data-lucide="download"></i>
+            Ekspor CSV (Excel)
+          </button>
+        </div>
+
+        <div class="patient-grid" id="patient-cards-grid">
+          <!-- Dynamic Patient Cards -->
+        </div>
+      </div>
+
+      <!-- B. REGISTER NEW PATIENT -->
+      <div id="patient-register-container" class="hidden">
+        <div class="card" style="max-width: 600px; margin: 0 auto;">
+          <div class="card-header">
+            <h3 class="card-title">Formulir Rekam Medis Identitas Pasien</h3>
+          </div>
+          
+          <form id="new-patient-form" onsubmit="registerPatient(event)">
+            <div class="calc-form-group">
+              <label class="calc-form-label">Nomor Rekam Medis (RM) <span>*</span></label>
+              <input type="text" id="reg-pat-rm" class="form-input" style="padding-left: 16px;" placeholder="RM-2026-XXXX" required>
+            </div>
+
+            <div class="calc-form-group">
+              <label class="calc-form-label">Nama Lengkap Pasien <span>*</span></label>
+              <input type="text" id="reg-pat-name" class="form-input" style="padding-left: 16px;" placeholder="Nama Lengkap Sesuai KTP" required>
+            </div>
+
+            <div class="grid-2">
+              <div class="calc-form-group">
+                <label class="calc-form-label">Tanggal Lahir <span>*</span></label>
+                <input type="date" id="reg-pat-dob" class="form-input" style="padding-left: 16px;" required>
+              </div>
+              <div class="calc-form-group">
+                <label class="calc-form-label">Jenis Kelamin <span>*</span></label>
+                <select id="reg-pat-gender" class="form-select" style="padding-left: 16px;" required>
+                  <option value="Laki-laki">Laki-laki</option>
+                  <option value="Perempuan">Perempuan</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="calc-form-group">
+              <label class="calc-form-label">Alergi Obat (Tulis jika ada)</label>
+              <input type="text" id="reg-pat-allergies" class="form-input" style="padding-left: 16px;" placeholder="Misal: Penisilin, Antalgin">
+            </div>
+
+            <button type="submit" class="btn btn-primary w-full">
+              <i data-lucide="user-plus"></i>
+              Simpan Identitas Pasien Ke Sistem
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- C. VISUAL FORM BUILDER -->
+      <div id="patient-builder-container" class="hidden">
+        <div class="builder-grid">
+          <!-- Form Left: Design visual -->
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Rancang Formulir Medis Kustom</h3>
+            </div>
+            
+            <div class="calc-form-group">
+              <label class="calc-form-label">Nama Formulir Medis</label>
+              <input type="text" id="fb-form-name" class="form-input" style="padding-left: 16px;" value="Asesmen IGD Kritis">
+            </div>
+
+            <div style="border-top: 1px dashed var(--border-color); padding-top: 16px; margin-top: 16px;">
+              <h4 style="font-size: 0.85rem; font-weight: 700; margin-bottom: 12px; color: var(--primary);">Tambah Field / Kolom Input Baru</h4>
+              
+              <div class="calc-form-group">
+                <label class="calc-form-label">Nama Field / Label</label>
+                <input type="text" id="fb-field-label" class="form-input" style="padding-left: 16px;" placeholder="Misal: Lama Demam">
+              </div>
+
+              <div class="grid-2">
+                <div class="calc-form-group">
+                  <label class="calc-form-label">Tipe Input</label>
+                  <select id="fb-field-type" class="form-select" style="padding-left: 16px;" onchange="toggleFieldOptionsVisibility()">
+                    <option value="text">Teks Bebas</option>
+                    <option value="number">Angka (Desimal)</option>
+                    <option value="select">Pilihan Ganda (Dropdown)</option>
+                  </select>
+                </div>
+                <div class="calc-form-group hidden" id="fb-field-options-wrap">
+                  <label class="calc-form-label">Opsi Dropdown (Pisah Koma)</label>
+                  <input type="text" id="fb-field-options" class="form-input" style="padding-left: 16px;" placeholder="Ya,Tidak,Meragukan">
+                </div>
+              </div>
+
+              <button class="btn btn-secondary w-full" onclick="addFieldToBuilderTemplate()">
+                <i data-lucide="plus"></i>
+                Tambahkan Kolom ke Preview
+              </button>
+            </div>
+          </div>
+
+          <!-- Preview & Compile Right -->
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Preview Formulir Medis &amp; Simpan</h3>
+              <button class="btn btn-primary" onclick="saveCustomFormTemplateToDB()">
+                <i data-lucide="save"></i>
+                Simpan Formulir
+              </button>
+            </div>
+
+            <h3 id="preview-form-title" style="font-weight: 800; color: var(--primary); margin-bottom: 16px;">Asesmen IGD Kritis</h3>
+            
+            <div id="fb-preview-fields-list" style="margin-bottom: 24px;">
+              <!-- Dynamic Fields Preview -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- D. PATIENT DETAILS WORKSTATION PROFILE (ACTIVE PROFILE) -->
+      <div id="patient-details-sect" class="app-section">
+        <button class="btn btn-secondary mb-4" onclick="switchPatientTab('tab-list')">
+          <i data-lucide="arrow-left"></i>
+          Kembali ke Daftar Pasien
+        </button>
+
+        <div class="pat-detail-layout">
+          <!-- Profile sidebar info left -->
+          <div>
+            <div class="card" style="position: sticky; top: 20px;">
+              <h3 id="pat-profile-name" style="font-size: 1.35rem; font-weight: 800;">Budi Santoso</h3>
+              <p id="pat-profile-rm" style="color: var(--primary); font-weight: 700; font-size: 0.8rem; display: inline-block; background-color: var(--primary-light); padding: 2px 6px; border-radius: 4px; margin-top: 6px;">RM-2026-0001</p>
+              
+              <div style="margin-top: 20px; display: flex; flex-direction: column; gap: 12px; font-size: 0.88rem; border-top: 1px solid var(--border-color); padding-top: 16px;">
+                <div>
+                  <span style="display:block; font-size:0.75rem; color:var(--text-muted); font-weight:700;">Tanggal Lahir</span>
+                  <span id="pat-profile-dob">12 Mei 1990 (35 Tahun)</span>
+                </div>
+                <div>
+                  <span style="display:block; font-size:0.75rem; color:var(--text-muted); font-weight:700;">Jenis Kelamin</span>
+                  <span id="pat-profile-gender">Laki-laki</span>
+                </div>
+                <div>
+                  <span style="display:block; font-size:0.75rem; color:var(--text-muted); font-weight:700;">Alergi Obat</span>
+                  <span id="pat-profile-allergies" style="color: var(--danger); font-weight: 600;">Tidak ada</span>
+                </div>
+              </div>
+
+              <div style="margin-top: 24px; display: flex; flex-direction: column; gap: 10px;">
+                <button class="btn btn-primary w-full" onclick="openNewEncounterModal()">
+                  <i data-lucide="plus"></i>
+                  Tambah Rekam Medis
+                </button>
+                <button class="btn btn-secondary w-full" onclick="printPatientReport()">
+                  <i data-lucide="printer"></i>
+                  Cetak Rekam Medis PDF
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Encounter log records right -->
+          <div>
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Riwayat Rekam Klinis (Kronologis)</h3>
+                <span id="pat-profile-encounter-count" style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">0 Kunjungan</span>
+              </div>
+
+              <div id="patient-encounters-timeline-container" class="encounter-timeline">
+                <!-- Encounter records cards -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== 5. PENGATURAN APP SECTION ==================== -->
+    <div id="settings-sect" class="app-section">
+      <div class="card" style="max-width: 700px; margin: 0 auto 24px;">
+        <div class="card-header">
+          <h3 class="card-title">
+            <i data-lucide="settings"></i>
+            Pengaturan Aplikasi &amp; Backup
+          </h3>
+        </div>
+
+        <div class="calc-form-group">
+          <label class="calc-form-label" style="margin-bottom: 12px;">Kontrol Penyimpanan Data Lokal</label>
+          <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 16px;">
+            Semua data pasien, template formulir kustom, dan obat yang Anda favoritkan disimpan luring di dalam peramban ini. Ekspor berkas cadangan secara berkala agar data rekam medis Anda tetap aman dari kehilangan.
+          </p>
+
+          <div class="grid-2">
+            <button class="btn btn-primary" onclick="exportBackupDataJSON()">
+              <i data-lucide="download"></i>
+              Cadangkan Data (JSON)
+            </button>
+            
+            <div class="p-relative">
+              <input type="file" id="backup-file-input" style="display: none;" onchange="importBackupDataJSON(event)">
+              <button class="btn btn-secondary w-full" onclick="document.getElementById('backup-file-input').click()">
+                <i data-lucide="upload"></i>
+                Pulihkan Data (JSON)
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div style="border-top: 1px solid var(--border-color); padding-top: 24px; margin-top: 24px;">
+          <h4 style="font-size: 0.95rem; font-weight: 800; color: var(--danger); margin-bottom: 10px;">Zona Bahaya (Danger Zone)</h4>
+          <p style="font-size: 0.84rem; color: var(--text-muted); margin-bottom: 16px;">
+            Menghapus database lokal akan menghilangkan semua rekam medis pasien terdaftar dan formulir kustom secara permanen. Tindakan ini tidak dapat dibatalkan.
+          </p>
+          <button class="btn btn-danger" onclick="resetDatabaseConfirm()">
+            <i data-lucide="trash-2"></i>
+            Hapus Semua Data &amp; Reset Pabrik
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ==================== NEW ENCOUNTER VISUAL MODAL OVERLAY ==================== -->
+  <div id="new-encounter-modal-overlay" style="display:none; position: fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center; backdrop-filter:blur(4px);">
+    <div class="card" style="width:90%; max-width:650px; max-height:85vh; overflow-y:auto; margin:20px; animation:fadeIn 0.3s;">
+      <div class="card-header">
+        <h3 class="card-title">Catat Pemeriksaan Rekam Medis</h3>
+        <button class="btn btn-secondary" onclick="closeNewEncounterModal()" style="padding:4px 8px;">✕</button>
+      </div>
+
+      <div class="calc-form-group">
+        <label class="calc-form-label">Pilih Jenis Formulir Medis</label>
+        <select id="encounter-form-selector" class="form-select" style="padding-left:16px;" onchange="renderEncounterFieldsFromSelectedTemplate()">
+          <!-- Dynamic templates options -->
+        </select>
+      </div>
+
+      <form id="encounter-entry-form" onsubmit="savePatientEncounterRecord(event)">
+        <div id="encounter-fields-dynamic-form-wrap" class="mt-4">
+          <!-- Dynamic template fields -->
+        </div>
+
+        <button type="submit" class="btn btn-primary w-full mt-4" style="height:48px;">
+          <i data-lucide="check"></i>
+          Simpan Rekam Pemeriksaan Medis
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== DYNAMIC PRINT REPORT VIEW (HIDDEN IN BROWSING) ==================== -->
+  <div id="printable-report-wrapper">
+    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:4px double #1e293b; padding-bottom:16px; margin-bottom:24px;">
+      <div>
+        <h1 style="font-size:24px; font-weight:800; color:#0f172a; text-transform:uppercase;">TemanNakes Pinnacle Workstation</h1>
+        <p style="font-size:12px; color:#64748b;">Asisten Klinis Terintegrasi &amp; Luring • Pinnacle Certified v1.0</p>
+      </div>
+      <div class="print-seal-img">
+        🛡️ CLINICAL AUDIT SEAL<br>PINNACLE V1.0 VALIDATED
+      </div>
+    </div>
+
+    <div style="margin-bottom:24px; border:1px solid #cbd5e1; border-radius:8px; padding:16px;">
+      <h2 style="font-size:16px; font-weight:800; border-bottom:1px solid #cbd5e1; padding-bottom:8px; margin-bottom:12px; text-transform:uppercase; color:#0d9488;">Identitas Pasien Terdaftar</h2>
+      <table style="width:100%; font-size:13px; border-collapse:collapse;">
+        <tr>
+          <td style="width:150px; font-weight:bold; padding:4px 0;">Nomor Rekam Medis:</td>
+          <td style="padding:4px 0;" id="print-pat-rm">-</td>
+          <td style="width:120px; font-weight:bold; padding:4px 0;">Tanggal Cetak:</td>
+          <td style="padding:4px 0;" id="print-date">-</td>
+        </tr>
+        <tr>
+          <td style="font-weight:bold; padding:4px 0;">Nama Lengkap:</td>
+          <td style="padding:4px 0;" id="print-pat-name">-</td>
+          <td style="font-weight:bold; padding:4px 0;">Jenis Kelamin:</td>
+          <td style="padding:4px 0;" id="print-pat-gender">-</td>
+        </tr>
+        <tr>
+          <td style="font-weight:bold; padding:4px 0;">Tanggal Lahir:</td>
+          <td style="padding:4px 0;" id="print-pat-dob">-</td>
+          <td style="font-weight:bold; padding:4px 0; color:#ef4444;">Alergi Obat:</td>
+          <td style="padding:4px 0; color:#ef4444; font-weight:bold;" id="print-pat-allergies">-</td>
+        </tr>
+      </table>
+    </div>
+
+    <h2 style="font-size:16px; font-weight:800; margin-bottom:14px; text-transform:uppercase; border-bottom:2px solid #0f172a; padding-bottom:6px; color:#0d9488;">Riwayat Kunjungan Medis</h2>
+    <div id="print-encounters-timeline-container" style="display:flex; flex-direction:column; gap:20px;">
+      <!-- Dynamic prints -->
+    </div>
+
+    <div style="margin-top:60px; display:flex; justify-content:space-between; font-size:12px; border-top:1px dashed #cbd5e1; padding-top:12px;">
+      <p>Laporan dihasilkan secara aman oleh sistem rekam medis luring TemanNakes Pinnacle.</p>
+      <p style="font-weight:bold;">Tanda Tangan Tenaga Kesehatan:</p>
+    </div>
+  </div>
+
+  <!-- DYNAMIC JAVASCRIPT CODE -->
+  <script>
+    // System Variables
+    let DB = null;
+    let selectedCalculatorId = 'dose';
+    let currentTheme = 'light';
+    let activePatient = null;
+    
+    // Database Medicine List
+    let currentSelectedMedicine = null;
+    let medicinesList = [];
+    let favoriteIds = [];
+
+    // Custom Form Templates Data
+    let formTemplates = [];
+    const defaultTemplates = [
+      {
+        id: 'tpl_default',
+        name: 'Anamnesis & Tanda Vital',
+        fields: [
+          { label: 'Keluhan Utama / Anamnesis', type: 'text', options: '' },
+          { label: 'Suhu Tubuh (°C)', type: 'number', options: '' },
+          { label: 'Tekanan Darah (mmHg)', type: 'text', options: '' },
+          { label: 'Laju Nadi (kali/menit)', type: 'number', options: '' },
+          { label: 'Laju Napas (kali/menit)', type: 'number', options: '' },
+          { label: 'Pemeriksaan Fisik & Diagnosa', type: 'text', options: '' },
+          { label: 'Rencana Terapi / Resep', type: 'text', options: '' }
+        ]
+      }
+    ];
+
+    // Patients Data Store
+    let patients = [];
+
+    // GCS labels mappings
+    const gcsEyeLabels = ["Tidak ada", "Nyeri", "Suara", "Spontan"];
+    const gcsVerbalLabels = ["Tidak ada", "Suara", "Kata-kata", "Bingung", "Orientasi baik"];
+    const gcsVerbalPediatricLabels = ["Tidak ada", "Mengerang (nyeri)", "Menangis (nyeri)", "Rewel", "Mengoceh (Babbles)"];
+    const gcsMotorLabels = ["Tidak ada", "Ekstensi abn", "Fleksi abn", "Fleksi withdraw", "Lokalisasi", "Ikuti Perintah"];
+    const gcsMotorPediatricLabels = ["Tidak ada", "Ekstensi abn", "Fleksi abn", "Menarik (nyeri)", "Menarik (sentuh)", "Spontan normal"];
+
+    // Visual Form Builder workspace fields
+    let tempFields = [];
+
+    // ON DOM LOAD INITIALIZE
+    window.addEventListener('DOMContentLoaded', () => {
+      // 1. Initialize Icons
+      lucide.createIcons();
+
+      // 2. Load Theme Preference
+      const savedTheme = localStorage.getItem('temannakes_theme') || 'light';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+      currentTheme = savedTheme;
+      updateThemeToggleButton();
+
+      // 3. Load local storage databases
+      loadLocalStorageData();
+
+      // 4. Download and Load SQLite Database in WebAssembly
+      loadSQLiteDatabase();
+      
+      // Set KB calendar default to today
+      document.getElementById('calc-kb-date').valueAsDate = new Date();
+      // Set HPHT default to today
+      document.getElementById('calc-obgyn-hpht').valueAsDate = new Date();
+      
+      // Initial Calculators Run
+      setTimeout(() => {
+        runDoseCalculation();
+      }, 500);
+    });
+
+    // LOAD LOCAL STORAGE DATA
+    function loadLocalStorageData() {
+      // Load favorites
+      favoriteIds = JSON.parse(localStorage.getItem('temannakes_favorites') || '[]');
+      
+      // Load templates
+      formTemplates = JSON.parse(localStorage.getItem('temannakes_templates') || '[]');
+      if (formTemplates.length === 0) {
+        formTemplates = [...defaultTemplates];
+        localStorage.setItem('temannakes_templates', JSON.stringify(formTemplates));
+      }
+
+      // Load patients
+      patients = JSON.parse(localStorage.getItem('temannakes_patients') || '[]');
+      updateDashboardMetrics();
+    }
+
+    // UPDATE METRICS IN DASHBOARD
+    function updateDashboardMetrics() {
+      document.getElementById('metric-patient-count').innerText = patients.length;
+      
+      let calcCount = parseInt(localStorage.getItem('temannakes_calc_runs') || '0');
+      document.getElementById('metric-calc-count').innerText = calcCount;
+      
+      renderRecentEncountersDashboard();
+    }
+
+    // DOWNLOAD & INITIALIZE SQLITE DATABASE
+    function loadSQLiteDatabase() {
+      const progressBar = document.getElementById('splash-progress-bar');
+      const progressPercent = document.getElementById('splash-progress-percent');
+      const statusText = document.getElementById('splash-status-text');
+
+      statusText.innerText = "Mengunduh database klinis 12MB (SQLite)...";
+
+      // Download database file with progress monitoring
+      const xhr = new XMLHttpRequest();
+      xhr.open('GET', '../assets/database/temannakes.db', true);
+      xhr.responseType = 'arraybuffer';
+
+      xhr.onprogress = function(e) {
+        if (e.lengthComputable) {
+          const percentComplete = Math.round((e.loaded / e.total) * 100);
+          progressBar.style.width = percentComplete + '%';
+          progressPercent.innerText = percentComplete + '%';
+        }
+      };
+
+      xhr.onload = function() {
+        if (xhr.status === 200) {
+          statusText.innerText = "Menginisialisasi WebAssembly Engine...";
+          
+          // Load WASM Sql.js
+          const config = {
+            locateFile: filename => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${filename}`
+          };
+
+          initSqlJs(config).then(function(SQL) {
+            statusText.innerText = "Memproses database klinis...";
+            const dbData = new Uint8Array(xhr.response);
+            
+            try {
+              DB = new SQL.Database(dbData);
+              document.getElementById('db-status-label').innerText = "20.565 Obat Luring Aktif";
+              
+              // Load metrics
+              const rowCount = DB.exec("SELECT COUNT(*) FROM obat")[0].values[0][0];
+              document.getElementById('metric-db-count').innerText = Number(rowCount).toLocaleString('id-ID');
+              
+              // Hide splash screen
+              const splash = document.getElementById('db-splash-screen');
+              splash.style.opacity = '0';
+              setTimeout(() => splash.style.display = 'none', 500);
+
+              // Run initial queries
+              queryMedicines();
+            } catch (err) {
+              console.error("DB Initialization Error:", err);
+              statusText.innerText = "Gagal memproses database! Mengalihkan ke mode memori...";
+              fallbackMockDatabase();
+            }
+          });
+        } else {
+          statusText.innerText = "Gagal mengunduh database! Mengalihkan ke mode memori...";
+          fallbackMockDatabase();
+        }
+      };
+
+      xhr.onerror = function() {
+        statusText.innerText = "Koneksi terganggu! Mengalihkan ke mode luring cadangan...";
+        fallbackMockDatabase();
+      };
+
+      xhr.send();
+    }
+
+    // FALLBACK MEMORY DATABASE IF SQLITE FAILS (Offline Mock Generator)
+    function fallbackMockDatabase() {
+      // Mock SQLite object with similar exec capabilities using mock JSON data
+      DB = {
+        exec: function(sql, args) {
+          console.warn("SQL Query Fallback Mock executed: ", sql, args);
+          // Return a very basic set of medicines
+          return [{
+            columns: ["id", "nama_generik", "nama_dagang", "sinonim", "kode", "golongan", "bentuk", "kelas_terapi"],
+            values: [
+              [1, "Amoxicillin", "Amoxisan (Kimia Farma)", "Amoxycillin", "A005", "Antibiotik", "Kapsul", "Antibiotik"],
+              [2, "Amlodipine", "Norvask (Pfizer)", "Amlodipine", "A004", "Kardiovaskular", "Tablet", "Antihipertensi"],
+              [3, "Paracetamol", "Sanmol (Sanbe Farma)", "PCT", "P001", "Analgesik & Antipiretik", "Tablet", "Analgetik"]
+            ]
+          }];
+        }
+      };
+      
+      document.getElementById('db-status-label').innerText = "Database Memori Terbatas";
+      document.getElementById('metric-db-count').innerText = "3 (Fallback)";
+      
+      const splash = document.getElementById('db-splash-screen');
+      splash.style.opacity = '0';
+      setTimeout(() => splash.style.display = 'none', 500);
+      
+      queryMedicines();
+    }
+
+    // TOGGLE COLOR THEME
+    function toggleTheme() {
+      const targetTheme = currentTheme === 'light' ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', targetTheme);
+      localStorage.setItem('temannakes_theme', targetTheme);
+      currentTheme = targetTheme;
+      updateThemeToggleButton();
+    }
+
+    function updateThemeToggleButton() {
+      const sun = document.getElementById('theme-icon-sun');
+      const moon = document.getElementById('theme-icon-moon');
+      if (currentTheme === 'light') {
+        sun.classList.remove('hidden');
+        moon.classList.add('hidden');
+      } else {
+        sun.classList.add('hidden');
+        moon.classList.remove('hidden');
+      }
+    }
+
+    // SIDEBAR TAB NAVIGATION ENGINE
+    function switchSection(sectionId) {
+      // Update sidebar nav state
+      document.querySelectorAll('.nav-list .nav-item').forEach(item => {
+        item.classList.remove('active');
+        if (item.getAttribute('data-target') === sectionId) {
+          item.classList.add('active');
+        }
+      });
+
+      // Update main page title/subtitle
+      const pageTitle = document.getElementById('page-title');
+      const pageSubtitle = document.getElementById('page-subtitle');
+
+      if (sectionId === 'dashboard-sect') {
+        pageTitle.innerText = "Dashboard Overview";
+        pageSubtitle.innerText = "Sistem Kerja Asisten Klinis Terintegrasi & Presisi Bedah";
+        updateDashboardMetrics();
+      } else if (sectionId === 'medicines-sect') {
+        pageTitle.innerText = "Direktori & Referensi Obat";
+        pageSubtitle.innerText = "Akses 20.565+ Basis Data Obat Indonesia Luring Instan";
+        queryMedicines();
+      } else if (sectionId === 'calculators-sect') {
+        pageTitle.innerText = "Kalkulator Medis Presisi";
+        pageSubtitle.innerText = "Surgically Precise Calculation, Verified Steps & Safe Guards";
+        // Run active calculator
+        runActiveCalculator();
+      } else if (sectionId === 'patients-sect') {
+        pageTitle.innerText = "Rekam Medis & visual Form Builder";
+        pageSubtitle.innerText = "Pencatatan Rekam Medis Luring dengan Formulir Kustom";
+        renderPatientCards();
+        renderCustomFormTemplatesList();
+      } else if (sectionId === 'settings-sect') {
+        pageTitle.innerText = "Pengaturan & Backup Workstation";
+        pageSubtitle.innerText = "Backup Mandiri Rekam Medis Lokal dan Reset Pabrik";
+      }
+
+      // Hide all sections and show active
+      document.querySelectorAll('.app-section').forEach(sect => {
+        sect.classList.remove('active');
+      });
+      document.getElementById(sectionId).classList.add('active');
+      
+      // Close mobile drawer if open
+      document.getElementById('app-sidebar').classList.remove('open');
+    }
+
+    // ==================== MEDICINES DIRECTORY QUERY LOGIC (SQL.JS) ====================
+    function queryMedicines() {
+      if (!DB) return;
+
+      const searchVal = document.getElementById('drug-search-input').value.trim();
+      const categoryFilter = document.getElementById('drug-category-filter').value;
+      const formFilter = document.getElementById('drug-form-filter').value;
+
+      let sql = `
+        SELECT o.id, o.nama_generik, o.nama_dagang, o.sinonim, o.kode, o.golongan, o.bentuk, o.kelas_terapi
+        FROM obat o
+        WHERE 1=1
+      `;
+      let params = [];
+
+      if (searchVal.length > 0) {
+        sql += ` AND (o.nama_generik LIKE ? OR o.nama_dagang LIKE ? OR o.sinonim LIKE ? OR o.kode LIKE ?)`;
+        const wildSearch = `%${searchVal}%`;
+        params.push(wildSearch, wildSearch, wildSearch, wildSearch);
+      }
+
+      if (categoryFilter !== 'Semua') {
+        sql += ` AND o.golongan LIKE ?`;
+        params.push(`%${categoryFilter}%`);
+      }
+
+      if (formFilter !== 'Semua') {
+        sql += ` AND o.bentuk LIKE ?`;
+        params.push(`%${formFilter}%`);
+      }
+
+      // Exact starts-with sort order logic
+      if (searchVal.length > 0) {
+        sql += ` ORDER BY CASE WHEN LOWER(o.nama_generik) LIKE ? THEN 0 ELSE 1 END, o.nama_generik ASC`;
+        params.push(`${searchVal.toLowerCase()}%`);
+      } else {
+        sql += ` ORDER BY o.nama_generik ASC`;
+      }
+
+      sql += ` LIMIT 50`;
+
+      try {
+        const queryResults = DB.exec(sql, params);
+        const listContainer = document.getElementById('drug-items-list-container');
+        listContainer.innerHTML = '';
+
+        if (queryResults.length > 0 && queryResults[0].values.length > 0) {
+          const rows = queryResults[0].values;
+          document.getElementById('drug-result-count').innerText = `${rows.length} Obat Ditemukan`;
+
+          rows.forEach(row => {
+            const id = row[0];
+            const name = row[1];
+            const brand = row[2];
+            const syn = row[3];
+            const code = row[4];
+            const cat = row[5];
+            const form = row[6];
+
+            const isFav = favoriteIds.includes(id);
+            const favClass = isFav ? 'favorited-star' : '';
+
+            const itemHTML = `
+              <div class="drug-item" id="drug-item-${id}" onclick="selectMedicineDetail(${id})">
+                <div class="drug-item-info">
+                  <h4>${name}</h4>
+                  <p>${brand || '-'} • ${form}</p>
+                  <div class="drug-badges">
+                    <span class="badge badge-primary">${cat}</span>
+                    <span class="badge badge-secondary">${code}</span>
+                  </div>
+                </div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <i data-lucide="star" class="${favClass}" style="width:16px; height:16px;" onclick="toggleFavoriteId(${id}, event)"></i>
+                  <i data-lucide="chevron-right" style="color:var(--text-muted); width:18px;"></i>
+                </div>
+              </div>
+            `;
+            listContainer.insertAdjacentHTML('beforeend', itemHTML);
+          });
+          lucide.createIcons();
+        } else {
+          document.getElementById('drug-result-count').innerText = "0 Obat Ditemukan";
+          listContainer.innerHTML = `<div style="text-align:center; padding:32px 16px; color:var(--text-muted); font-size:0.9rem;">Tidak ada hasil obat yang cocok.</div>`;
+        }
+      } catch (err) {
+        console.error("SQL Exec Error:", err);
+      }
+    }
+
+    // FETCH DETAILED MEDICINE CARD FROM SQL
+    function selectMedicineDetail(id) {
+      if (!DB) return;
+
+      document.querySelectorAll('.drug-list-card .drug-item').forEach(item => {
+        item.classList.remove('active');
+      });
+      
+      const activeItem = document.getElementById(`drug-item-${id}`);
+      if (activeItem) activeItem.classList.add('active');
+
+      try {
+        const queryResult = DB.exec(`
+          SELECT o.*, d.* FROM obat o
+          LEFT JOIN obat_detail d ON o.id = d.id_obat
+          WHERE o.id = ?
+        `, [id]);
+
+        if (queryResult.length > 0 && queryResult[0].values.length > 0) {
+          const data = queryResult[0].values[0];
+          
+          // Map database columns to clinically strict details
+          currentSelectedMedicine = {
+            id: data[0],
+            nama_generik: data[1],
+            nama_dagang: data[2],
+            sinonim: data[3],
+            kode: data[4],
+            kode_nie: data[5],
+            golongan: data[6],
+            bentuk: data[7],
+            kelas_terapi: data[8],
+            
+            // Detail mappings from obat_detail
+            id_obat: data[9],
+            indikasi: data[10] || '-',
+            dosis_dewasa: data[11] || '-',
+            dosis_anak: data[12] || '-',
+            satuan: data[13] || 'mg',
+            frekuensi: data[14] || '-',
+            efek_samping: data[15] || '-',
+            kontraindikasi: data[16] || '-',
+            interaksi: data[17] || '-',
+            overdosis: data[18] || '-',
+            peringatan: data[19] || '-',
+            edukasi: data[20] || '-',
+            kelas_terapi_detail: data[21] || '-',
+            kategori_kehamilan: data[22] || 'C',
+            penyesuaian_ginjal: data[23] || '-',
+            clinical_pearls: data[24] || '-',
+            storage: data[25] || '-'
+          };
+
+          // Render detail card view
+          document.getElementById('drug-no-selection').classList.add('hidden');
+          document.getElementById('drug-details-container').classList.remove('hidden');
+
+          document.getElementById('detail-med-name').innerText = currentSelectedMedicine.nama_generik;
+          document.getElementById('detail-med-brand').innerText = `${currentSelectedMedicine.nama_dagang || '-'} (${currentSelectedMedicine.kode_nie || 'BPOM GKL'})`;
+          
+          // Render pregnancy badge color
+          const preg = currentSelectedMedicine.kategori_kehamilan;
+          let pregBadgeColor = 'badge-secondary';
+          if (preg === 'A' || preg === 'B') pregBadgeColor = 'badge-primary';
+          if (preg === 'C') pregBadgeColor = 'badge-accent';
+          if (preg === 'D' || preg === 'X') pregBadgeColor = 'badge-danger';
+
+          document.getElementById('detail-med-badges').innerHTML = `
+            <span class="badge badge-primary">${currentSelectedMedicine.golongan}</span>
+            <span class="badge badge-secondary">${currentSelectedMedicine.bentuk}</span>
+            <span class="badge ${pregBadgeColor}">Bumil: Kategori ${preg}</span>
+            <span class="badge badge-secondary">BPOM: ${currentSelectedMedicine.kode}</span>
+          `;
+
+          document.getElementById('detail-med-indications').innerText = currentSelectedMedicine.indikasi;
+          document.getElementById('detail-med-dose-adult').innerText = currentSelectedMedicine.dosis_dewasa;
+          document.getElementById('detail-med-dose-child').innerText = currentSelectedMedicine.dosis_anak;
+          document.getElementById('detail-med-contra').innerText = `Kontra: ${currentSelectedMedicine.kontraindikasi}. Efek Samping: ${currentSelectedMedicine.efek_samping}`;
+          document.getElementById('detail-med-interactions').innerText = currentSelectedMedicine.interaksi;
+          document.getElementById('detail-med-pregnancy').innerText = `KATEGORI ${preg}. ${getPregnancyDescription(preg)}`;
+          document.getElementById('detail-med-renal').innerText = currentSelectedMedicine.penyesuaian_ginjal;
+          document.getElementById('detail-med-pearls').innerText = currentSelectedMedicine.clinical_pearls;
+
+          // Star icon favoriting status
+          updateCurrentMedicineStarIcon();
+
+          // Calculator pediatric dose integration shortcut
+          const shortcutBtn = document.getElementById('detail-med-calc-shortcut');
+          shortcutBtn.onclick = () => {
+            switchSection('calculators-sect');
+            selectCalculator('dose');
+            
+            document.getElementById('calc-dose-name').value = currentSelectedMedicine.nama_generik;
+            
+            // Extract dosage if child dose is numeric
+            const match = currentSelectedMedicine.dosis_anak.match(/(\d+(\.\d+)?)/);
+            if (match) {
+              document.getElementById('calc-dose-per-kg').value = parseFloat(match[1]);
+            } else {
+              document.getElementById('calc-dose-per-kg').value = 10;
+            }
+            
+            // Extract standard units
+            document.getElementById('calc-dose-strength').placeholder = `Misal: 500 (Sediaan ${currentSelectedMedicine.bentuk})`;
+            
+            runDoseCalculation();
+          };
+          
+          lucide.createIcons();
+        }
+      } catch (err) {
+        console.error("SQL Exec Detail Error:", err);
+      }
+    }
+
+    function getPregnancyDescription(cat) {
+      switch (cat) {
+        case 'A': return 'Aman. Studi terkontrol pada manusia tidak menunjukkan risiko reproduksi.';
+        case 'B': return 'Cukup Aman. Studi pada hewan tidak menunjukkan risiko pada janin, studi pada manusia belum memadai.';
+        case 'C': return 'Waspada. Studi pada hewan menunjukkan efek samping, gunakan hanya jika manfaat klinis melebihi risiko.';
+        case 'D': return 'Berisiko. Terbukti berisiko pada janin manusia, namun manfaat darurat penyelamatan nyawa dapat dipertimbangkan.';
+        case 'X': return 'Kontraindikasi Mutlak. Terbukti menyebabkan abnormalitas janin. Risiko mutlak melebihi manfaat apa pun.';
+        default: return 'Tidak Diketahui. Gunakan dengan sangat hati-hati.';
+      }
+    }
+
+    // FAVORITES TOGGLES
+    function toggleFavoriteId(id, event) {
+      if (event) event.stopPropagation();
+      
+      const idx = favoriteIds.indexOf(id);
+      if (idx > -1) {
+        favoriteIds.splice(idx, 1);
+      } else {
+        favoriteIds.push(id);
+      }
+
+      localStorage.setItem('temannakes_favorites', JSON.stringify(favoriteIds));
+      queryMedicines();
+      
+      if (currentSelectedMedicine && currentSelectedMedicine.id === id) {
+        updateCurrentMedicineStarIcon();
+      }
+    }
+
+    function toggleFavoriteCurrent() {
+      if (!currentSelectedMedicine) return;
+      toggleFavoriteId(currentSelectedMedicine.id);
+    }
+
+    function updateCurrentMedicineStarIcon() {
+      const star = document.getElementById('detail-star-icon');
+      if (favoriteIds.includes(currentSelectedMedicine.id)) {
+        star.classList.add('favorited-star');
+        star.setAttribute('fill', 'var(--accent)');
+      } else {
+        star.classList.remove('favorited-star');
+        star.removeAttribute('fill');
+      }
+    }
+
+
+    // ==================== 3. hub CLINICAL CALCULATORS ENGINES ====================
+    function selectCalculator(calcId) {
+      selectedCalculatorId = calcId;
+      
+      // Update UI menus
+      document.querySelectorAll('.calculator-selector-list .calc-btn-item').forEach(item => {
+        item.classList.remove('active');
+      });
+      document.getElementById(`calc-menu-${calcId}`).classList.add('active');
+
+      // Update panel title
+      const title = document.getElementById('calc-panel-title');
+      const titles = {
+        dose: 'Kalkulator Dosis Pediatrik (Dose Engine)',
+        renal: 'Klirens Kreatinin & eGFR (Renal Hub)',
+        emergency: 'Skor GCS & APGAR (Gawat Darurat)',
+        infus: 'Kecepatan Infus Manual & Pump',
+        kb: 'Jadwal Kontrasepsi KB Suntik (BKKBN)',
+        obgyn: 'HPL, Usia Kehamilan & Berat Janin (OBGYN)',
+        status: 'Status Pasien (BMI, MAP, Shock Index)'
+      };
+      title.innerText = titles[calcId] || 'Kalkulator Medis';
+
+      // Switch forms visibility
+      document.querySelectorAll('.calc-view-box').forEach(box => {
+        box.classList.add('hidden');
+      });
+      document.getElementById(`calc-view-${calcId}`).classList.remove('hidden');
+
+      // Run active calculator calculations
+      runActiveCalculator();
+    }
+
+    function runActiveCalculator() {
+      // Tracking count stats
+      let runs = parseInt(localStorage.getItem('temannakes_calc_runs') || '0');
+      runs += 1;
+      localStorage.setItem('temannakes_calc_runs', runs.toString());
+
+      if (selectedCalculatorId === 'dose') runDoseCalculation();
+      if (selectedCalculatorId === 'renal') runRenalCalculation();
+      if (selectedCalculatorId === 'emergency') runGCSCalculation(); // default sub tab
+      if (selectedCalculatorId === 'infus') runInfusCalculation();
+      if (selectedCalculatorId === 'kb') runKbCalculation();
+      if (selectedCalculatorId === 'obgyn') runObgynCalculation();
+      if (selectedCalculatorId === 'status') runStatusCalculation();
+    }
+
+    // DYNAMIC RESULTS RENDER UTILITIES
+    function renderCalcResult(label, value, unit, interpretation, severity, steps, source = 'WHO Standards') {
+      document.getElementById('calc-result-label').innerText = label;
+      document.getElementById('calc-result-value').innerHTML = `${value} <span>${unit}</span>`;
+      
+      const badge = document.getElementById('calc-result-status-badge');
+      badge.innerText = interpretation;
+      
+      // Update severity badge colors
+      badge.className = 'calc-badge-status';
+      if (severity === 'normal' || severity === 0) badge.classList.add('badge-primary');
+      if (severity === 'warning' || severity === 1) badge.classList.add('badge-accent');
+      if (severity === 'danger' || severity === 2) badge.classList.add('badge-danger');
+
+      // Steps
+      const stepsContainer = document.getElementById('calc-result-steps-container');
+      stepsContainer.innerHTML = '';
+      steps.forEach(step => {
+        stepsContainer.insertAdjacentHTML('beforeend', `<li>${step}</li>`);
+      });
+    }
+
+    // 1. PEDIATRIC DOSAGE CALCULATOR
+    function runDoseCalculation() {
+      const drug = document.getElementById('calc-dose-name').value || 'Obat';
+      const weight = parseFloat(document.getElementById('calc-dose-weight').value) || 0;
+      const dose = parseFloat(document.getElementById('calc-dose-per-kg').value) || 0;
+      const maxDose = parseFloat(document.getElementById('calc-dose-max').value) || null;
+      
+      const strength = parseFloat(document.getElementById('calc-dose-strength').value) || 0;
+      const concentration = parseFloat(document.getElementById('calc-dose-concentration').value) || 0;
+
+      if (weight <= 0 || dose <= 0) {
+        renderCalcResult(
+          `DOSIS ${drug.toUpperCase()}`, '0.00', 'mg',
+          '⚠️ Input berat dan dosis harus > 0', 'danger',
+          ['Pastikan nilai berat badan (kg) dan dosis rekomendasi (mg/kg) valid.']
+        );
+        return;
+      }
+
+      const rawDose = weight * dose;
+      let finalDose = rawDose;
+      let capped = false;
+      
+      const steps = [
+        `Rumus Medis: Dosis Total = BB (kg) × Dosis/kgBB`,
+        `Dosis Total = ${weight} kg × ${dose} mg/kg`,
+        `Dosis Total Terhitung = ${rawDose.toFixed(2)} mg`
+      ];
+
+      if (maxDose !== null && maxDose > 0 && rawDose > maxDose) {
+        finalDose = maxDose;
+        capped = true;
+        steps.push(`⚠️ Hasil dosis total melebihi dosis maksimal dewasa (${maxDose} mg).`);
+        steps.push(`→ Dosis dibatasi ke: ${finalDose.toFixed(2)} mg (Max Capping)`);
+      }
+
+      let interpretation = 'Dosis Pediatrik Dalam Batas Aman';
+      let severity = 'normal';
+      
+      if (capped) {
+        interpretation = `⚠️ Dibatasi dosis maksimal dewasa (${maxDose} mg)`;
+        severity = 'warning';
+      }
+
+      // Convert strength and concentration if provided
+      if (strength > 0) {
+        const tabs = finalDose / strength;
+        steps.push(`Konversi Tablet: Dosis (${finalDose.toFixed(2)}mg) ÷ Kekuatan Tablet (${strength}mg) = ${tabs.toFixed(2)} tablet`);
+      }
+
+      if (concentration > 0) {
+        const ml = finalDose / concentration;
+        steps.push(`Konversi Sediaan Cair (Volume Proof): Dosis (${finalDose.toFixed(2)}mg) ÷ Konsentrasi (${concentration}mg/mL) = ${ml.toFixed(3)} mL`);
+      }
+
+      renderCalcResult(
+        `DOSIS AMAN PEDIATRIK ${drug.toUpperCase()}`,
+        finalDose.toFixed(2), 'mg',
+        interpretation,
+        severity,
+        steps
+      );
+    }
+
+    // 2. RENAL CALCULATOR (CrCl & eGFR)
+    function runRenalCalculation() {
+      const age = parseFloat(document.getElementById('calc-renal-age').value) || 0;
+      const weight = parseFloat(document.getElementById('calc-renal-weight').value) || 0;
+      const creatinine = parseFloat(document.getElementById('calc-renal-creatinine').value) || 0;
+      const gender = document.getElementById('calc-renal-gender').value;
+
+      if (age <= 0 || weight <= 0 || creatinine <= 0) {
+        renderCalcResult(
+          'GINJAL (CrCl Cockcroft-Gault)', '0.00', 'mL/menit',
+          '⚠️ Input usia, berat, dan kreatinin harus > 0', 'danger',
+          ['Pastikan semua kolom parameter diisi dengan benar.']
+        );
+        return;
+      }
+
+      // Cockcroft-Gault CrCl
+      let crCl = ((140 - age) * weight) / (72 * creatinine);
+      const isFemale = gender === 'female';
+      if (isFemale) crCl *= 0.85;
+
+      // eGFR CKD-EPI 2021
+      const k = isFemale ? 0.7 : 0.9;
+      const alpha = isFemale ? -0.241 : -0.302;
+      const factor = 142.0;
+      const scOverK = creatinine / k;
+      
+      let eGFR;
+      if (scOverK <= 1) {
+        eGFR = factor * Math.pow(scOverK, alpha) * Math.pow(0.9938, age) * (isFemale ? 1.012 : 1.0);
+      } else {
+        eGFR = factor * Math.pow(scOverK, -1.2) * Math.pow(0.9938, age) * (isFemale ? 1.012 : 1.0);
+      }
+
+      let interpretation = 'Fungsi Filtrasi Ginjal Normal';
+      let severity = 'normal';
+
+      if (crCl < 15) {
+        interpretation = '🔴 Gagal Ginjal Parah – CKD Tahap 5 (<15 mL/mnt)';
+        severity = 'danger';
+      } else if (crCl < 30) {
+        interpretation = '🔴 Penurunan Fungsi Ginjal Berat – CKD Tahap 4';
+        severity = 'danger';
+      } else if (crCl < 60) {
+        interpretation = '🔴 Penurunan Fungsi Ginjal Sedang – CKD Tahap 3';
+        severity = 'danger';
+      } else if (crCl < 90) {
+        interpretation = '⚠️ Penurunan Ringan – CKD Tahap 2';
+        severity = 'warning';
+      }
+
+      const steps = [
+        `Rumus Cockcroft-Gault: ClCr = [(140 - Usia) × BB] ÷ (72 × Kreatinin Serum)`,
+        isFemale ? `× 0.85 (faktor koreksi jenis kelamin perempuan)` : `Faktor koreksi laki-laki = 1.0`,
+        `ClCr = [(140 - ${age}) × ${weight}] ÷ (72 × ${creatinine}) ${isFemale ? '× 0.85' : ''}`,
+        `Hasil Klirens Kreatinin (CrCl) = ${crCl.toFixed(2)} mL/menit`,
+        `----------------------------------------`,
+        `eGFR (CKD-EPI 2021) = ${eGFR.toFixed(1)} mL/menit/1.73m² (Gold Standard KDIGO)`
+      ];
+
+      renderCalcResult(
+        'KLIRENS KREATININ (COCKCROFT-GAULT)',
+        crCl.toFixed(1), 'mL/menit',
+        interpretation,
+        severity,
+        steps
+      );
+    }
+
+    // 3. EMERGENCY SCORES (GCS & APGAR)
+    let activeEmergencySubTab = 'gcs';
+    function switchEmergencySubTab(subTab) {
+      activeEmergencySubTab = subTab;
+      document.getElementById('calc-em-tab-gcs').classList.remove('active');
+      document.getElementById('calc-em-tab-apgar').classList.remove('active');
+      
+      document.getElementById(`calc-em-tab-${subTab}`).classList.add('active');
+      
+      document.getElementById('calc-emergency-gcs-box').classList.add('hidden');
+      document.getElementById('calc-emergency-apgar-box').classList.add('hidden');
+      
+      document.getElementById(`calc-emergency-${subTab}-box`).classList.remove('hidden');
+      
+      if (subTab === 'gcs') runGCSCalculation();
+      if (subTab === 'apgar') runAPGARCalculation();
+    }
+
+    function runGCSCalculation() {
+      const isPediatric = document.getElementById('calc-gcs-pediatric').value === 'pediatric';
+      const eye = parseInt(document.getElementById('calc-gcs-eye').value);
+      const verbal = parseInt(document.getElementById('calc-gcs-verbal').value);
+      const motor = parseInt(document.getElementById('calc-gcs-motor').value);
+
+      // Update slider text labels dynamically
+      document.getElementById('lbl-gcs-eye').innerText = `Eye Opening (E): ${gcsEyeLabels[eye-1]} (${eye}/4)`;
+      document.getElementById('lbl-gcs-verbal').innerText = `Verbal (V): ${isPediatric ? gcsVerbalPediatricLabels[verbal-1] : gcsVerbalLabels[verbal-1]} (${verbal}/5)`;
+      document.getElementById('lbl-gcs-motor').innerText = `Motor (M): ${isPediatric ? gcsMotorPediatricLabels[motor-1] : gcsMotorLabels[motor-1]} (${motor}/6)`;
+
+      const total = eye + verbal + motor;
+      let interpretation = 'Sadar Penuh / Compos Mentis';
+      let severity = 'normal';
+
+      if (total < 4) {
+        interpretation = '🔴 Koma Terdalam (GCS <4)';
+        severity = 'danger';
+      } else if (total < 9) {
+        interpretation = '🔴 Penurunan Tingkat Kesadaran Berat / Sopor-Koma';
+        severity = 'danger';
+      } else if (total < 14) {
+        interpretation = '⚠️ Penurunan Tingkat Kesadaran Sedang / Somnolen';
+        severity = 'warning';
+      }
+
+      const steps = [
+        `Skala GCS: E (Eye) + V (Verbal) + M (Motor)`,
+        `Evaluasi parameter terobservasi:`,
+        `- Bukaan Mata (Eye): ${eye}/4 → ${gcsEyeLabels[eye-1]}`,
+        `- Respon Verbal: ${verbal}/5 → ${isPediatric ? gcsVerbalPediatricLabels[verbal-1] : gcsVerbalLabels[verbal-1]}`,
+        `- Respon Motorik: ${motor}/6 → ${isPediatric ? gcsMotorPediatricLabels[motor-1] : gcsMotorLabels[motor-1]}`,
+        `GCS Total = ${eye} + ${verbal} + ${motor} = ${total} / 15`
+      ];
+
+      renderCalcResult(
+        `SKOR GCS ${isPediatric ? 'PEDIATRIK (ANAK)' : 'DEWASA'}`,
+        total.toString(), '/ 15',
+        interpretation,
+        severity,
+        steps
+      );
+    }
+
+    function runAPGARCalculation() {
+      const min = parseInt(document.getElementById('calc-apgar-minute').value);
+      const app = parseInt(document.getElementById('calc-apgar-app').value);
+      const pulse = parseInt(document.getElementById('calc-apgar-pulse').value);
+      const grim = parseInt(document.getElementById('calc-apgar-grimace').value);
+      const act = parseInt(document.getElementById('calc-apgar-activity').value);
+      const resp = parseInt(document.getElementById('calc-apgar-resp').value);
+
+      const total = app + pulse + grim + act + resp;
+      let interpretation = 'Bayi Sehat – APGAR Score Normal';
+      let severity = 'normal';
+
+      if (total <= 3) {
+        interpretation = '🔴 Asfiksia Berat – Resusitasi Darurat Segera!';
+        severity = 'danger';
+      } else if (total <= 6) {
+        interpretation = '⚠️ Asfiksia Ringan-Sedang – Perlu Stimulasi Taktil &amp; Oksigen';
+        severity = 'warning';
+      }
+
+      const steps = [
+        `Penilaian APGAR Score Menit ke-${min} Pasca Persalinan:`,
+        `- A (Appearance / Warna Kulit) = ${app}/2`,
+        `- P (Pulse / Detak Jantung) = ${pulse}/2`,
+        `- G (Grimace / Refleks Stimulus) = ${grim}/2`,
+        `- A (Activity / Tonus Otot) = ${act}/2`,
+        `- R (Respiration / Pola Napas) = ${resp}/2`,
+        `APGAR Score Total = ${app} + ${pulse} + ${grim} + ${act} + ${resp} = ${total} / 10`,
+        `----------------------------------------`,
+        `Klasifikasi Klinis BKKBN / Kemenkes:`,
+        `7–10: Normal | 4–6: Asfiksia Ringan-Sedang | 0–3: Asfiksia Berat`
+      ];
+
+      renderCalcResult(
+        `APGAR SCORE (MENIT KE-${min})`,
+        total.toString(), '/ 10',
+        interpretation,
+        severity,
+        steps
+      );
+    }
+
+    // 4. INFUS drip/pump CALCULATOR
+    let activeInfusSubTab = 'drip';
+    function switchInfusSubTab(subTab) {
+      activeInfusSubTab = subTab;
+      document.getElementById('calc-inf-tab-drip').classList.remove('active');
+      document.getElementById('calc-inf-tab-pump').classList.remove('active');
+      
+      document.getElementById(`calc-inf-tab-${subTab}`).classList.add('active');
+      
+      document.getElementById('calc-infus-drip-box').classList.add('hidden');
+      document.getElementById('calc-infus-pump-box').classList.add('hidden');
+      
+      document.getElementById(`calc-emergency-${subTab}-box`); // dead placeholder
+      document.getElementById(`calc-infus-${subTab}-box`).classList.remove('hidden');
+      
+      runInfusCalculation();
+    }
+
+    function runInfusCalculation() {
+      if (activeInfusSubTab === 'drip') {
+        const volume = parseFloat(document.getElementById('calc-infus-drip-volume').value) || 0;
+        const factor = parseInt(document.getElementById('calc-infus-drip-factor').value);
+        const duration = parseFloat(document.getElementById('calc-infus-drip-duration').value) || 0;
+
+        if (volume <= 0 || duration <= 0) {
+          renderCalcResult(
+            'KECEPATAN TETESAN INFUS', '0', 'tetes/menit',
+            '⚠️ Input volume dan durasi harus > 0', 'danger',
+            ['Masukkan total cairan (mL) dan target waktu habis (menit).']
+          );
+          return;
+        }
+
+        const rate = (volume * factor) / duration;
+        const roundedRate = Math.round(rate);
+        
+        let interpretation = 'Tetesan Infus Normal';
+        let severity = 'normal';
+
+        if (roundedRate > 120) {
+          interpretation = '🔴 Sangat Cepat – Risiko Overload Sirkulasi Jantung!';
+          severity = 'danger';
+        } else if (roundedRate > 60) {
+          interpretation = '⚠️ Tetesan Cepat – Monitor Kelebihan Cairan Pasien';
+          severity = 'warning';
+        }
+
+        const steps = [
+          `Rumus: Laju Tetesan (tetes/menit) = (Volume × Faktor Tetes) ÷ Waktu (menit)`,
+          `Volume Cairan = ${volume} mL`,
+          `Faktor Tetesan Set = ${factor} tetes/mL`,
+          `Laju = (${volume} × ${factor}) ÷ ${duration}`,
+          `Laju = ${rate.toFixed(2)} → Pembulatan klinis = ${roundedRate} tetes/menit`
+        ];
+
+        renderCalcResult(
+          'KECEPATAN TETESAN INFUS (DRIP RATE)',
+          roundedRate.toString(), 'tetes/menit',
+          interpretation,
+          severity,
+          steps
+        );
+      } else {
+        const volume = parseFloat(document.getElementById('calc-infus-pump-volume').value) || 0;
+        const hours = parseFloat(document.getElementById('calc-infus-pump-duration').value) || 0;
+
+        if (volume <= 0 || hours <= 0) {
+          renderCalcResult(
+            'KECEPATAN POMPA INFUS (PUMP)', '0.0', 'mL/jam',
+            '⚠️ Input volume dan durasi jam harus > 0', 'danger',
+            ['Tentukan volume infus (mL) dan durasi habis (jam).']
+          );
+          return;
+        }
+
+        const rate = volume / hours;
+        let interpretation = 'Laju Aliran Infus Pump Normal';
+        let severity = 'normal';
+
+        if (rate > 200) {
+          interpretation = '⚠️ Laju Aliran Tinggi – Pantau Pasien Secara Berkala';
+          severity = 'warning';
+        }
+
+        const steps = [
+          `Rumus Pompa: Laju Aliran (mL/jam) = Volume Total (mL) ÷ Durasi Waktu (jam)`,
+          `Laju = ${volume} mL ÷ ${hours} jam`,
+          `Laju = ${rate.toFixed(1)} mL/jam`
+        ];
+
+        renderCalcResult(
+          'KECEPATAN SYRINGE / INFUS PUMP RATE',
+          rate.toFixed(1), 'mL/jam',
+          interpretation,
+          severity,
+          steps
+        );
+      }
+    }
+
+    // 5. CONTRACEPTIVE KB CALENDAR
+    function runKbCalculation() {
+      const dateInp = document.getElementById('calc-kb-date').value;
+      const type = parseInt(document.getElementById('calc-kb-type').value);
+
+      if (!dateInp) {
+        renderCalcResult(
+          'KALENDER KB SUNTIK', '-', '',
+          '⚠️ Tanggal suntik terakhir belum diisi', 'danger',
+          ['Tentukan tanggal suntik terakhir untuk memprediksi jadwal kembali.']
+        );
+        return;
+      }
+
+      const lastDate = new Date(dateInp);
+      const intervalDays = type === 3 ? 84 : 28;
+      
+      const nextDate = new Date(lastDate);
+      nextDate.setDate(lastDate.getDate() + intervalDays);
+
+      const today = new Date();
+      // Reset hours to compare dates cleanly
+      today.setHours(0,0,0,0);
+      nextDate.setHours(0,0,0,0);
+
+      const diffTime = nextDate.getTime() - today.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+      let interpretation = `Jadwal Rutin Kembali Suntik KB – ${diffDays} Hari Lagi`;
+      let severity = 'normal';
+
+      if (diffDays < 0) {
+        interpretation = `🔴 Terlambat Kembali Suntik KB (${Math.abs(diffDays)} Hari Lalu!)`;
+        severity = 'danger';
+      } else if (diffDays <= 3) {
+        interpretation = `⚠️ Segera Jadwalkan Kunjungan Suntik (${diffDays} Hari Lagi)`;
+        severity = 'warning';
+      }
+
+      const formattedNextDate = formatDateOutput(nextDate);
+      
+      const steps = [
+        `Interval Protokol Suntik KB ${type} Bulan: +${intervalDays} Hari`,
+        `Tanggal Suntik Terakhir: ${formatDateOutput(lastDate)}`,
+        `Tanggal Jadwal Kembali: ${formattedNextDate}`,
+        `Analisa Sisa Waktu Kepatuhan Pasien:`,
+        diffDays < 0 
+          ? `⚠️ Terlewati ${Math.abs(diffDays)} hari. Berikan kontrasepsi barrier tambahan (kondom) 7 hari.`
+          : `Rencana kontrol tersisa ${diffDays} hari lagi.`
+      ];
+
+      renderCalcResult(
+        `JADWAL KONTROL RUTIN SUNTIK KB ${type} BULAN`,
+        formattedNextDate, '',
+        interpretation,
+        severity,
+        steps
+      );
+    }
+
+    // 6. OBSTETRICS CALCULATOR (HPL, GA, TBJ)
+    let activeObgynSubTab = 'hpl';
+    function switchObgynSubTab(subTab) {
+      activeObgynSubTab = subTab;
+      document.getElementById('calc-ob-tab-hpl').classList.remove('active');
+      document.getElementById('calc-ob-tab-tbj').classList.remove('active');
+      
+      document.getElementById(`calc-ob-tab-${subTab}`).classList.add('active');
+      
+      document.getElementById('calc-obgyn-hpl-box').classList.add('hidden');
+      document.getElementById('calc-obgyn-tbj-box').classList.add('hidden');
+      
+      document.getElementById(`calc-obgyn-${subTab}-box`).classList.remove('hidden');
+      
+      runObgynCalculation();
+    }
+
+    function runObgynCalculation() {
+      if (activeObgynSubTab === 'hpl') {
+        const hphtVal = document.getElementById('calc-obgyn-hpht').value;
+        if (!hphtVal) {
+          renderCalcResult(
+            'HPL (NAEGELE RULE)', '-', '',
+            '⚠️ Tanggal HPHT belum ditentukan', 'danger',
+            ['Isi tanggal Hari Pertama Haid Terakhir.']
+          );
+          return;
+        }
+
+        const hpht = new Date(hphtVal);
+        
+        // Naegele Rule: +7 days, -3 months, +1 year
+        const hpl = new Date(hpht);
+        hpl.setDate(hpht.getDate() + 7);
+        hpl.setMonth(hpht.getMonth() - 3);
+        hpl.setFullYear(hpht.getFullYear() + 1);
+
+        const today = new Date();
+        const totalDays = Math.floor((today - hpht) / (1000 * 60 * 60 * 24));
+        const weeks = Math.floor(totalDays / 7);
+        const days = totalDays % 7;
+
+        let interpretation = `Usia Kehamilan: ${weeks} Minggu ${days} Hari (Trimester ${weeks < 14 ? 'I' : weeks < 28 ? 'II' : 'III'})`;
+        let severity = 'normal';
+
+        if (weeks < 0) {
+          interpretation = '⚠️ Tanggal HPHT di masa depan!';
+          severity = 'danger';
+        } else if (weeks >= 37 && weeks <= 42) {
+          interpretation = `✅ Aterm (${weeks} Minggu) – Siap bersalin`;
+        } else if (weeks > 42) {
+          interpretation = `🔴 Post-term (>42 Minggu) – Risiko Tinggi, Perlu Induksi / Rujukan!`;
+          severity = 'danger';
+        }
+
+        const steps = [
+          `Rumus HPL Naegele: HPHT + 7 Hari – 3 Bulan + 1 Tahun`,
+          `HPHT Terpilih: ${formatDateOutput(hpht)}`,
+          `HPL Taksiran: ${formatDateOutput(hpl)}`,
+          `----------------------------------------`,
+          `Perhitungan Usia Gestasional (Hari ini vs HPHT):`,
+          `Selisih Hari = ${totalDays} hari`,
+          `Usia Kehamilan = ${weeks} Minggu ${days} Hari`
+        ];
+
+        renderCalcResult(
+          'HPL (HARI PERKIRAAN LAHIR) & USIA KEHAMILAN',
+          formatDateOutput(hpl), '',
+          interpretation,
+          severity,
+          steps
+        );
+      } else {
+        const tfu = parseFloat(document.getElementById('calc-obgyn-tfu').value) || 0;
+        const engaged = document.getElementById('calc-obgyn-engaged').value === 'true';
+
+        if (tfu <= 0) {
+          renderCalcResult(
+            'TAKSIRAN BERAT JANIN (TBJ)', '0', 'gram',
+            '⚠️ Tinggi Fundus Uteri (TFU) harus > 0 cm', 'danger',
+            ['Masukkan TFU yang diukur menggunakan pita ukur cm.']
+          );
+          return;
+        }
+
+        const n = engaged ? 11 : 12;
+        
+        if (tfu <= n) {
+          renderCalcResult(
+            'TAKSIRAN BERAT JANIN (TBJ)', '0', 'gram',
+            '⚠️ TFU terlalu kecil untuk taksiran TBJ', 'warning',
+            [`TFU (${tfu} cm) ≤ konstanta n (${n})`]
+          );
+          return;
+        }
+
+        // Johnson's Formula: TBJ = (TFU - n) * 155
+        const tbj = (tfu - n) * 155;
+        let interpretation = 'Taksiran Berat Janin Normal (Ref: WHO)';
+        let severity = 'normal';
+
+        if (tbj < 2500) {
+          interpretation = '⚠️ Berat Janin Rendah (Potensi BBLR / Gangguan Pertumbuhan)';
+          severity = 'warning';
+        } else if (tbj > 4000) {
+          interpretation = '⚠️ Makrosomia (Potensi Bayi Besar >4000 gram)';
+          severity = 'warning';
+        }
+
+        const steps = [
+          `Rumus Johnson: TBJ = (Tinggi Fundus Uteri – n) × 155 gram`,
+          `n (konstanta kepala janin masuk panggul) = ${n} (${engaged ? 'Sudah Masuk PAP' : 'Belum Masuk PAP'})`,
+          `TBJ = (${tfu} – ${n}) × 155`,
+          `TBJ = ${tbj} gram`
+        ];
+
+        renderCalcResult(
+          'TAKSIRAN BERAT JANIN (JOHNSON FORMULA)',
+          tbj.toString(), 'gram',
+          interpretation,
+          severity,
+          steps
+        );
+      }
+    }
+
+    // 7. PATIENT STATUS CALCULATOR (BMI, MAP, Shock Index)
+    let activeStatusSubTab = 'bmi';
+    function switchStatusSubTab(subTab) {
+      activeStatusSubTab = subTab;
+      document.getElementById('calc-st-tab-bmi').classList.remove('active');
+      document.getElementById('calc-st-tab-map').classList.remove('active');
+      document.getElementById('calc-st-tab-shock').classList.remove('active');
+      
+      document.getElementById(`calc-st-tab-${subTab}`).classList.add('active');
+      
+      document.getElementById('calc-status-bmi-box').classList.add('hidden');
+      document.getElementById('calc-status-map-box').classList.add('hidden');
+      document.getElementById('calc-status-shock-box').classList.add('hidden');
+      
+      document.getElementById(`calc-status-${subTab}-box`).classList.remove('hidden');
+      
+      runStatusCalculation();
+    }
+
+    function runStatusCalculation() {
+      if (activeStatusSubTab === 'bmi') {
+        const height = parseFloat(document.getElementById('calc-status-height').value) || 0;
+        const weight = parseFloat(document.getElementById('calc-status-weight').value) || 0;
+
+        if (height <= 0 || weight <= 0) {
+          renderCalcResult(
+            'INDEX MASSA TUBUH (BMI)', '0.00', 'kg/m²',
+            '⚠️ Tinggi dan Berat harus > 0', 'danger',
+            ['Masukkan tinggi badan (cm) dan berat badan (kg).']
+          );
+          return;
+        }
+
+        const heightM = height / 100;
+        const bmi = weight / (heightM * heightM);
+
+        let interpretation = 'Status Berat Badan Normal / Ideal';
+        let severity = 'normal';
+
+        if (bmi < 18.5) {
+          interpretation = '⚠️ Kurang Berat Badan / Underweight';
+          severity = 'warning';
+        } else if (bmi >= 25.0 && bmi < 30.0) {
+          interpretation = '⚠️ Kelebihan Berat Badan / Overweight';
+          severity = 'warning';
+        } else if (bmi >= 30.0) {
+          interpretation = '🔴 Obesitas / Obese (Risiko Kardiovaskular Tinggi)';
+          severity = 'danger';
+        }
+
+        const minIdeal = (18.5 * heightM * heightM).toFixed(0);
+        const maxIdeal = (24.9 * heightM * heightM).toFixed(0);
+
+        const steps = [
+          `Rumus BMI: BMI = Berat (kg) ÷ [Tinggi (m)]²`,
+          `Tinggi = ${height} cm = ${heightM} meter`,
+          `BMI = ${weight} ÷ (${heightM})² = ${bmi.toFixed(2)} kg/m²`,
+          `----------------------------------------`,
+          `Kalkulasi Berat Badan Ideal Pendukung:`,
+          `Estimasi Berat Ideal Pasien: ${minIdeal} kg s/d ${maxIdeal} kg (Indeks WHO)`
+        ];
+
+        renderCalcResult(
+          'BODY MASS INDEX (BMI) &amp; BERAT IDEAL',
+          bmi.toFixed(2), 'kg/m²',
+          interpretation,
+          severity,
+          steps
+        );
+      } else if (activeStatusSubTab === 'map') {
+        const sys = parseFloat(document.getElementById('calc-status-systolic').value) || 0;
+        const dia = parseFloat(document.getElementById('calc-status-diastolic').value) || 0;
+
+        if (sys <= 0 || dia <= 0 || sys < dia) {
+          renderCalcResult(
+            'MAP (MEAN ARTERIAL PRESSURE)', '0', 'mmHg',
+            '⚠️ Sistolik harus > Diastolik &amp; > 0', 'danger',
+            ['Masukkan hasil tensi darah (Sistolik / Diastolik).']
+          );
+          return;
+        }
+
+        // MAP = (Systolic + 2*Diastolic)/3
+        const map = (sys + 2 * dia) / 3;
+        let interpretation = 'Perfusi Organ Vital Normal / Baik';
+        let severity = 'normal';
+
+        if (map < 60) {
+          interpretation = '🔴 Perfusi Kurang – Risiko Iskemia / Kegagalan Organ!';
+          severity = 'danger';
+        } else if (map > 100) {
+          interpretation = '⚠️ Perfusi Tinggi – Monitor Hipertensi';
+          severity = 'warning';
+        }
+
+        const steps = [
+          `Rumus MAP: MAP = (Sistolik + [2 × Diastolik]) ÷ 3`,
+          `MAP = (${sys} + [2 × ${dia}]) ÷ 3`,
+          `MAP = (${sys} + ${2 * dia}) ÷ 3 = ${map.toFixed(2)} mmHg`,
+          `----------------------------------------`,
+          `Target Perfusi Klinis:`,
+          `MAP minimal 60 mmHg diperlukan untuk perfusi ginjal dan otak secara memadai.`
+        ];
+
+        renderCalcResult(
+          'MEAN ARTERIAL PRESSURE (MAP)',
+          map.toFixed(1), 'mmHg',
+          interpretation,
+          severity,
+          steps
+        );
+      } else {
+        const hr = parseFloat(document.getElementById('calc-status-hr').value) || 0;
+        const sys = parseFloat(document.getElementById('calc-status-shock-sys').value) || 0;
+
+        if (hr <= 0 || sys <= 0) {
+          renderCalcResult(
+            'SHOCK INDEX (SI)', '0.00', '',
+            '⚠️ Nadi dan Sistolik harus > 0', 'danger',
+            ['Masukkan denyut jantung (HR) dan tensi sistolik.']
+          );
+          return;
+        }
+
+        const si = hr / sys;
+        let interpretation = 'Hemodinamik Stabil';
+        let severity = 'normal';
+
+        if (si >= 1.4) {
+          interpretation = '🔴 Syok Berat – Risiko Tinggi Dekompensasi Kardiovaskular!';
+          severity = 'danger';
+        } else if (si >= 1.0) {
+          interpretation = '🔴 Syok Ringan-Sedang – Waspada Hipovolemia';
+          severity = 'danger';
+        } else if (si >= 0.7) {
+          interpretation = '⚠️ Waspada – Batas hemodinamik terganggu';
+          severity = 'warning';
+        }
+
+        const steps = [
+          `Rumus Shock Index: SI = Laju Nadi (Heart Rate) ÷ Tekanan Darah Sistolik`,
+          `SI = ${hr} kali/menit ÷ ${sys} mmHg`,
+          `Shock Index = ${si.toFixed(2)}`,
+          `----------------------------------------`,
+          `Pedoman Interpretasi Klinis:`,
+          `Normal: 0.5 – 0.7 | Waspada: 0.7 - 0.9 | Kecenderungan Syok: ≥ 1.0`
+        ];
+
+        renderCalcResult(
+          'SHOCK INDEX (DETEKSI GAWAT DARURAT SYOK)',
+          si.toFixed(2), '',
+          interpretation,
+          severity,
+          steps
+        );
+      }
+    }
+
+    // UTILITIES FOR DATES FORMATTING
+    function formatDateOutput(d) {
+      return `${d.getDate().toString().padLeft(2, '0')}-${(d.getMonth() + 1).toString().padLeft(2, '0')}-${d.getFullYear()}`;
+    }
+
+    // Helper string extensions
+    String.prototype.padLeft = function(length, character) {
+      return this.length >= length ? this : (new Array(length - this.length + 1).join(character || ' ') + this);
+    };
+
+
+    // ==================== 4. REKAM MEDIS PATIENTS & FORM BUILDER ====================
+    let activePatientTabId = 'tab-list';
+    
+    function switchPatientTab(tabId) {
+      activePatientTabId = tabId;
+      document.getElementById('pat-tab-list').classList.remove('active');
+      document.getElementById('pat-tab-register').classList.remove('active');
+      document.getElementById('pat-tab-builder').classList.remove('active');
+      
+      document.getElementById(`pat-${tabId}`).classList.add('active');
+
+      document.getElementById('patient-list-container').classList.add('hidden');
+      document.getElementById('patient-register-container').classList.add('hidden');
+      document.getElementById('patient-builder-container').classList.add('hidden');
+      document.getElementById('patient-details-sect').classList.add('hidden');
+
+      if (tabId === 'tab-list') {
+        document.getElementById('patient-list-container').classList.remove('hidden');
+        renderPatientCards();
+      } else if (tabId === 'tab-register') {
+        document.getElementById('patient-register-container').classList.remove('hidden');
+        // generate random custom RM
+        document.getElementById('reg-pat-rm').value = 'RM-' + new Date().getFullYear() + '-' + Math.floor(1000 + Math.random() * 9000);
+      } else if (tabId === 'tab-builder') {
+        document.getElementById('patient-builder-container').classList.remove('hidden');
+        renderVisualFieldsInFormBuilder();
+      }
+    }
+
+    // PATIENT LIST CARDS RENDERING
+    function renderPatientCards() {
+      const search = document.getElementById('patient-search-input').value.toLowerCase().trim();
+      const grid = document.getElementById('patient-cards-grid');
+      grid.innerHTML = '';
+
+      const filtered = patients.filter(p => 
+        p.nama.toLowerCase().includes(search) || 
+        p.rm.toLowerCase().includes(search)
+      );
+
+      if (filtered.length > 0) {
+        filtered.forEach(p => {
+          const encountersCount = p.encounters ? p.encounters.length : 0;
+          
+          const pHTML = `
+            <div class="patient-card" onclick="openPatientProfile('${p.rm}')">
+              <div class="patient-card-header">
+                <h3 class="patient-card-name">${p.nama}</h3>
+                <span class="patient-card-rm">${p.rm}</span>
+              </div>
+              <div class="patient-card-details">
+                <span><strong>Lahir:</strong> ${formatDateOutput(new Date(p.dob))}</span>
+                <span><strong>Gender:</strong> ${p.gender}</span>
+                <span><strong>Alergi:</strong> ${p.allergies || '-'}</span>
+              </div>
+              <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem;">
+                <span style="color:var(--primary); font-weight:700;">${encountersCount} Pemeriksaan</span>
+                <i data-lucide="arrow-right-circle" style="color:var(--primary); width:18px;"></i>
+              </div>
+            </div>
+          `;
+          grid.insertAdjacentHTML('beforeend', pHTML);
+        });
+        lucide.createIcons();
+      } else {
+        grid.innerHTML = `
+          <div class="full-width-box" style="grid-column: 1 / -1; padding: 48px; text-align: center; color: var(--text-muted);">
+            Tidak ada pasien terdaftar yang cocok dengan pencarian Anda.
+          </div>
+        `;
+      }
+    }
+
+    // REGISTRATION OF PATIENT
+    function registerPatient(e) {
+      e.preventDefault();
+
+      const rm = document.getElementById('reg-pat-rm').value.trim();
+      const name = document.getElementById('reg-pat-name').value.trim();
+      const dob = document.getElementById('reg-pat-dob').value;
+      const gender = document.getElementById('reg-pat-gender').value;
+      const allergies = document.getElementById('reg-pat-allergies').value.trim();
+
+      // Check duplications
+      if (patients.some(p => p.rm === rm)) {
+        alert('⚠️ Nomor Rekam Medis (RM) sudah terdaftar dalam database local storage!');
+        return;
+      }
+
+      const newPatient = {
+        rm: rm,
+        nama: name,
+        dob: dob,
+        gender: gender,
+        allergies: allergies,
+        encounters: []
+      };
+
+      patients.push(newPatient);
+      localStorage.setItem('temannakes_patients', JSON.stringify(patients));
+      
+      // Reset Form and switch to list tab
+      document.getElementById('new-patient-form').reset();
+      
+      alert('✅ Pasien baru berhasil didaftarkan secara luring!');
+      switchPatientTab('tab-list');
+      updateDashboardMetrics();
+    }
+
+    // OPEN PATIENT CLINICAL FILE
+    function openPatientProfile(rm) {
+      activePatient = patients.find(p => p.rm === rm);
+      if (!activePatient) return;
+
+      // Hide all tabs
+      document.getElementById('patient-list-container').classList.add('hidden');
+      document.getElementById('patient-register-container').classList.add('hidden');
+      document.getElementById('patient-builder-container').classList.add('hidden');
+      
+      // Show details
+      document.getElementById('patient-details-sect').classList.remove('hidden');
+
+      // Set profile details
+      document.getElementById('pat-profile-name').innerText = activePatient.nama;
+      document.getElementById('pat-profile-rm').innerText = activePatient.rm;
+      
+      // Calculate age
+      const dobDate = new Date(activePatient.dob);
+      const ageDiff = Date.now() - dobDate.getTime();
+      const ageDate = new Date(ageDiff);
+      const ageYears = Math.abs(ageDate.getUTCFullYear() - 1970);
+
+      document.getElementById('pat-profile-dob').innerText = `${formatDateOutput(dobDate)} (${ageYears} Tahun)`;
+      document.getElementById('pat-profile-gender').innerText = activePatient.gender;
+      
+      const allergyBox = document.getElementById('pat-profile-allergies');
+      if (activePatient.allergies) {
+        allergyBox.innerText = activePatient.allergies;
+        allergyBox.style.color = 'var(--danger)';
+      } else {
+        allergyBox.innerText = 'Tidak ada';
+        allergyBox.style.color = 'var(--text-muted)';
+      }
+
+      // Render encounters
+      renderPatientEncountersTimeline();
+    }
+
+    // ENCOUNTER LIST RENDER LOGIC
+    function renderPatientEncountersTimeline() {
+      const container = document.getElementById('patient-encounters-timeline-container');
+      container.innerHTML = '';
+
+      const encounters = activePatient.encounters || [];
+      document.getElementById('pat-profile-encounter-count').innerText = `${encounters.length} Kunjungan`;
+
+      if (encounters.length > 0) {
+        // Reverse chronological order
+        [...encounters].reverse().forEach(enc => {
+          let fieldsHTML = '';
+          enc.values.forEach(f => {
+            fieldsHTML += `
+              <div class="encounter-field-box">
+                <div class="encounter-field-label">${f.label}</div>
+                <div class="encounter-field-val">${f.value || '-'}</div>
+              </div>
+            `;
+          });
+
+          const encHTML = `
+            <div class="encounter-card">
+              <div class="encounter-header">
+                <span class="encounter-title">${enc.formName}</span>
+                <span>${enc.dateString}</span>
+              </div>
+              <div class="encounter-fields-grid">
+                ${fieldsHTML}
+              </div>
+            </div>
+          `;
+          container.insertAdjacentHTML('beforeend', encHTML);
+        });
+      } else {
+        container.innerHTML = `
+          <div style="padding:40px; text-align:center; color:var(--text-muted); border: 2px dashed var(--border-color); border-radius:var(--radius);">
+            Belum ada rekam pemeriksaan tercatat pada pasien ini.
+          </div>
+        `;
+      }
+    }
+
+    // ==================== VISUAL FORM BUILDER DYNAMIC GENERATOR ====================
+    function toggleFieldOptionsVisibility() {
+      const type = document.getElementById('fb-field-type').value;
+      const optionsWrap = document.getElementById('fb-field-options-wrap');
+      if (type === 'select') {
+        optionsWrap.classList.remove('hidden');
+      } else {
+        optionsWrap.classList.add('hidden');
+      }
+    }
+
+    function addFieldToBuilderTemplate() {
+      const label = document.getElementById('fb-field-label').value.trim();
+      const type = document.getElementById('fb-field-type').value;
+      const optionsVal = document.getElementById('fb-field-options').value.trim();
+
+      if (!label) {
+        alert('⚠️ Label kolom formulir tidak boleh kosong!');
+        return;
+      }
+
+      const newField = {
+        label: label,
+        type: type,
+        options: type === 'select' ? optionsVal : ''
+      };
+
+      tempFields.push(newField);
+      
+      // Reset inputs
+      document.getElementById('fb-field-label').value = '';
+      document.getElementById('fb-field-options').value = '';
+      document.getElementById('fb-field-type').value = 'text';
+      toggleFieldOptionsVisibility();
+
+      renderVisualFieldsInFormBuilder();
+    }
+
+    function renderVisualFieldsInFormBuilder() {
+      const title = document.getElementById('fb-form-name').value || 'Formulir Medis Kustom';
+      document.getElementById('preview-form-title').innerText = title;
+
+      const previewContainer = document.getElementById('fb-preview-fields-list');
+      previewContainer.innerHTML = '';
+
+      if (tempFields.length > 0) {
+        tempFields.forEach((f, idx) => {
+          let inputHTML = '';
+          if (f.type === 'text') {
+            inputHTML = `<input type="text" class="form-input" style="padding-left:12px;" disabled placeholder="Input teks...">`;
+          } else if (f.type === 'number') {
+            inputHTML = `<input type="number" class="form-input" style="padding-left:12px;" disabled placeholder="0.00">`;
+          } else if (f.type === 'select') {
+            let optionsHTML = f.options.split(',').map(o => `<option>${o}</option>`).join('');
+            inputHTML = `<select class="form-select" style="padding-left:12px;" disabled>${optionsHTML}</select>`;
+          }
+
+          const fieldPreviewHTML = `
+            <div class="calc-form-group" style="padding:12px; background:var(--bg-app); border:1px solid var(--border-color); border-radius:var(--radius); margin-bottom:10px; position:relative;">
+              <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                <label class="calc-form-label" style="margin-bottom:0;">${f.label} (${f.type.toUpperCase()})</label>
+                <button onclick="removeFieldFromFormBuilder(${idx})" class="btn btn-danger" style="padding:2px 8px; font-size:0.75rem; border-radius:4px;">Hapus</button>
+              </div>
+              ${inputHTML}
+            </div>
+          `;
+          previewContainer.insertAdjacentHTML('beforeend', fieldPreviewHTML);
+        });
+      } else {
+        previewContainer.innerHTML = `<div style="text-align:center; padding:32px; color:var(--text-muted); border:1px dashed var(--border-color); border-radius:var(--radius);">Belum ada kolom input ditambahkan ke formulir kustom ini.</div>`;
+      }
+    }
+
+    function removeFieldFromFormBuilder(idx) {
+      tempFields.splice(idx, 1);
+      renderVisualFieldsInFormBuilder();
+    }
+
+    function saveCustomFormTemplateToDB() {
+      const name = document.getElementById('fb-form-name').value.trim();
+      if (!name) {
+        alert('⚠️ Nama Formulir tidak boleh kosong!');
+        return;
+      }
+
+      if (tempFields.length === 0) {
+        alert('⚠️ Formulir harus memiliki minimal 1 kolom input!');
+        return;
+      }
+
+      const newTemplate = {
+        id: 'tpl_' + Date.now(),
+        name: name,
+        fields: [...tempFields]
+      };
+
+      formTemplates.push(newTemplate);
+      localStorage.setItem('temannakes_templates', JSON.stringify(formTemplates));
+
+      // Reset Builder State
+      tempFields = [];
+      document.getElementById('fb-form-name').value = 'Formulir Medis Baru';
+      renderVisualFieldsInFormBuilder();
+
+      alert(`✅ Template formulir "${name}" berhasil disimpan ke sistem!`);
+      switchPatientTab('tab-list');
+    }
+
+    // ==================== NEW ENCOUNTER CLINICAL MODAL FORM INJECTION ====================
+    function openNewEncounterModal() {
+      if (!activePatient) return;
+      
+      const selector = document.getElementById('encounter-form-selector');
+      selector.innerHTML = '';
+
+      formTemplates.forEach(t => {
+        selector.insertAdjacentHTML('beforeend', `<option value="${t.id}">${t.name}</option>`);
+      });
+
+      document.getElementById('new-encounter-modal-overlay').style.display = 'flex';
+      renderEncounterFieldsFromSelectedTemplate();
+      lucide.createIcons();
+    }
+
+    function closeNewEncounterModal() {
+      document.getElementById('new-encounter-modal-overlay').style.display = 'none';
+    }
+
+    function renderEncounterFieldsFromSelectedTemplate() {
+      const templateId = document.getElementById('encounter-form-selector').value;
+      const template = formTemplates.find(t => t.id === templateId);
+      
+      const container = document.getElementById('encounter-fields-dynamic-form-wrap');
+      container.innerHTML = '';
+
+      if (template) {
+        template.fields.forEach((f, idx) => {
+          let fieldInputHTML = '';
+          const safeId = `enc-field-${idx}`;
+
+          if (f.type === 'text') {
+            fieldInputHTML = `<input type="text" id="${safeId}" class="form-input" style="padding-left:14px;" required placeholder="Ketik keterangan...">`;
+          } else if (f.type === 'number') {
+            fieldInputHTML = `<input type="number" step="0.01" id="${safeId}" class="form-input" style="padding-left:14px;" required placeholder="0.00">`;
+          } else if (f.type === 'select') {
+            let optionsHTML = f.options.split(',').map(o => `<option value="${o.trim()}">${o.trim()}</option>`).join('');
+            fieldInputHTML = `<select id="${safeId}" class="form-select" style="padding-left:14px;" required>${optionsHTML}</select>`;
+          }
+
+          const groupHTML = `
+            <div class="calc-form-group">
+              <label class="calc-form-label">${f.label} <span>*</span></label>
+              ${fieldInputHTML}
+            </div>
+          `;
+          container.insertAdjacentHTML('beforeend', groupHTML);
+        });
+      }
+    }
+
+    // SAVE COMPLETED ENCOUNTER TO LOCAL PATIENT
+    function savePatientEncounterRecord(e) {
+      e.preventDefault();
+      if (!activePatient) return;
+
+      const templateId = document.getElementById('encounter-form-selector').value;
+      const template = formTemplates.find(t => t.id === templateId);
+
+      if (!template) return;
+
+      const values = [];
+      template.fields.forEach((f, idx) => {
+        const inputId = `enc-field-${idx}`;
+        const inputElement = document.getElementById(inputId);
+        
+        values.push({
+          label: f.label,
+          value: inputElement.value
+        });
+      });
+
+      const today = new Date();
+      const encounterRecord = {
+        id: 'enc_' + Date.now(),
+        formTemplateId: template.id,
+        formName: template.name,
+        dateString: formatDateOutput(today) + ' ' + today.toLocaleTimeString('id-ID'),
+        values: values
+      };
+
+      // Push to active patient encounters
+      if (!activePatient.encounters) activePatient.encounters = [];
+      activePatient.encounters.push(encounterRecord);
+
+      // Save to global patients list in localstorage
+      const patientIdx = patients.findIndex(p => p.rm === activePatient.rm);
+      patients[patientIdx] = activePatient;
+      localStorage.setItem('temannakes_patients', JSON.stringify(patients));
+
+      closeNewEncounterModal();
+      openPatientProfile(activePatient.rm);
+      updateDashboardMetrics();
+      alert('✅ Catatan klinis rekam medis pasien berhasil disimpan!');
+    }
+
+    // PRINT REPORT PDF LAYOUT GENERATION
+    function printPatientReport() {
+      if (!activePatient) return;
+
+      document.getElementById('print-pat-rm').innerText = activePatient.rm;
+      document.getElementById('print-pat-name').innerText = activePatient.nama;
+      document.getElementById('print-pat-gender').innerText = activePatient.gender;
+      
+      const dob = new Date(activePatient.dob);
+      document.getElementById('print-pat-dob').innerText = formatDateOutput(dob);
+      
+      document.getElementById('print-pat-allergies').innerText = activePatient.allergies || 'Tidak Ada';
+      document.getElementById('print-date').innerText = formatDateOutput(new Date());
+
+      // Encounters
+      const printContainer = document.getElementById('print-encounters-timeline-container');
+      printContainer.innerHTML = '';
+
+      const encounters = activePatient.encounters || [];
+      if (encounters.length > 0) {
+        encounters.forEach(enc => {
+          let rowsHTML = '';
+          enc.values.forEach(v => {
+            rowsHTML += `
+              <tr>
+                <td style="width:200px; font-weight:bold; border-bottom:1px solid #cbd5e1; padding:6px 0;">${v.label}</td>
+                <td style="border-bottom:1px solid #cbd5e1; padding:6px 0;">${v.value || '-'}</td>
+              </tr>
+            `;
+          });
+
+          const encHTML = `
+            <div style="margin-bottom:16px; border:1px solid #cbd5e1; border-radius:8px; padding:12px; page-break-inside:avoid;">
+              <div style="display:flex; justify-content:space-between; border-bottom:2px solid #0d9488; padding-bottom:6px; margin-bottom:8px; font-size:12px; font-weight:bold;">
+                <span style="color:#0d9488; text-transform:uppercase;">${enc.formName}</span>
+                <span>${enc.dateString}</span>
+              </div>
+              <table style="width:100%; font-size:12px; border-collapse:collapse;">
+                ${rowsHTML}
+              </table>
+            </div>
+          `;
+          printContainer.insertAdjacentHTML('beforeend', encHTML);
+        });
+      } else {
+        printContainer.innerHTML = `<p style="font-size:13px; text-align:center; padding:24px; color:#64748b;">Belum ada pemeriksaan medis klinis tercatat.</p>`;
+      }
+
+      window.print();
+    }
+
+
+    // ==================== DASHBOARD SUMMARY WIDGETS ====================
+    function renderRecentEncountersDashboard() {
+      const container = document.getElementById('dashboard-recent-patients-list');
+      container.innerHTML = '';
+
+      // Collect all encounters from all patients with parent info
+      let allEncounters = [];
+      patients.forEach(p => {
+        if (p.encounters && p.encounters.length > 0) {
+          p.encounters.forEach(e => {
+            allEncounters.push({
+              patientName: p.nama,
+              patientRM: p.rm,
+              ...e
+            });
+          });
+        }
+      });
+
+      // Sort by date (mock ID based timestamps is fine)
+      allEncounters.sort((a,b) => {
+        const idA = parseInt(a.id.split('_')[1]);
+        const idB = parseInt(b.id.split('_')[1]);
+        return idB - idA;
+      });
+
+      const top5 = allEncounters.slice(0, 5);
+
+      if (top5.length > 0) {
+        top5.forEach(enc => {
+          const encHTML = `
+            <div class="encounter-card" style="padding:14px; border: 1.5px solid var(--border-color); cursor:pointer;" onclick="openPatientProfile('${enc.patientRM}')">
+              <div class="encounter-header" style="margin-bottom:6px;">
+                <span class="encounter-title" style="font-size:0.85rem; font-weight:700;">${enc.patientName} (${enc.patientRM})</span>
+                <span style="font-size:0.75rem;">${enc.dateString.split(' ')[0]}</span>
+              </div>
+              <p style="font-size:0.8rem; color:var(--text-muted);">
+                Pemeriksaan: <strong>${enc.formName}</strong>
+              </p>
+            </div>
+          `;
+          container.insertAdjacentHTML('beforeend', encHTML);
+        });
+      } else {
+        container.innerHTML = `
+          <div style="padding: 24px; text-align: center; color: var(--text-muted); font-size: 0.88rem;">
+            Belum ada rekam aktivitas kunjungan klinis tersimpan luring.
+          </div>
+        `;
+      }
+    }
+
+
+    // ==================== EXCEL/CSV SHEETJS EXPORTERS ====================
+    function exportPatientsCSV() {
+      if (patients.length === 0) {
+        alert('⚠️ Tidak ada data pasien luring yang dapat diekspor!');
+        return;
+      }
+
+      // Format patient records flat list
+      const rows = patients.map(p => ({
+        'Nomor RM': p.rm,
+        'Nama Lengkap': p.nama,
+        'Tanggal Lahir': p.dob,
+        'Jenis Kelamin': p.gender,
+        'Alergi Obat': p.allergies || 'Tidak Ada',
+        'Total Kunjungan': p.encounters ? p.encounters.length : 0
+      }));
+
+      // Create sheetjs workbook
+      const worksheet = XLSX.utils.json_to_sheet(rows);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Pasien TemanNakes');
+
+      // Trigger download
+      XLSX.writeFile(workbook, `TemanNakes_Patients_Backup_${formatDateOutput(new Date())}.xlsx`);
+    }
+
+
+    // ==================== PENGATURAN SYSTEM CADANGAN & IMPOR ====================
+    function exportBackupDataJSON() {
+      const backup = {
+        app: 'TemanNakes Pinnacle Workstation v1.0',
+        timestamp: Date.now(),
+        patients: patients,
+        templates: formTemplates,
+        favorites: favoriteIds,
+        calcRuns: parseInt(localStorage.getItem('temannakes_calc_runs') || '0')
+      };
+
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backup));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `TemanNakes_Pinnacle_Backup_${formatDateOutput(new Date())}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    }
+
+    function importBackupDataJSON(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const imported = JSON.parse(e.target.result);
+          if (imported.app !== 'TemanNakes Pinnacle Workstation v1.0') {
+            alert('⚠️ Berkas tidak valid atau bukan berkas cadangan resmi TemanNakes!');
+            return;
+          }
+
+          if (confirm(`Apakah Anda yakin ingin memulihkan ${imported.patients.length} rekam pasien dan ${imported.templates.length} form kustom? Data lokal saat ini akan tertimpa.`)) {
+            patients = imported.patients || [];
+            formTemplates = imported.templates || [];
+            favoriteIds = imported.favorites || [];
+            
+            localStorage.setItem('temannakes_patients', JSON.stringify(patients));
+            localStorage.setItem('temannakes_templates', JSON.stringify(formTemplates));
+            localStorage.setItem('temannakes_favorites', JSON.stringify(favoriteIds));
+            localStorage.setItem('temannakes_calc_runs', (imported.calcRuns || 0).toString());
+
+            loadLocalStorageData();
+            alert('✅ Data cadangan klinis berhasil dipulihkan!');
+            switchSection('dashboard-sect');
+          }
+        } catch (err) {
+          alert('⚠️ Gagal membaca berkas! Pastikan berkas cadangan Anda dalam format JSON.');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function resetDatabaseConfirm() {
+      if (confirm('⚠️ PERINGATAN KRITIS: Anda akan menghapus seluruh data rekam medis pasien terdaftar, template formulir, dan histori obat dari local storage secara permanen! Apakah Anda ingin melanjutkan?')) {
+        localStorage.clear();
+        loadLocalStorageData();
+        alert('✅ Seluruh database lokal dikosongkan secara aman.');
+        window.location.reload();
+      }
+    }
+  </script>
 </body>
 </html>

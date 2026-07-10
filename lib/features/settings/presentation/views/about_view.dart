@@ -64,7 +64,7 @@ class AboutView extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             const Text(
-              'Dibuat dengan ❤️ untuk Nakes Indonesia',
+              'Develop By | gilangrizkyr',
               style: TextStyle(color: Colors.grey, fontSize: 11),
             ),
           ],
